@@ -1,0 +1,61 @@
+<template>
+  <modal-window :cancelRoute="{name: 'admin.identities'}" :confirmFn="checkForm" confirmText="Create Identity"
+                title="Create a new identity" type="add">
+
+    <p class="mb-3 text-sm">Here you can create new identities (DIDs) on the Nuts Node.</p>
+
+    <p v-if="apiError" class="p-3 bg-red-100 rounded-md">Could not create identity: {{ apiError }}</p>
+
+    <div class="p-3 bg-red-100 rounded-md" v-if="formErrors.length">
+      <b>Please correct the following error(s):</b>
+      <ul>
+        <li v-for="(error, idx) in formErrors" :key="`err-${idx}`">* {{ error }}</li>
+      </ul>
+    </div>
+
+    <div class="mt-4">
+      <identity-form mode="new" :value="identity" @input="(newIdentity)=> {identity = newIdentity}"/>
+    </div>
+  </modal-window>
+</template>
+
+<script>
+import ModalWindow from '../components/ModalWindow.vue'
+import IdentityForm from './IdentityForm.vue'
+
+export default {
+  components: {
+    ModalWindow,
+    IdentityForm
+  },
+  data () {
+    return {
+      apiError: '',
+      formErrors: [],
+      identity: {
+        didQualifier: '',
+      }
+    }
+  },
+  emits: ['statusUpdate'],
+  methods: {
+    checkForm (e) {
+      // reset the errors
+      this.formErrors.length = 0
+      this.apiError = ''
+      return this.confirm()
+    },
+    confirm () {
+      console.log('Creating identity', this.identity);
+      this.$api.post('web/private/id', this.identity)
+        .then(response => {
+          this.$emit('statusUpdate', 'Identity created')
+          this.$router.push({ name: 'admin.identities' })
+        })
+        .catch(response => {
+          this.apiError = response.statusText
+        })
+    }
+  }
+}
+</script>

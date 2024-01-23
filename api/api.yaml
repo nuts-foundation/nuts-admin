@@ -1,0 +1,107 @@
+openapi: 3.0.0
+info:
+  title: Nuts Admin API
+  version: 1.0.0
+
+paths:
+  /web/auth:
+    post:
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSessionRequest"
+      responses:
+        '200':
+          description: A session was succesfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateSessionResponse"
+        '403':
+          description: Invalid credentials
+
+  /web/private:
+    get:
+      description: Checks whether the current session is valid. If not, the client should authenticate before calling other API operations.
+      operationId: checkSession
+      responses:
+        '204':
+          description: The session is valid.
+        '400':
+          description: The session is invalid.
+
+  /web/private/id:
+    get:
+      operationId: getIdentities
+      responses:
+        '200':
+          description: List of identities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Identity"
+    post:
+      operationId: createIdentity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - did_qualifier
+              properties:
+                did_qualifier:
+                  type: string
+      responses:
+        '200':
+          description: The identity was succesfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Identity"
+        '400':
+          description: The identity could not be created
+
+
+components:
+  schemas:
+    CreateSessionRequest:
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: demo@nuts.nl
+        password:
+          type: string
+    CreateSessionResponse:
+      required:
+        - token
+      properties:
+        token:
+          type: string
+    Identity:
+      type: object
+      description: An identity object
+      required:
+        - did
+        - name
+      properties:
+        did:
+          type: string
+          description: The DID associated with this identity
+          example:
+            "did:web:example.com:iam:user1"
+        name:
+          type: string
+          description: |
+            The name of this identity, which is the last path part of a did:web DID.
+            If the DID does not contain paths, or it is not a did:web DID, it will be the same as the DID.
+          example: "user1"

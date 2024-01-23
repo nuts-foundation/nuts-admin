@@ -1,0 +1,6 @@
+credentials:
+  username: "demo@nuts.nl"
+  password: "demo"
+port: 1305
+node:
+  address: "http://localhost:1323"
