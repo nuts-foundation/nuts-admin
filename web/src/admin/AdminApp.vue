@@ -38,7 +38,7 @@
                 </svg>
               </div>
 
-              Your identities
+              Identities
             </router-link>
           </div>
         </div>
