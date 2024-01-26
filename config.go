@@ -38,16 +38,9 @@ func defaultConfig() Config {
 }
 
 type Config struct {
-	Credentials Credentials `koanf:"credentials"`
-	HTTPPort    int         `koanf:"port"`
-	Node        Node        `koanf:"node"`
-	sessionKey  *ecdsa.PrivateKey
-	apiKey      crypto.Signer
-}
-
-type Credentials struct {
-	Username string `koanf:"username"`
-	Password string `koanf:"password" json:"-"` // json omit tag to avoid having it printed in server log
+	HTTPPort int  `koanf:"port"`
+	Node     Node `koanf:"node"`
+	apiKey   crypto.Signer
 }
 
 type Node struct {
@@ -62,10 +55,6 @@ type NodeAuth struct {
 	User string `koanf:"user"`
 	// Audience dictates the aud field of the created JWT
 	Audience string `kaonf:"audience"`
-}
-
-func (c Credentials) Empty() bool {
-	return len(c.Username) == 0 && len(c.Password) == 0
 }
 
 func generateSessionKey() (*ecdsa.PrivateKey, error) {
@@ -113,12 +102,6 @@ func loadConfig() Config {
 	_ = k.Load(envProvider(), nil)
 
 	config := defaultConfig()
-	var err error
-	sessionKey, err := generateSessionKey()
-	if err != nil {
-		log.Fatalf("unable to generate session key: %v", err)
-	}
-	config.sessionKey = sessionKey
 
 	// Unmarshal values of the config file into the config struct, potentially replacing default values
 	if err := k.Unmarshal("", &config); err != nil {

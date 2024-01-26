@@ -10,7 +10,6 @@ import (
 var _ ServerInterface = (*Wrapper)(nil)
 
 type Wrapper struct {
-	Auth     auth
 	Identity identity.Service
 }
 
@@ -32,27 +31,4 @@ func (w Wrapper) CreateIdentity(ctx echo.Context) error {
 		return err
 	}
 	return ctx.JSON(http.StatusOK, id)
-}
-
-func (w Wrapper) CheckSession(ctx echo.Context) error {
-	// If this function is reached, it means the session is still valid
-	return ctx.NoContent(http.StatusNoContent)
-}
-
-func (w Wrapper) CreateSession(ctx echo.Context) error {
-	sessionRequest := CreateSessionRequest{}
-	if err := ctx.Bind(&sessionRequest); err != nil {
-		return err
-	}
-
-	if !w.Auth.CheckCredentials(sessionRequest.Username, sessionRequest.Password) {
-		return echo.NewHTTPError(http.StatusForbidden, "invalid credentials")
-	}
-
-	token, err := w.Auth.CreateJWT(sessionRequest.Username)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
-	}
-
-	return ctx.JSON(http.StatusOK, CreateSessionResponse{Token: string(token)})
 }

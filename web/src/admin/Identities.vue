@@ -70,7 +70,7 @@ export default {
       console.log('open identity', identity.did)
     },
     fetchData() {
-      this.$api.get('web/private/id')
+      this.$api.get('api/id')
           .then(data => {
             this.identities = data
           })

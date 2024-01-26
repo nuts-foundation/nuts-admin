@@ -160,6 +160,9 @@ type ClientInterface interface {
 	// DeactivateServiceForDID request
 	DeactivateServiceForDID(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetServiceActivation request
+	GetServiceActivation(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ActivateServiceForDID request
 	ActivateServiceForDID(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
@@ -226,6 +229,18 @@ func (c *Client) SearchPresentations(ctx context.Context, serviceID string, para
 
 func (c *Client) DeactivateServiceForDID(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeactivateServiceForDIDRequest(c.Server, serviceID, did)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetServiceActivation(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetServiceActivationRequest(c.Server, serviceID, did)
 	if err != nil {
 		return nil, err
 	}
@@ -475,6 +490,47 @@ func NewDeactivateServiceForDIDRequest(server string, serviceID string, did stri
 	return req, nil
 }
 
+// NewGetServiceActivationRequest generates requests for GetServiceActivation
+func NewGetServiceActivationRequest(server string, serviceID string, did string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "serviceID", runtime.ParamLocationPath, serviceID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "did", runtime.ParamLocationPath, did)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/internal/discovery/v1/%s/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewActivateServiceForDIDRequest generates requests for ActivateServiceForDID
 func NewActivateServiceForDIDRequest(server string, serviceID string, did string) (*http.Request, error) {
 	var err error
@@ -575,6 +631,9 @@ type ClientWithResponsesInterface interface {
 
 	// DeactivateServiceForDIDWithResponse request
 	DeactivateServiceForDIDWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*DeactivateServiceForDIDResponse, error)
+
+	// GetServiceActivationWithResponse request
+	GetServiceActivationWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*GetServiceActivationResponse, error)
 
 	// ActivateServiceForDIDWithResponse request
 	ActivateServiceForDIDWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*ActivateServiceForDIDResponse, error)
@@ -762,6 +821,44 @@ func (r DeactivateServiceForDIDResponse) StatusCode() int {
 	return 0
 }
 
+type GetServiceActivationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Activated Whether the DID is activated on the Discovery Service.
+		Activated bool `json:"activated"`
+
+		// Vp Verifiable Presentation
+		Vp *VerifiablePresentation `json:"vp,omitempty"`
+	}
+	ApplicationproblemJSONDefault *struct {
+		// Detail A human-readable explanation specific to this occurrence of the problem.
+		Detail string `json:"detail"`
+
+		// Status HTTP statuscode
+		Status float32 `json:"status"`
+
+		// Title A short, human-readable summary of the problem type.
+		Title string `json:"title"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r GetServiceActivationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetServiceActivationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ActivateServiceForDIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -858,6 +955,15 @@ func (c *ClientWithResponses) DeactivateServiceForDIDWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseDeactivateServiceForDIDResponse(rsp)
+}
+
+// GetServiceActivationWithResponse request returning *GetServiceActivationResponse
+func (c *ClientWithResponses) GetServiceActivationWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*GetServiceActivationResponse, error) {
+	rsp, err := c.GetServiceActivation(ctx, serviceID, did, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetServiceActivationResponse(rsp)
 }
 
 // ActivateServiceForDIDWithResponse request returning *ActivateServiceForDIDResponse
@@ -1085,6 +1191,54 @@ func ParseDeactivateServiceForDIDResponse(rsp *http.Response) (*DeactivateServic
 			return nil, err
 		}
 		response.ApplicationproblemJSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest struct {
+			// Detail A human-readable explanation specific to this occurrence of the problem.
+			Detail string `json:"detail"`
+
+			// Status HTTP statuscode
+			Status float32 `json:"status"`
+
+			// Title A short, human-readable summary of the problem type.
+			Title string `json:"title"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetServiceActivationResponse parses an HTTP response from a GetServiceActivationWithResponse call
+func ParseGetServiceActivationResponse(rsp *http.Response) (*GetServiceActivationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetServiceActivationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Activated Whether the DID is activated on the Discovery Service.
+			Activated bool `json:"activated"`
+
+			// Vp Verifiable Presentation
+			Vp *VerifiablePresentation `json:"vp,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest struct {

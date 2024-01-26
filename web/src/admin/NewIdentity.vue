@@ -33,7 +33,7 @@ export default {
       apiError: '',
       formErrors: [],
       identity: {
-        didQualifier: '',
+        did_qualifier: '',
       }
     }
   },
@@ -47,7 +47,7 @@ export default {
     },
     confirm () {
       console.log('Creating identity', this.identity);
-      this.$api.post('web/private/id', this.identity)
+      this.$api.post('api/id', this.identity)
         .then(response => {
           this.$emit('statusUpdate', 'Identity created')
           this.$router.push({ name: 'admin.identities' })

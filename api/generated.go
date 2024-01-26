@@ -7,17 +7,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// CreateSessionRequest defines model for CreateSessionRequest.
-type CreateSessionRequest struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
-}
-
-// CreateSessionResponse defines model for CreateSessionResponse.
-type CreateSessionResponse struct {
-	Token string `json:"token"`
-}
-
 // Identity An identity object
 type Identity struct {
 	// Did The DID associated with this identity
@@ -33,49 +22,22 @@ type CreateIdentityJSONBody struct {
 	DidQualifier string `json:"did_qualifier"`
 }
 
-// CreateSessionJSONRequestBody defines body for CreateSession for application/json ContentType.
-type CreateSessionJSONRequestBody = CreateSessionRequest
-
 // CreateIdentityJSONRequestBody defines body for CreateIdentity for application/json ContentType.
 type CreateIdentityJSONRequestBody CreateIdentityJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
-	// (POST /web/auth)
-	CreateSession(ctx echo.Context) error
-
-	// (GET /web/private)
-	CheckSession(ctx echo.Context) error
-
-	// (GET /web/private/id)
+	// (GET /api/id)
 	GetIdentities(ctx echo.Context) error
 
-	// (POST /web/private/id)
+	// (POST /api/id)
 	CreateIdentity(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
-}
-
-// CreateSession converts echo context to params.
-func (w *ServerInterfaceWrapper) CreateSession(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CreateSession(ctx)
-	return err
-}
-
-// CheckSession converts echo context to params.
-func (w *ServerInterfaceWrapper) CheckSession(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CheckSession(ctx)
-	return err
 }
 
 // GetIdentities converts echo context to params.
@@ -124,9 +86,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.POST(baseURL+"/web/auth", wrapper.CreateSession)
-	router.GET(baseURL+"/web/private", wrapper.CheckSession)
-	router.GET(baseURL+"/web/private/id", wrapper.GetIdentities)
-	router.POST(baseURL+"/web/private/id", wrapper.CreateIdentity)
+	router.GET(baseURL+"/api/id", wrapper.GetIdentities)
+	router.POST(baseURL+"/api/id", wrapper.CreateIdentity)
 
 }

@@ -3,11 +3,8 @@ package main
 import (
 	"crypto"
 	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rsa"
-	"crypto/sha1"
 	"embed"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -19,11 +16,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/lestrrat-go/jwx/jwa"
 	"github.com/nuts-foundation/nuts-admin/api"
 )
@@ -54,34 +49,7 @@ func main() {
 
 	e := echo.New()
 	e.HideBanner = true
-	//e.Debug = true
-	//e.Use(middleware.Recover())
-	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
-		Skipper: func(c echo.Context) bool {
-			protectedPaths := []string{
-				"/web/private",
-			}
-			for _, path := range protectedPaths {
-				if strings.HasPrefix(c.Request().RequestURI, path) {
-					return false
-				}
-			}
-			return true
-		},
-		SigningKey:    &config.sessionKey.PublicKey,
-		SigningMethod: jwa.ES256.String(),
-	}))
 	e.HTTPErrorHandler = httpErrorHandler
-
-	// Initialize Auth
-	var account api.UserAccount
-	if config.Credentials.Empty() {
-		account = generateDefaultAccount(config)
-		log.Printf("Authentication credentials not configured, so they were generated (user=%s, password=%s)", account.Username, account.Password)
-	} else {
-		account = api.UserAccount{Username: config.Credentials.Username, Password: config.Credentials.Password}
-	}
-	auth := api.NewAuth(config.sessionKey, []api.UserAccount{account})
 
 	// API security
 	// TODO
@@ -96,7 +64,6 @@ func main() {
 
 	// Initialize wrapper
 	apiWrapper := api.Wrapper{
-		Auth: auth,
 		Identity: identity.Service{
 			Client: vdrClient,
 		},
@@ -115,11 +82,6 @@ func main() {
 
 	// Start server
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.HTTPPort)))
-}
-
-func generateDefaultAccount(config Config) api.UserAccount {
-	pkHashBytes := sha1.Sum(elliptic.Marshal(config.sessionKey.Curve, config.sessionKey.X, config.sessionKey.Y))
-	return api.UserAccount{Username: "demo@nuts.nl", Password: hex.EncodeToString(pkHashBytes[:])}
 }
 
 // httpErrorHandler includes the err.Err() string in a { "error": "msg" } json hash
@@ -174,7 +136,6 @@ func createTokenGenerator(config Config) func() (string, error) {
 		expires := notBefore.Add(time.Second * time.Duration(5))
 		token, err := jwt.NewBuilder().
 			Issuer(config.Node.Auth.User).
-			Subject(config.Credentials.Username).
 			Audience([]string{config.Node.Auth.Audience}).
 			IssuedAt(issuedAt).
 			NotBefore(notBefore).
