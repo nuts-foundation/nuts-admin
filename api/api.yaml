@@ -31,14 +31,26 @@ paths:
                   type: string
       responses:
         '200':
-          description: The identity was succesfully created
+          description: The identity was successfully created
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Identity"
         '400':
           description: The identity could not be created
-
+  /api/discovery:
+    get:
+      operationId: getDiscoveryServices
+      summary: Get a list of configured Discovery Services
+      responses:
+        '200':
+          description: List of discovery services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
 
 components:
   schemas:

@@ -13,7 +13,7 @@ import (
 	"net/url"
 	"strings"
 
-	externalRef0 "github.com/nuts-foundation/nuts-admin/nuts/client"
+	externalRef0 "github.com/nuts-foundation/nuts-admin/nuts"
 	"github.com/oapi-codegen/runtime"
 )
 

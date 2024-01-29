@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
 	"net/http"
 
@@ -10,7 +11,8 @@ import (
 var _ ServerInterface = (*Wrapper)(nil)
 
 type Wrapper struct {
-	Identity identity.Service
+	Identity  identity.Service
+	Discovery discovery.Service
 }
 
 func (w Wrapper) GetIdentities(ctx echo.Context) error {
@@ -31,4 +33,12 @@ func (w Wrapper) CreateIdentity(ctx echo.Context) error {
 		return err
 	}
 	return ctx.JSON(http.StatusOK, id)
+}
+
+func (w Wrapper) GetDiscoveryServices(ctx echo.Context) error {
+	services, err := w.Discovery.GetDiscoveryServices(ctx.Request().Context())
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, services)
 }

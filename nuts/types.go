@@ -1,4 +1,4 @@
-package client
+package nuts
 
 import (
 	"github.com/nuts-foundation/go-did/did"

@@ -10,11 +10,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lestrrat-go/jwx/jwt"
+	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
-	"github.com/nuts-foundation/nuts-admin/nuts/client/vdr"
+	"github.com/nuts-foundation/nuts-admin/identity/vdr"
 	"io/fs"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -51,6 +53,11 @@ func main() {
 	e.HideBanner = true
 	e.HTTPErrorHandler = httpErrorHandler
 
+	nodeAddress, err := url.Parse(config.Node.Address)
+	if err != nil {
+		log.Fatalf("unable to parse node address: %s", err)
+	}
+
 	// API security
 	// TODO
 	//tokenGenerator := func() (string, error) {
@@ -61,15 +68,20 @@ func main() {
 	//}
 
 	vdrClient, _ := vdr.NewClient(config.Node.Address)
+	discoveryClient, _ := discovery.NewClient(config.Node.Address)
 
 	// Initialize wrapper
 	apiWrapper := api.Wrapper{
 		Identity: identity.Service{
 			Client: vdrClient,
 		},
+		Discovery: discovery.Service{
+			Client: discoveryClient,
+		},
 	}
 
 	api.RegisterHandlers(e, apiWrapper)
+	api.ConfigureProxy(e, nodeAddress)
 
 	// Setup asset serving:
 	// Check if we use live mode from the file system or using embedded files

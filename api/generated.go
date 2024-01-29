@@ -27,6 +27,9 @@ type CreateIdentityJSONRequestBody CreateIdentityJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get a list of configured Discovery Services
+	// (GET /api/discovery)
+	GetDiscoveryServices(ctx echo.Context) error
 
 	// (GET /api/id)
 	GetIdentities(ctx echo.Context) error
@@ -38,6 +41,15 @@ type ServerInterface interface {
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// GetDiscoveryServices converts echo context to params.
+func (w *ServerInterfaceWrapper) GetDiscoveryServices(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetDiscoveryServices(ctx)
+	return err
 }
 
 // GetIdentities converts echo context to params.
@@ -86,6 +98,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/api/discovery", wrapper.GetDiscoveryServices)
 	router.GET(baseURL+"/api/id", wrapper.GetIdentities)
 	router.POST(baseURL+"/api/id", wrapper.CreateIdentity)
 

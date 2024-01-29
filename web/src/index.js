@@ -6,6 +6,7 @@ import AdminApp from './admin/AdminApp.vue'
 import NotFound from './NotFound.vue'
 import Identities from './admin/Identities.vue'
 import NewIdentity from './admin/NewIdentity.vue'
+import DiscoveryServices from './admin/DiscoveryServices.vue'
 import Api from './plugins/api'
 
 const routes = [
@@ -28,6 +29,11 @@ const routes = [
             }
           }
         ]
+      },
+      {
+        path: 'discovery',
+        name: 'admin.discovery',
+        component: DiscoveryServices
       }
     ],
     meta: { requiresAuth: true }

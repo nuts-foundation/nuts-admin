@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/nuts-foundation/go-did/did"
-	"github.com/nuts-foundation/nuts-admin/nuts/client"
-	"github.com/nuts-foundation/nuts-admin/nuts/client/vdr"
+	"github.com/nuts-foundation/nuts-admin/identity/vdr"
+	"github.com/nuts-foundation/nuts-admin/nuts"
 	"strings"
 )
 
@@ -18,7 +18,7 @@ func (i Service) Create(ctx context.Context, shortName string) (*Identity, error
 		Id: &shortName,
 	})
 	if err != nil {
-		return nil, client.UnwrapAPIError(err)
+		return nil, nuts.UnwrapAPIError(err)
 	}
 	response, err := vdr.ParseCreateDIDResponse(httpResponse)
 	if err != nil {
@@ -34,7 +34,7 @@ func (i Service) Create(ctx context.Context, shortName string) (*Identity, error
 func (i Service) List(ctx context.Context) ([]Identity, error) {
 	httpResponse, err := i.Client.ListDIDs(ctx)
 	if err != nil {
-		return nil, client.UnwrapAPIError(err)
+		return nil, nuts.UnwrapAPIError(err)
 	}
 	response, err := vdr.ParseListDIDsResponse(httpResponse)
 	if err != nil {

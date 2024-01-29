@@ -8,6 +8,7 @@ services:
     volumes:
       - ./data:/opt/nuts/data
       - ./deploy/node.config.yaml:/nuts.yaml
+      - ./deploy/discovery:/opt/nuts/discovery:ro
       - "./deploy/certificate-and-key.pem:/opt/nuts/certificate-and-key.pem:ro"
       - "./deploy/truststore.pem:/opt/nuts/truststore.pem:ro"
       # did:web resolver uses the OS CA bundle, but e2e tests use a self-signed CA which can be found in truststore.pem
