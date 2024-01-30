@@ -1,0 +1,36 @@
+{
+  "id": "other:unsupported",
+  "endpoint": "https://example.com/unsupported",
+  "presentation_max_validity": 2764800,
+  "presentation_definition": {
+    "id": "other:unsupported",
+    "format": {
+      "ldp_vc": {
+        "proof_type": [
+          "JsonWebSignature2020"
+        ]
+      },
+      "jwt_vp": {
+        "alg": ["ES256"]
+      }
+    },
+    "input_descriptors": [
+      {
+        "id": "other",
+        "constraints": {
+          "fields": [
+            {
+              "path": [
+                "$.type"
+              ],
+              "filter": {
+                "type": "string",
+                "const": "OtherCredential"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

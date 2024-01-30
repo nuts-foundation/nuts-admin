@@ -4,7 +4,11 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
+	"github.com/oapi-codegen/runtime"
 )
 
 // Identity An identity object
@@ -17,6 +21,18 @@ type Identity struct {
 	Name string `json:"name"`
 }
 
+// IdentityDetails An identity object with additional details
+type IdentityDetails struct {
+	Did               string `json:"did"`
+	DiscoveryServices []struct {
+		Active bool                    `json:"active"`
+		Id     string                  `json:"id"`
+		Vp     *map[string]interface{} `json:"vp,omitempty"`
+	} `json:"discovery_services"`
+	Name              string                   `json:"name"`
+	WalletCredentials []map[string]interface{} `json:"wallet_credentials"`
+}
+
 // CreateIdentityJSONBody defines parameters for CreateIdentity.
 type CreateIdentityJSONBody struct {
 	DidQualifier string `json:"did_qualifier"`
@@ -27,29 +43,20 @@ type CreateIdentityJSONRequestBody CreateIdentityJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Get a list of configured Discovery Services
-	// (GET /api/discovery)
-	GetDiscoveryServices(ctx echo.Context) error
 
 	// (GET /api/id)
 	GetIdentities(ctx echo.Context) error
 
 	// (POST /api/id)
 	CreateIdentity(ctx echo.Context) error
+
+	// (GET /api/id/{did})
+	GetIdentity(ctx echo.Context, did string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
-}
-
-// GetDiscoveryServices converts echo context to params.
-func (w *ServerInterfaceWrapper) GetDiscoveryServices(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetDiscoveryServices(ctx)
-	return err
 }
 
 // GetIdentities converts echo context to params.
@@ -67,6 +74,22 @@ func (w *ServerInterfaceWrapper) CreateIdentity(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.CreateIdentity(ctx)
+	return err
+}
+
+// GetIdentity converts echo context to params.
+func (w *ServerInterfaceWrapper) GetIdentity(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "did" -------------
+	var did string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "did", runtime.ParamLocationPath, ctx.Param("did"), &did)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter did: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetIdentity(ctx, did)
 	return err
 }
 
@@ -98,8 +121,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/api/discovery", wrapper.GetDiscoveryServices)
 	router.GET(baseURL+"/api/id", wrapper.GetIdentities)
 	router.POST(baseURL+"/api/id", wrapper.CreateIdentity)
+	router.GET(baseURL+"/api/id/:did", wrapper.GetIdentity)
 
 }

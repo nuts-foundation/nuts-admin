@@ -35,10 +35,10 @@ func (w Wrapper) CreateIdentity(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, id)
 }
 
-func (w Wrapper) GetDiscoveryServices(ctx echo.Context) error {
-	services, err := w.Discovery.GetDiscoveryServices(ctx.Request().Context())
+func (w Wrapper) GetIdentity(ctx echo.Context, did string) error {
+	details, err := w.Identity.Get(ctx.Request().Context(), did)
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(http.StatusOK, services)
+	return ctx.JSON(http.StatusOK, details)
 }

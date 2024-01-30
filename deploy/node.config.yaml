@@ -1,19 +1,12 @@
 strictmode: false
-url: https://localhost:8443
+url: https://mutt-classic-actually.ngrok-free.app
+datadir: /opt/nuts/data
 auth:
   irma:
     autoupdateschemas: false
   contractvalidators:
     - dummy
-http:
-  alt:
-    internal:
-      address: :1323
-    status:
-      address: :1323
-  default:
-    address: :8443
-    tls: server
+  v2apienabled: true
 tls:
   truststorefile: /opt/nuts/truststore.pem
   certfile: /opt/nuts/certificate-and-key.pem

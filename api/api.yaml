@@ -38,38 +38,57 @@ paths:
                 $ref: "#/components/schemas/Identity"
         '400':
           description: The identity could not be created
-  /api/discovery:
+  /api/id/{did}:
     get:
-      operationId: getDiscoveryServices
-      summary: Get a list of configured Discovery Services
+      operationId: getIdentity
+      parameters:
+        - name: did
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: List of discovery services
+          description: The identity was successfully retrieved
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-
+                $ref: "#/components/schemas/IdentityDetails"
+        '404':
+          description: The identity could not be found
 components:
   schemas:
-    CreateSessionRequest:
+    IdentityDetails:
+      type: object
+      description: An identity object with additional details
       required:
-        - username
-        - password
+        - did
+        - name
+        - discovery_services
+        - wallet_credentials
       properties:
-        username:
+        did:
           type: string
-          example: demo@nuts.nl
-        password:
+        name:
           type: string
-    CreateSessionResponse:
-      required:
-        - token
-      properties:
-        token:
-          type: string
+        discovery_services:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - active
+            properties:
+              id:
+                type: string
+              active:
+                type: boolean
+              vp:
+                type: object
+        wallet_credentials:
+          type: array
+          items:
+            type: object
     Identity:
       type: object
       description: An identity object

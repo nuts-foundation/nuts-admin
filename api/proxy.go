@@ -33,7 +33,17 @@ var allowedProxyRoutes = []proxyRoute{
 	// Search VPs on a Discovery Service
 	{
 		method: http.MethodGet,
-		path:   "/internal/discovery/v1/([a-z-A-Z0-9_-]+)",
+		path:   "/internal/discovery/v1/([a-z-A-Z0-9_\\-\\:\\.%]+)",
+	},
+	// Activate Discovery Services for a DID
+	{
+		method: http.MethodPost,
+		path:   "/internal/discovery/v1/([a-z-A-Z0-9_\\-\\:\\.%]+)/([a-z-A-Z0-0_\\-\\:\\.%]+)",
+	},
+	// Deactivate Discovery Services for a DID
+	{
+		method: http.MethodDelete,
+		path:   "/internal/discovery/v1/([a-z-A-Z0-9_\\-\\:\\.%]+)/([a-z-A-Z0-0_\\-\\:\\.%]+)",
 	},
 }
 

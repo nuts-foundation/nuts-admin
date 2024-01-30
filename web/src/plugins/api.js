@@ -29,15 +29,30 @@ export default {
 
         return fetch(url, options)
           .then((response) => {
-            return response.json()
-              .then((json) => {
+            // Parse JSON or just grab plain text
+            const contentType = response.headers.get("content-type");
+            var parsedResponse = undefined
+            var isJson = false
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+              parsedResponse = response.json()
+              isJson = true
+            } else {
+              parsedResponse = response.text()
+            }
+
+            return parsedResponse
+              .then((data) => {
                 if (response.ok) {
-                  return Promise.resolve(json)
+                  return Promise.resolve(data)
                 } else {
                   if (apiOptions.forbiddenRoute && response.status === 401) {
                     return app.config.globalProperties.$router.push(apiOptions.forbiddenRoute)
                   } else {
-                    return Promise.reject(json.error)
+                    if (isJson) {
+                      return Promise.reject(data.error)
+                    } else {
+                      return Promise.reject(data)
+                    }
                   }
                 }
               }).catch(reason => {

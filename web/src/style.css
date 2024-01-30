@@ -78,11 +78,11 @@ input:focus {
     @apply ring-2;
 }
 
-.page-title {
+.page-title, h1 {
     @apply text-3xl mb-6
 }
 
-.page-subtitle {
+.page-subtitle, section header {
     @apply text-2xl mb-6
 }
 

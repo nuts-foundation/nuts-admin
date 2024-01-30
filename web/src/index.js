@@ -8,6 +8,7 @@ import Identities from './admin/Identities.vue'
 import NewIdentity from './admin/NewIdentity.vue'
 import DiscoveryServices from './admin/DiscoveryServices.vue'
 import Api from './plugins/api'
+import IdentityDetails from "./admin/IdentityDetails.vue";
 
 const routes = [
   {
@@ -27,8 +28,13 @@ const routes = [
             components: {
               modal: NewIdentity
             }
-          }
+          },
         ]
+      },
+      {
+        path: 'id/:id',
+        name: 'admin.identityDetails',
+        component: IdentityDetails
       },
       {
         path: 'discovery',
@@ -36,7 +42,6 @@ const routes = [
         component: DiscoveryServices
       }
     ],
-    meta: { requiresAuth: true }
   },
   { path: '/:pathMatch*', name: 'NotFound', component: NotFound }
 ]

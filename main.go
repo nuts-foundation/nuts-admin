@@ -71,13 +71,15 @@ func main() {
 	discoveryClient, _ := discovery.NewClient(config.Node.Address)
 
 	// Initialize wrapper
+	discoveryService := discovery.Service{
+		Client: discoveryClient,
+	}
 	apiWrapper := api.Wrapper{
 		Identity: identity.Service{
-			Client: vdrClient,
+			Client:           vdrClient,
+			DiscoveryService: discoveryService,
 		},
-		Discovery: discovery.Service{
-			Client: discoveryClient,
-		},
+		Discovery: discoveryService,
 	}
 
 	api.RegisterHandlers(e, apiWrapper)

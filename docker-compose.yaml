@@ -6,7 +6,7 @@ services:
       - "1323:1323"
       - "8443:8443"
     volumes:
-      - ./data:/opt/nuts/data
+      - ./data/node:/opt/nuts/data
       - ./deploy/node.config.yaml:/nuts.yaml
       - ./deploy/discovery:/opt/nuts/discovery:ro
       - "./deploy/certificate-and-key.pem:/opt/nuts/certificate-and-key.pem:ro"

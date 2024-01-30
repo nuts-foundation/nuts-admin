@@ -28,7 +28,8 @@
         </tr>
         </thead>
         <tbody class="tbody">
-        <tr class="hover:bg-gray-100 cursor-pointer" v-for="{name, did} in identities" :key="did">
+        <tr class="hover:bg-gray-100 cursor-pointer" v-for="{name, did} in identities" :key="did"
+            @click="$router.push({name: 'admin.identityDetails', params: {id: did}})">
           <td>{{ name }}</td>
           <td>{{ did }}</td>
         </tr>
@@ -46,28 +47,15 @@ export default {
     return {
       fetchError: '',
       identities: [],
-      loading: true
     }
   },
-  created() {
-    // watch the params of the route to fetch the data again
-    this.$watch(
-        () => this.$route.params,
-        () => {
-          this.fetchData()
-        },
-        // fetch the data when the view is created and the data is
-        // already being observed
-        {immediate: true}
-    )
+  mounted() {
+    this.fetchData()
   },
   emits: ['statusUpdate'],
   methods: {
     updateStatus(event) {
       this.$emit('statusUpdate', event)
-    },
-    openIdentity(identity) {
-      console.log('open identity', identity.did)
     },
     fetchData() {
       this.$api.get('api/id')
