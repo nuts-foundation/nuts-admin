@@ -20,7 +20,7 @@
         </div>
       </section>
       <section>
-        <label>Credential requirements</label>
+        <header>Credential requirements</header>
         <div v-for="inputDescriptor in selectedService.presentation_definition.input_descriptors"
              :key="inputDescriptor.id" class="p-2 border-solid border-2 border-gray-400 rounded-md">
           <div>
@@ -34,7 +34,7 @@
         </div>
       </section>
       <section>
-        <label>Search</label>
+        <header>Search</header>
         <div class="search-quick-params">
           Add parameter:
           <a v-on:click="addSearchParam('id', 'did:web:example.com#issuer')">Credential ID</a>
@@ -57,6 +57,24 @@
           </tr>
           </tbody>
         </table>
+
+        <div v-if="searchResults.length > 0">
+          <label>Results</label>
+          <table class="table w-full">
+            <thead>
+            <tr>
+              <th class="thead">Subject DID</th>
+              <th v-for="field in Object.keys(searchResults[0].fields)" class="thead">{{ field }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="result in searchResults" :key="result.id">
+              <td>TODO</td>
+              <td v-for="field in Object.keys(result.fields)">{{ result.fields[field] }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   </div>
@@ -74,7 +92,8 @@ export default {
       fetchError: '',
       services: [],
       selectedService: undefined,
-      searchParams: []
+      searchParams: [],
+      searchResults: [],
     }
   },
   mounted() {
@@ -93,6 +112,8 @@ export default {
   },
   methods: {
     viewService(id) {
+      this.searchResults = []
+      this.searchParams = []
       this.selectedService = this.services.find(s => s.id === id)
     },
     addSearchParam(key, placeholder) {
@@ -100,6 +121,7 @@ export default {
       this.search()
     },
     search() {
+      this.searchResults = []
       let entries = this.searchParams.filter(c => c.key && c.value).map(c => [c.key, c.value]);
       if (entries.length === 0) {
         return
@@ -107,7 +129,7 @@ export default {
       const query = new URLSearchParams(entries);
       this.$api.get('api/proxy/internal/discovery/v1/' + this.selectedService.id + '?' + query.toString())
           .then(data => {
-            console.log(data)
+            this.searchResults = data
           })
           .catch(response => {
             this.fetchError = response.statusText
