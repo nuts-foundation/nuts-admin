@@ -336,6 +336,9 @@ type ClientInterface interface {
 
 	CreateVP(ctx context.Context, body CreateVPJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetCredentialsInWallet request
+	GetCredentialsInWallet(ctx context.Context, did string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// LoadVCWithBody request with any body
 	LoadVCWithBody(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -401,6 +404,18 @@ func (c *Client) CreateVPWithBody(ctx context.Context, contentType string, body 
 
 func (c *Client) CreateVP(ctx context.Context, body CreateVPJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateVPRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetCredentialsInWallet(ctx context.Context, did string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCredentialsInWalletRequest(c.Server, did)
 	if err != nil {
 		return nil, err
 	}
@@ -675,6 +690,40 @@ func NewCreateVPRequestWithBody(server string, contentType string, body io.Reade
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetCredentialsInWalletRequest generates requests for GetCredentialsInWallet
+func NewGetCredentialsInWalletRequest(server string, did string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "did", runtime.ParamLocationPath, did)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/internal/vcr/v2/holder/%s/vc", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -1223,6 +1272,9 @@ type ClientWithResponsesInterface interface {
 
 	CreateVPWithResponse(ctx context.Context, body CreateVPJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateVPResponse, error)
 
+	// GetCredentialsInWalletWithResponse request
+	GetCredentialsInWalletWithResponse(ctx context.Context, did string, reqEditors ...RequestEditorFn) (*GetCredentialsInWalletResponse, error)
+
 	// LoadVCWithBodyWithResponse request with any body
 	LoadVCWithBodyWithResponse(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoadVCResponse, error)
 
@@ -1300,6 +1352,38 @@ func (r CreateVPResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateVPResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetCredentialsInWalletResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]VerifiableCredential
+	ApplicationproblemJSONDefault *struct {
+		// Detail A human-readable explanation specific to this occurrence of the problem.
+		Detail string `json:"detail"`
+
+		// Status HTTP statuscode
+		Status float32 `json:"status"`
+
+		// Title A short, human-readable summary of the problem type.
+		Title string `json:"title"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCredentialsInWalletResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCredentialsInWalletResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1704,6 +1788,15 @@ func (c *ClientWithResponses) CreateVPWithResponse(ctx context.Context, body Cre
 	return ParseCreateVPResponse(rsp)
 }
 
+// GetCredentialsInWalletWithResponse request returning *GetCredentialsInWalletResponse
+func (c *ClientWithResponses) GetCredentialsInWalletWithResponse(ctx context.Context, did string, reqEditors ...RequestEditorFn) (*GetCredentialsInWalletResponse, error) {
+	rsp, err := c.GetCredentialsInWallet(ctx, did, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCredentialsInWalletResponse(rsp)
+}
+
 // LoadVCWithBodyWithResponse request with arbitrary body returning *LoadVCResponse
 func (c *ClientWithResponses) LoadVCWithBodyWithResponse(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LoadVCResponse, error) {
 	rsp, err := c.LoadVCWithBody(ctx, did, contentType, body, reqEditors...)
@@ -1884,6 +1977,48 @@ func ParseCreateVPResponse(rsp *http.Response) (*CreateVPResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest VerifiablePresentation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest struct {
+			// Detail A human-readable explanation specific to this occurrence of the problem.
+			Detail string `json:"detail"`
+
+			// Status HTTP statuscode
+			Status float32 `json:"status"`
+
+			// Title A short, human-readable summary of the problem type.
+			Title string `json:"title"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCredentialsInWalletResponse parses an HTTP response from a GetCredentialsInWalletWithResponse call
+func ParseGetCredentialsInWalletResponse(rsp *http.Response) (*GetCredentialsInWalletResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCredentialsInWalletResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []VerifiableCredential
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

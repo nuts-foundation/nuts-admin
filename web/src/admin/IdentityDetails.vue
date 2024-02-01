@@ -73,9 +73,9 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="credential in details.credentials" :key="credential.id">
+          <tr v-for="credential in details.wallet_credentials" :key="credential.id">
+            <td>{{ credential.type.filter(t => t !== "VerifiableCredential").join(', ') }}</td>
             <td>{{ credential.issuer }}</td>
-            <td>{{ credential.type.join(', ') }}</td>
           </tr>
           </tbody>
         </table>

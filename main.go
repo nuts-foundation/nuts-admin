@@ -12,6 +12,7 @@ import (
 	"github.com/lestrrat-go/jwx/jwt"
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
+	"github.com/nuts-foundation/nuts-admin/identity/vcr"
 	"github.com/nuts-foundation/nuts-admin/identity/vdr"
 	"io/fs"
 	"log"
@@ -68,6 +69,7 @@ func main() {
 	//}
 
 	vdrClient, _ := vdr.NewClient(config.Node.Address)
+	vcrClient, _ := vcr.NewClient(config.Node.Address)
 	discoveryClient, _ := discovery.NewClient(config.Node.Address)
 
 	// Initialize wrapper
@@ -76,7 +78,8 @@ func main() {
 	}
 	apiWrapper := api.Wrapper{
 		Identity: identity.Service{
-			Client:           vdrClient,
+			VDRClient:        vdrClient,
+			VCRClient:        vcrClient,
 			DiscoveryService: discoveryService,
 		},
 		Discovery: discoveryService,
