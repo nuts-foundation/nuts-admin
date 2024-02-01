@@ -61,6 +61,24 @@ textarea, input[type=text], input[type=email], input[type=password], input[type=
     @apply w-full bg-white border rounded-lg px-4 py-2 shadow-sm;
 }
 
+input.inline, select.inline {
+    @apply inline-block bg-white border rounded-lg px-4 py-2 shadow-sm;
+    width: initial;
+}
+
+label p {
+    font-weight: normal;
+}
+div>label {
+    margin-top: 15px;
+}
+
+pre {
+    border: 1px solid darkgray;
+    padding: 12px;
+    border-radius: 3px;
+}
+
 textarea {
     @apply text-sm;
 }

@@ -155,7 +155,7 @@ export default {
           })
     },
     issueVC(types) {
-      console.log(JSON.stringify(types))
+      this.$router.push({name: 'admin.issueCredential', params: {subjectDID: this.details.did, credentialType: types[0]}})
     }
   }
 }

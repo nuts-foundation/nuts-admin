@@ -9,6 +9,7 @@ import NewIdentity from './admin/NewIdentity.vue'
 import DiscoveryServices from './admin/DiscoveryServices.vue'
 import Api from './plugins/api'
 import IdentityDetails from "./admin/IdentityDetails.vue";
+import IssueCredential from "./admin/IssueCredential.vue";
 
 const routes = [
   {
@@ -35,6 +36,11 @@ const routes = [
         path: 'id/:id',
         name: 'admin.identityDetails',
         component: IdentityDetails
+      },
+      {
+        path: 'vc/issue/:credentialType?/:subjectDID?',
+        name: 'admin.issueCredential',
+        component: IssueCredential
       },
       {
         path: 'discovery',

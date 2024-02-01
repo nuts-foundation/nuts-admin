@@ -1,6 +1,11 @@
 # nuts-admin
 Application which shows how to integrate with the Nuts node to administer identities.
 
+## Warning on authentication
+
+This application does not support authentication. Make sure to restrict access in any other case than local development. 
+The application proxies REST API calls to the configured Nuts node, so leaving it unsecured will allow anyone to access the proxied Nuts node REST APIss.
+
 ## Building and running
 
 ### Development

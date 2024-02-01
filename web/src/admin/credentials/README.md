@@ -1,0 +1,1 @@
+This directory contains Verifiable Credential templates.

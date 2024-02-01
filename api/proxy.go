@@ -45,6 +45,21 @@ var allowedProxyRoutes = []proxyRoute{
 		method: http.MethodDelete,
 		path:   "/internal/discovery/v1/([a-z-A-Z0-9_\\-\\:\\.%]+)/([a-z-A-Z0-0_\\-\\:\\.%]+)",
 	},
+	// List owned DIDs
+	{
+		method: http.MethodGet,
+		path:   "/internal/vdr/v2/did",
+	},
+	// Issue Verifiable Credentials
+	{
+		method: http.MethodPost,
+		path:   "/internal/vcr/v2/issuer/vc",
+	},
+	// Load Verifiable Credential into wallet
+	{
+		method: http.MethodPost,
+		path:   "/internal/vcr/v2/holder/([a-z-A-Z0-9_\\-\\:\\.%]+)/vc",
+	},
 }
 
 // ConfigureProxy configures the proxy middleware for the given Nuts node address.
