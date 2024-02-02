@@ -37,7 +37,7 @@
         <header>Search</header>
         <div class="search-quick-params">
           Add parameter:
-          <a v-on:click="addSearchParam('id', 'did:web:example.com#issuer')">Credential ID</a>
+          <a v-on:click="addSearchParam('id', 'did:web:example.com#abc')">Credential ID</a>
           <a v-on:click="addSearchParam('issuer', 'did:web:example.com')">Issuer DID</a>
           <a v-on:click="addSearchParam('credentialSubject.id', 'did:web:example.com#holder')">Holder DID</a>
           <a v-on:click="addSearchParam('', 'value')">Other</a>
@@ -51,9 +51,8 @@
           </thead>
           <tbody>
           <tr v-for="(param, idx) in searchParams" :key="param.key">
-            <td><input type="text" v-model="searchParams[idx].key" v-on:change="search()"></td>
-            <td><input type="text" v-model="searchParams[idx].value" :placeholder="param.placeholder"
-                       v-on:change="search()"></td>
+            <td><input type="text" v-model="searchParams[idx].key" v-on:blur="search()"></td>
+            <td><input type="text" v-model="searchParams[idx].value" :placeholder="param.placeholder" v-on:blur="search()"></td>
           </tr>
           </tbody>
         </table>
