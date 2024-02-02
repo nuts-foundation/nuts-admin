@@ -69,7 +69,7 @@
             </thead>
             <tbody>
             <tr v-for="result in searchResults" :key="result.id">
-              <td>TODO</td>
+              <td>{{ result.subject_id }}</td>
               <td v-for="field in Object.keys(result.fields)">{{ result.fields[field] }}</td>
             </tr>
             </tbody>
