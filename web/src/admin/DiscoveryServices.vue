@@ -7,7 +7,7 @@
 
     <section>
       <p>Select a Discovery Service</p>
-      <select v-on:change="viewService">
+      <select v-on:change="viewService" id="discoveryServiceSelect">
         <option :value="service.id" v-for="service in services" :key="service.id">{{ service.id }}</option>
       </select>
     </section>
@@ -50,9 +50,9 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="(param, idx) in searchParams" :key="param.key">
-            <td><input type="text" v-model="searchParams[idx].key" v-on:blur="search()"></td>
-            <td><input type="text" v-model="searchParams[idx].value" :placeholder="param.placeholder" v-on:blur="search()"></td>
+          <tr v-for="(param, idx) in searchParams" :key="'search-' + idx">
+            <td><input type="text" v-model="param.key" v-on:keyup="search" v-on:blur="search" :id="'search-key-' + idx"></td>
+            <td><input type="text" v-model="param.value" v-on:keyup="search" :placeholder="param.placeholder" v-on:blur="search" :id="'search-value-' + idx"></td>
           </tr>
           </tbody>
         </table>
@@ -67,8 +67,8 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="result in searchResults" :key="result.id">
-              <td>{{ result.subject_id }}</td>
+            <tr v-for="result in searchResults" :key="'result-' + result.id">
+              <td :key="result.id">{{ result.subject_id }}</td>
               <td v-for="field in Object.keys(result.fields)">{{ result.fields[field] }}</td>
             </tr>
             </tbody>
@@ -119,7 +119,7 @@ export default {
       this.searchParams.push({key: key, value: '', placeholder: placeholder})
       this.search()
     },
-    search() {
+    search(event) {
       this.searchResults = []
       let entries = this.searchParams.filter(c => c.key && c.value).map(c => [c.key, c.value]);
       if (entries.length === 0) {
