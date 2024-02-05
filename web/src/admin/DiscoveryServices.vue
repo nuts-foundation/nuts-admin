@@ -119,7 +119,7 @@ export default {
       this.searchParams.push({key: key, value: '', placeholder: placeholder})
       this.search()
     },
-    search(event) {
+    search() {
       this.searchResults = []
       let entries = this.searchParams.filter(c => c.key && c.value).map(c => [c.key, c.value]);
       if (entries.length === 0) {

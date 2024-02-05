@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import './style.css'
 import App from './App.vue'
 import AdminApp from './admin/AdminApp.vue'
+import Landing from './Landing.vue'
 import NotFound from './NotFound.vue'
 import Identities from './admin/Identities.vue'
 import NewIdentity from './admin/NewIdentity.vue'
@@ -18,6 +19,11 @@ const routes = [
       default: AdminApp
     },
     children: [
+      {
+        path: '',
+        name: 'home',
+        component: Landing,
+      },
       {
         path: 'identities',
         name: 'admin.identities',
