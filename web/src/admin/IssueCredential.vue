@@ -34,9 +34,8 @@
       <section>
         <header>Wallet DID</header>
         <select v-on:change="selectSubjectDID" class="inline" style="width: 20%">
-          <option disabled value :selected="!subjectDID">choose wallet DID</option>
-          <option :value="currentDID" v-for="currentDID in ownedDIDs" :key="currentDID"
-                  :selected="subjectDID === currentDID">
+          <option disabled value="" selected>choose wallet DID</option>
+          <option :value="currentDID" v-for="currentDID in ownedDIDs" :key="currentDID">
             {{ currentDID }}
           </option>
         </select>
@@ -105,6 +104,8 @@ export default {
     },
     selectSubjectDID(event) {
       this.subjectDID = event.target.value
+      event.target.value = ""
+
     },
     selectCredentialType(type) {
       this.template = this.templates[type]
