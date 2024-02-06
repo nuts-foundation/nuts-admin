@@ -67,7 +67,8 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 		return nil, err
 	}
 	result := IdentityDetails{
-		Identity: parseIdentity(didDocument.ID),
+		Identity:    parseIdentity(didDocument.ID),
+		DIDDocument: *didDocument,
 	}
 
 	// Get DiscoveryService status
@@ -91,6 +92,9 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 	credentials, err := i.credentialsInWallet(ctx, didDocument.ID)
 	if err != nil {
 		return nil, err
+	}
+	if credentials == nil {
+		credentials = make([]vc.VerifiableCredential, 0)
 	}
 	result.WalletCredentials = credentials
 	return &result, nil

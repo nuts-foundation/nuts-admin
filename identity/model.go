@@ -13,6 +13,7 @@ type Identity struct {
 
 type IdentityDetails struct {
 	Identity
+	DIDDocument       did.Document              `json:"did_document"`
 	DiscoveryServices []discovery.DIDStatus     `json:"discovery_services"`
 	WalletCredentials []vc.VerifiableCredential `json:"wallet_credentials"`
 }

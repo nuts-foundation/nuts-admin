@@ -4,10 +4,24 @@
     <p v-if="fetchError" class="m-4">Error: {{ fetchError }}</p>
     <div v-if="details">
       <section>
-        <code>{{ details.did }}</code>
+        <code class="inline">{{ details.did }}</code>
+        &nbsp;
+        <button class="btn btn-primary btn-tiny" v-on:click="showDIDDocument = !showDIDDocument">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+               stroke="currentColor" class="w-6 h-6 inline">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+          </svg>
+          &nbsp;
+          Show DID Document
+        </button>
+        <pre v-if="showDIDDocument">{{ details.did_document }}</pre>
       </section>
       <section>
-        <header>Discovery</header>
+
+      </section>
+      <section>
+        <header>Discovery Services</header>
         <table class="min-w-full divide-y divide-gray-200">
           <thead>
           <tr>
@@ -54,18 +68,14 @@
               <button v-else class="btn btn-primary" @click="activateService(service.id)">
                 Activate
               </button>
-              &nbsp;
-              <button class="btn btn-primary" @click="issueVC(discoveryServices[service.id])">
-                Issue Credential
-              </button>
             </td>
           </tr>
           </tbody>
         </table>
       </section>
       <section>
-        <header>Wallet</header>
-        <table class="min-w-full divide-y divide-gray-200">
+        <header>Credentials in Wallet</header>
+        <table class="min-w-full divide-y divide-gray-200" v-if="details.wallet_credentials.length > 0">
           <thead>
           <tr>
             <th class="thead">Type</th>
@@ -79,6 +89,9 @@
           </tr>
           </tbody>
         </table>
+        <p v-else>
+          No credentials in wallet.
+        </p>
       </section>
     </div>
   </div>
@@ -94,6 +107,7 @@ export default {
       fetchError: undefined,
       details: undefined,
       discoveryServices: {},
+      showDIDDocument: false,
     }
   },
   created() {
@@ -153,9 +167,6 @@ export default {
           .finally(() => {
             this.fetchData()
           })
-    },
-    issueVC(types) {
-      this.$router.push({name: 'admin.issueCredential', params: {subjectDID: this.details.did, credentialType: types[0]}})
     }
   }
 }
