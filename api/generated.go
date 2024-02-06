@@ -38,6 +38,12 @@ type CreateIdentityJSONBody struct {
 	DidQualifier string `json:"did_qualifier"`
 }
 
+// GetIssuedCredentialsParams defines parameters for GetIssuedCredentials.
+type GetIssuedCredentialsParams struct {
+	// CredentialTypes A comma-separated list of credential types which are returned.
+	CredentialTypes string `form:"credentialTypes" json:"credentialTypes"`
+}
+
 // CreateIdentityJSONRequestBody defines body for CreateIdentity for application/json ContentType.
 type CreateIdentityJSONRequestBody CreateIdentityJSONBody
 
@@ -52,6 +58,9 @@ type ServerInterface interface {
 
 	// (GET /api/id/{did})
 	GetIdentity(ctx echo.Context, did string) error
+
+	// (GET /api/issuer/vc)
+	GetIssuedCredentials(ctx echo.Context, params GetIssuedCredentialsParams) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -93,6 +102,24 @@ func (w *ServerInterfaceWrapper) GetIdentity(ctx echo.Context) error {
 	return err
 }
 
+// GetIssuedCredentials converts echo context to params.
+func (w *ServerInterfaceWrapper) GetIssuedCredentials(ctx echo.Context) error {
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetIssuedCredentialsParams
+	// ------------- Required query parameter "credentialTypes" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "credentialTypes", ctx.QueryParams(), &params.CredentialTypes)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter credentialTypes: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetIssuedCredentials(ctx, params)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -124,5 +151,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/api/id", wrapper.GetIdentities)
 	router.POST(baseURL+"/api/id", wrapper.CreateIdentity)
 	router.GET(baseURL+"/api/id/:did", wrapper.GetIdentity)
+	router.GET(baseURL+"/api/issuer/vc", wrapper.GetIssuedCredentials)
 
 }

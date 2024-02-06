@@ -51,8 +51,8 @@ type VerificationMethod = externalRef0.VerificationMethod
 // CreateDIDJSONRequestBody defines body for CreateDID for application/json ContentType.
 type CreateDIDJSONRequestBody = CreateDIDOptions
 
-// AddServiceJSONRequestBody defines body for AddService for application/json ContentType.
-type AddServiceJSONRequestBody = Service
+// CreateServiceJSONRequestBody defines body for CreateService for application/json ContentType.
+type CreateServiceJSONRequestBody = Service
 
 // UpdateServiceJSONRequestBody defines body for UpdateService for application/json ContentType.
 type UpdateServiceJSONRequestBody = Service
@@ -144,10 +144,10 @@ type ClientInterface interface {
 	// ResolveDID request
 	ResolveDID(ctx context.Context, did string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// AddServiceWithBody request with any body
-	AddServiceWithBody(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateServiceWithBody request with any body
+	CreateServiceWithBody(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	AddService(ctx context.Context, did string, body AddServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateService(ctx context.Context, did string, body CreateServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteService request
 	DeleteService(ctx context.Context, did string, serviceId string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -224,8 +224,8 @@ func (c *Client) ResolveDID(ctx context.Context, did string, reqEditors ...Reque
 	return c.Client.Do(req)
 }
 
-func (c *Client) AddServiceWithBody(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAddServiceRequestWithBody(c.Server, did, contentType, body)
+func (c *Client) CreateServiceWithBody(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateServiceRequestWithBody(c.Server, did, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -236,8 +236,8 @@ func (c *Client) AddServiceWithBody(ctx context.Context, did string, contentType
 	return c.Client.Do(req)
 }
 
-func (c *Client) AddService(ctx context.Context, did string, body AddServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAddServiceRequest(c.Server, did, body)
+func (c *Client) CreateService(ctx context.Context, did string, body CreateServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateServiceRequest(c.Server, did, body)
 	if err != nil {
 		return nil, err
 	}
@@ -443,19 +443,19 @@ func NewResolveDIDRequest(server string, did string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewAddServiceRequest calls the generic AddService builder with application/json body
-func NewAddServiceRequest(server string, did string, body AddServiceJSONRequestBody) (*http.Request, error) {
+// NewCreateServiceRequest calls the generic CreateService builder with application/json body
+func NewCreateServiceRequest(server string, did string, body CreateServiceJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewAddServiceRequestWithBody(server, did, "application/json", bodyReader)
+	return NewCreateServiceRequestWithBody(server, did, "application/json", bodyReader)
 }
 
-// NewAddServiceRequestWithBody generates requests for AddService with any type of body
-func NewAddServiceRequestWithBody(server string, did string, contentType string, body io.Reader) (*http.Request, error) {
+// NewCreateServiceRequestWithBody generates requests for CreateService with any type of body
+func NewCreateServiceRequestWithBody(server string, did string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -717,10 +717,10 @@ type ClientWithResponsesInterface interface {
 	// ResolveDIDWithResponse request
 	ResolveDIDWithResponse(ctx context.Context, did string, reqEditors ...RequestEditorFn) (*ResolveDIDResponse, error)
 
-	// AddServiceWithBodyWithResponse request with any body
-	AddServiceWithBodyWithResponse(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddServiceResponse, error)
+	// CreateServiceWithBodyWithResponse request with any body
+	CreateServiceWithBodyWithResponse(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error)
 
-	AddServiceWithResponse(ctx context.Context, did string, body AddServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*AddServiceResponse, error)
+	CreateServiceWithResponse(ctx context.Context, did string, body CreateServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error)
 
 	// DeleteServiceWithResponse request
 	DeleteServiceWithResponse(ctx context.Context, did string, serviceId string, reqEditors ...RequestEditorFn) (*DeleteServiceResponse, error)
@@ -864,7 +864,7 @@ func (r ResolveDIDResponse) StatusCode() int {
 	return 0
 }
 
-type AddServiceResponse struct {
+type CreateServiceResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
 	JSON200                       *Service
@@ -881,7 +881,7 @@ type AddServiceResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r AddServiceResponse) Status() string {
+func (r CreateServiceResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -889,7 +889,7 @@ func (r AddServiceResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r AddServiceResponse) StatusCode() int {
+func (r CreateServiceResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1066,21 +1066,21 @@ func (c *ClientWithResponses) ResolveDIDWithResponse(ctx context.Context, did st
 	return ParseResolveDIDResponse(rsp)
 }
 
-// AddServiceWithBodyWithResponse request with arbitrary body returning *AddServiceResponse
-func (c *ClientWithResponses) AddServiceWithBodyWithResponse(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddServiceResponse, error) {
-	rsp, err := c.AddServiceWithBody(ctx, did, contentType, body, reqEditors...)
+// CreateServiceWithBodyWithResponse request with arbitrary body returning *CreateServiceResponse
+func (c *ClientWithResponses) CreateServiceWithBodyWithResponse(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error) {
+	rsp, err := c.CreateServiceWithBody(ctx, did, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseAddServiceResponse(rsp)
+	return ParseCreateServiceResponse(rsp)
 }
 
-func (c *ClientWithResponses) AddServiceWithResponse(ctx context.Context, did string, body AddServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*AddServiceResponse, error) {
-	rsp, err := c.AddService(ctx, did, body, reqEditors...)
+func (c *ClientWithResponses) CreateServiceWithResponse(ctx context.Context, did string, body CreateServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error) {
+	rsp, err := c.CreateService(ctx, did, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseAddServiceResponse(rsp)
+	return ParseCreateServiceResponse(rsp)
 }
 
 // DeleteServiceWithResponse request returning *DeleteServiceResponse
@@ -1288,15 +1288,15 @@ func ParseResolveDIDResponse(rsp *http.Response) (*ResolveDIDResponse, error) {
 	return response, nil
 }
 
-// ParseAddServiceResponse parses an HTTP response from a AddServiceWithResponse call
-func ParseAddServiceResponse(rsp *http.Response) (*AddServiceResponse, error) {
+// ParseCreateServiceResponse parses an HTTP response from a CreateServiceWithResponse call
+func ParseCreateServiceResponse(rsp *http.Response) (*CreateServiceResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &AddServiceResponse{
+	response := &CreateServiceResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

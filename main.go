@@ -12,8 +12,9 @@ import (
 	"github.com/lestrrat-go/jwx/jwt"
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
-	"github.com/nuts-foundation/nuts-admin/identity/vcr"
-	"github.com/nuts-foundation/nuts-admin/identity/vdr"
+	"github.com/nuts-foundation/nuts-admin/issuer"
+	"github.com/nuts-foundation/nuts-admin/nuts/vcr"
+	"github.com/nuts-foundation/nuts-admin/nuts/vdr"
 	"io/fs"
 	"log"
 	"net/http"
@@ -76,13 +77,18 @@ func main() {
 	discoveryService := discovery.Service{
 		Client: discoveryClient,
 	}
+	identityService := identity.Service{
+		VDRClient:        vdrClient,
+		VCRClient:        vcrClient,
+		DiscoveryService: discoveryService,
+	}
 	apiWrapper := api.Wrapper{
-		Identity: identity.Service{
-			VDRClient:        vdrClient,
-			VCRClient:        vcrClient,
-			DiscoveryService: discoveryService,
-		},
+		Identity:  identityService,
 		Discovery: discoveryService,
+		IssuerService: issuer.Service{
+			IdentityService: identityService,
+			VCRClient:       vcrClient,
+		},
 	}
 
 	api.RegisterHandlers(e, apiWrapper)

@@ -55,6 +55,11 @@ var allowedProxyRoutes = []proxyRoute{
 		method: http.MethodPost,
 		path:   "/internal/vcr/v2/issuer/vc",
 	},
+	// Search for issued Verifiable Credentials
+	{
+		method: http.MethodGet,
+		path:   "/internal/vcr/v2/issuer/vc/search",
+	},
 	// Load Verifiable Credential into wallet
 	{
 		method: http.MethodPost,

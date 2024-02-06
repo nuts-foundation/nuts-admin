@@ -6,9 +6,9 @@ import (
 	"github.com/nuts-foundation/go-did/did"
 	"github.com/nuts-foundation/go-did/vc"
 	"github.com/nuts-foundation/nuts-admin/discovery"
-	"github.com/nuts-foundation/nuts-admin/identity/vcr"
-	"github.com/nuts-foundation/nuts-admin/identity/vdr"
 	"github.com/nuts-foundation/nuts-admin/nuts"
+	"github.com/nuts-foundation/nuts-admin/nuts/vcr"
+	"github.com/nuts-foundation/nuts-admin/nuts/vdr"
 	"slices"
 	"strings"
 )

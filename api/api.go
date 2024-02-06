@@ -1,9 +1,12 @@
 package api
 
 import (
+	"github.com/nuts-foundation/go-did/vc"
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
+	"github.com/nuts-foundation/nuts-admin/issuer"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -11,8 +14,9 @@ import (
 var _ ServerInterface = (*Wrapper)(nil)
 
 type Wrapper struct {
-	Identity  identity.Service
-	Discovery discovery.Service
+	Identity      identity.Service
+	IssuerService issuer.Service
+	Discovery     discovery.Service
 }
 
 func (w Wrapper) GetIdentities(ctx echo.Context) error {
@@ -41,4 +45,20 @@ func (w Wrapper) GetIdentity(ctx echo.Context, did string) error {
 		return err
 	}
 	return ctx.JSON(http.StatusOK, details)
+}
+
+func (w Wrapper) GetIssuedCredentials(ctx echo.Context, params GetIssuedCredentialsParams) error {
+	identities, err := w.Identity.List(ctx.Request().Context())
+	if err != nil {
+		return err
+	}
+	result := make([]vc.VerifiableCredential, 0)
+	for _, currID := range identities {
+		credentials, err := w.IssuerService.GetIssuedCredentials(ctx.Request().Context(), currID.DID, strings.Split(params.CredentialTypes, ","))
+		if err != nil {
+			return err
+		}
+		result = append(result, credentials...)
+	}
+	return ctx.JSON(http.StatusOK, result)
 }

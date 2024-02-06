@@ -1,14 +1,34 @@
 <template>
   <div>
-
-    <div class="flex justify-between mb-6">
-      <h1>Issued Credentials</h1>
-
-    </div>
-
-    <div class="mt-8 bg-white p-5 shadow-lg rounded-lg">
-      <p v-if="fetchError" class="m-4">Could not fetch identities: {{ fetchError }}</p>
-    </div>
+    <h1 class="mb-2">Issued Credentials</h1>
+    <p class="m-4" v-if="fetchError">Could not fetch data: {{ fetchError }}</p>
+    <section>
+      <label for="credentialTypes" class="inline">Credential types (comma-separated): </label>
+      <input type="text" id="credentialTypes" v-model="credentialTypes" v-on:change="fetchData" class="inline" style="width: 50%">
+    </section>
+    <section v-if="credentials.length > 0">
+      <table class="w-full">
+        <thead>
+        <tr>
+          <th class="thead">Issuer</th>
+          <th class="thead">Type</th>
+          <th class="thead">Subject</th>
+          <th class="thead">Issuance date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="credential in credentials" :key="credential.id">
+          <td>{{ credential.issuer.split(':').slice(-1)[0] }}</td>
+          <td>{{ credential.type.filter(t => t !== 'VerifiableCredential').join(', ') }}</td>
+          <td>{{ credential.credentialSubject.id }}</td>
+          <td>{{ new Date(credential.issuanceDate).toLocaleString() }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+    <p v-else>
+      No credentials found.
+    </p>
   </div>
 </template>
 
@@ -18,22 +38,18 @@ export default {
   data() {
     return {
       fetchError: '',
-      identities: [],
+      credentials: [],
+      credentialTypes: 'NutsOrganizationCredential',
     }
   },
   mounted() {
     this.fetchData()
   },
-  emits: ['statusUpdate'],
   methods: {
-    updateStatus(event) {
-      this.fetchData()
-      this.$emit('statusUpdate', event)
-    },
     fetchData() {
-      this.$api.get('api/id')
+      this.$api.get('api/issuer/vc?credentialTypes=' + encodeURIComponent(this.credentialTypes))
           .then(data => {
-            this.identities = data
+            this.credentials = data
           })
           .catch(response => {
             this.fetchError = response
