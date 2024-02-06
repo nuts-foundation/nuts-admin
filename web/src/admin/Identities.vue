@@ -63,11 +63,6 @@ export default {
             this.identities = data
           })
           .catch(response => {
-            console.error('failure', response)
-            if (response.status === 403) {
-              this.fetchError = 'Invalid credentials'
-              return
-            }
             this.fetchError = response
           })
     }

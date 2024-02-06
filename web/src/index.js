@@ -8,6 +8,7 @@ import NotFound from './NotFound.vue'
 import Identities from './admin/Identities.vue'
 import NewIdentity from './admin/NewIdentity.vue'
 import DiscoveryServices from './admin/DiscoveryServices.vue'
+import IssuedCredentials from './admin/IssuedCredentials.vue'
 import Api from './plugins/api'
 import IdentityDetails from "./admin/IdentityDetails.vue";
 import IssueCredential from "./admin/IssueCredential.vue";
@@ -47,6 +48,11 @@ const routes = [
         path: 'vc/issue/:credentialType?/:subjectDID?',
         name: 'admin.issueCredential',
         component: IssueCredential
+      },
+      {
+        path: 'vc/issuer',
+        name: 'admin.issuedCredentials',
+        component: IssuedCredentials
       },
       {
         path: 'discovery',
