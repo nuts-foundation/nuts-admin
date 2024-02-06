@@ -22,7 +22,7 @@
       </section>
       <section>
         <header>Discovery Services</header>
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="min-w-full divide-y divide-gray-200" v-if="details.discovery_services.length > 0">
           <thead>
           <tr>
             <th class="thead">Service</th>
@@ -72,6 +72,9 @@
           </tr>
           </tbody>
         </table>
+        <p v-else>
+          No Discovery Services configured in the Nuts node.
+        </p>
       </section>
       <section>
         <header>Credentials in Wallet</header>

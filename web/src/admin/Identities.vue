@@ -54,6 +54,7 @@ export default {
   emits: ['statusUpdate'],
   methods: {
     updateStatus(event) {
+      this.fetchData()
       this.$emit('statusUpdate', event)
     },
     fetchData() {
