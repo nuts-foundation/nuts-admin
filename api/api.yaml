@@ -45,8 +45,10 @@ paths:
         - name: did
           in: path
           required: true
-          schema:
-            type: string
+          content:
+            text/plain:
+              schema:
+                type: string
       responses:
         '200':
           description: The identity was successfully retrieved
