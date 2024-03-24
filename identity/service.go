@@ -67,8 +67,9 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 		return nil, err
 	}
 	result := IdentityDetails{
-		Identity:    parseIdentity(didDocument.ID),
-		DIDDocument: *didDocument,
+		Identity:          parseIdentity(didDocument.ID),
+		DIDDocument:       *didDocument,
+		DiscoveryServices: make([]discovery.DIDStatus, 0),
 	}
 
 	// Get DiscoveryService status

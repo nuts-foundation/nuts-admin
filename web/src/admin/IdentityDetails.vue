@@ -2,7 +2,7 @@
   <div>
     <h1>Identity</h1>
     <p v-if="fetchError" class="m-4">Error: {{ fetchError }}</p>
-    <div v-if="details">
+    <div v-if="details && discoveryServices">
       <section>
         <code class="inline">{{ details.did }}</code>
         &nbsp;

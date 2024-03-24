@@ -45,6 +45,13 @@
 
       <section v-if="template">
         <header>Fields</header>
+        <div>
+          <label :for="expirationDate">
+            <p>Days valid</p>
+          </label>
+          <input id="daysValid" v-model="daysValid" type="number">
+          <p>This will be used to set the credentials <code>expirationDate</code> property.</p>
+        </div>
         <div v-for="(field, idx) in template.fields" :key="field.name">
           <label :for="field.name">
             {{ field.name }}
@@ -82,6 +89,7 @@ export default {
       templates: templates,
       template: undefined,
       credentialFields: [],
+      daysValid: 365,
       credentialPreview: undefined,
       issuedCredential: undefined,
     }
@@ -126,7 +134,8 @@ export default {
       let credentialToIssue = this.template.render(this.issuerDID, this.subjectDID, this.credentialFields)
       credentialToIssue['@context'] = credentialToIssue['@context'][0]
       credentialToIssue['type'] = credentialToIssue['type'].find(t => t !== "VerifiableCredential")
-      credentialToIssue.publishToNetwork = false
+      credentialToIssue['expirationDate'] = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * this.daysValid).toISOString()
+      credentialToIssue.withStatusList2021Revocation = true
       this.fetchError = undefined
       this.$api.post('api/proxy/internal/vcr/v2/issuer/vc', credentialToIssue)
           .then(issuedCredential => {

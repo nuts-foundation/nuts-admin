@@ -32,7 +32,7 @@ func defaultConfig() Config {
 	return Config{
 		HTTPPort: 1305,
 		Node: Node{
-			Address: "http://localhost:1323",
+			Address: "http://localhost:8081",
 		},
 	}
 }
