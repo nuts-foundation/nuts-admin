@@ -7,9 +7,10 @@ This application does not support user authentication. Make sure to restrict acc
 The application proxies REST API calls to the configured Nuts node, so leaving it unsecured will allow anyone to access the proxied Nuts node REST APIss.
 
 ## Running
+Example running the application, connecting to a Nuts node running on `http://nutsnode:8081`:
 
 ```shell
-$ docker run -p 1305:1305 nutsfoundation/nuts-admin
+$ docker run -p 1305:1305 -e NUTS_NODE_ADDRESS=http://nutsnode:8081 nutsfoundation/nuts-admin:latest
 ```
 
 When running in Docker without a config file mounted at `/app/config.yaml` it will use the default configuration.
