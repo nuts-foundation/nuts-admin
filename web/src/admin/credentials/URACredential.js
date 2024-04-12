@@ -9,18 +9,16 @@ export default {
     render: (issuerDID, subjectDID, fieldValues) => {
         return {
             "@context": [
-                "https://nuts.nl/credentials/v1",
+                "https://nuts-services.nl/jsonld/credentials/experimental",
                 "https://www.w3.org/2018/credentials/v1",
             ],
             "issuer": issuerDID,
             "credentialSubject": {
                 "id": subjectDID,
-                "organization": {
-                    "ura": fieldValues[0]
-                }
+                "ura": fieldValues[0]
             },
             "type": [
-                "NutsURACredential",
+                "URACredential",
                 "VerifiableCredential"
             ],
         }
