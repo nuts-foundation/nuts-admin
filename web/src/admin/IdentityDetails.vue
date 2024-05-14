@@ -143,7 +143,7 @@ export default {
     },
     activateService(id) {
       this.fetchError = undefined
-      this.$api.post(`api/proxy/internal/discovery/v1/${encodeURIComponent(id)}/${encodeURIComponent(this.details.did)}`)
+      this.$api.post(`api/proxy/internal/discovery/v1/${id}/${this.details.did}`)
           .then(data => {
             if (data.reason) {
               this.fetchError = data.reason
@@ -158,7 +158,7 @@ export default {
     },
     deactivateService(id) {
       this.fetchError = undefined
-      this.$api.delete(`api/proxy/internal/discovery/v1/${encodeURIComponent(id)}/${encodeURIComponent(this.details.did)}`)
+      this.$api.delete(`api/proxy/internal/discovery/v1/${id}/${this.details.did}`)
           .then(data => {
             if (data.reason) {
               this.fetchError = data.reason
