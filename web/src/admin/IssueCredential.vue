@@ -141,7 +141,7 @@ export default {
           .then(issuedCredential => {
             // Load issued VC into wallet
             this.issuedCredential = issuedCredential
-            this.$api.post(`api/proxy/internal/vcr/v2/holder/${encodeURIComponent(this.subjectDID)}/vc`, issuedCredential)
+            this.$api.post(`api/proxy/internal/vcr/v2/holder/${this.subjectDID}/vc`, issuedCredential)
                 .then(() => {
                   this.$emit('statusUpdate', 'Verifiable Credential issued and loaded into wallet')
                 })

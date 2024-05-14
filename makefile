@@ -29,3 +29,6 @@ run-nuts-node:
 
 run-api:
 	go run . live --configfile=deploy/admin.config.yaml
+
+docker:
+	docker build -t nutsfoundation/nuts-admin:main .
