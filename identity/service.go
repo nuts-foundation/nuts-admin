@@ -21,7 +21,7 @@ type Service struct {
 
 func (i Service) Create(ctx context.Context, shortName string) (*Identity, error) {
 	httpResponse, err := i.VDRClient.CreateDID(ctx, vdr.CreateDIDJSONRequestBody{
-		Id: &shortName,
+		Tenant: &shortName,
 	})
 	if err != nil {
 		return nil, nuts.UnwrapAPIError(err)

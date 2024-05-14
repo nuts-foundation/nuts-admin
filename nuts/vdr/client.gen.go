@@ -28,10 +28,18 @@ const (
 	String FilterServicesParamsEndpointType = "string"
 )
 
-// CreateDIDOptions defines model for CreateDIDOptions.
+// CreateDIDOptions Options for the DID creation. If neither `did` nor `tenant` is given, a random UUID is used as tenant.
+// It's invalid to provide both `did` and `tenant` at the same time.
 type CreateDIDOptions struct {
-	// Id The ID of the DID document. If not given, a random UUID is generated.
-	Id *string `json:"id,omitempty"`
+	// Did The DID of the DID document. If it's a did:web DID and it contains a path, it must follow the format `did:web:example.com:iam:1234`.
+	// It can be used, for instance, to create a root did:web DID (one without path).
+	//
+	// The DID to create must conform to the node's configured URL (e.g., `did:web:example.com` for `https://example.com`).
+	Did *string `json:"did,omitempty"`
+
+	// Tenant The tenant of the DID document. If this option is given, the did:web DID will contain a path that ends with the given tenant ID.
+	// It can be used, for instance, to serve multiple did:web DIDs from the same node.
+	Tenant *string `json:"tenant,omitempty"`
 }
 
 // DIDDocument A DID document according to the W3C spec following the Nuts Method rules as defined in [Nuts RFC006]
@@ -170,6 +178,9 @@ type ClientInterface interface {
 	// ResolveDID request
 	ResolveDID(ctx context.Context, did string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// FilterServices request
+	FilterServices(ctx context.Context, did string, params *FilterServicesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateServiceWithBody request with any body
 	CreateServiceWithBody(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -177,9 +188,6 @@ type ClientInterface interface {
 
 	// DeleteService request
 	DeleteService(ctx context.Context, did string, serviceId string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// FilterServices request
-	FilterServices(ctx context.Context, did string, serviceId string, params *FilterServicesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// UpdateServiceWithBody request with any body
 	UpdateServiceWithBody(ctx context.Context, did string, serviceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -253,6 +261,18 @@ func (c *Client) ResolveDID(ctx context.Context, did string, reqEditors ...Reque
 	return c.Client.Do(req)
 }
 
+func (c *Client) FilterServices(ctx context.Context, did string, params *FilterServicesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFilterServicesRequest(c.Server, did, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CreateServiceWithBody(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateServiceRequestWithBody(c.Server, did, contentType, body)
 	if err != nil {
@@ -279,18 +299,6 @@ func (c *Client) CreateService(ctx context.Context, did string, body CreateServi
 
 func (c *Client) DeleteService(ctx context.Context, did string, serviceId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteServiceRequest(c.Server, did, serviceId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) FilterServices(ctx context.Context, did string, serviceId string, params *FilterServicesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewFilterServicesRequest(c.Server, did, serviceId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -478,6 +486,75 @@ func NewResolveDIDRequest(server string, did string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewFilterServicesRequest generates requests for FilterServices
+func NewFilterServicesRequest(server string, did string, params *FilterServicesParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0 = did
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/internal/vdr/v2/did/%s/service", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Type != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type", runtime.ParamLocationQuery, *params.Type); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.EndpointType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "endpointType", runtime.ParamLocationQuery, *params.EndpointType); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCreateServiceRequest calls the generic CreateService builder with application/json body
 func NewCreateServiceRequest(server string, did string, body CreateServiceJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -553,82 +630,6 @@ func NewDeleteServiceRequest(server string, did string, serviceId string) (*http
 	}
 
 	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewFilterServicesRequest generates requests for FilterServices
-func NewFilterServicesRequest(server string, did string, serviceId string, params *FilterServicesParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0 = did
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "serviceId", runtime.ParamLocationPath, serviceId)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/internal/vdr/v2/did/%s/service/%s", pathParam0, pathParam1)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.Type != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type", runtime.ParamLocationQuery, *params.Type); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		if params.EndpointType != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "endpointType", runtime.ParamLocationQuery, *params.EndpointType); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -813,6 +814,9 @@ type ClientWithResponsesInterface interface {
 	// ResolveDIDWithResponse request
 	ResolveDIDWithResponse(ctx context.Context, did string, reqEditors ...RequestEditorFn) (*ResolveDIDResponse, error)
 
+	// FilterServicesWithResponse request
+	FilterServicesWithResponse(ctx context.Context, did string, params *FilterServicesParams, reqEditors ...RequestEditorFn) (*FilterServicesResponse, error)
+
 	// CreateServiceWithBodyWithResponse request with any body
 	CreateServiceWithBodyWithResponse(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error)
 
@@ -820,9 +824,6 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteServiceWithResponse request
 	DeleteServiceWithResponse(ctx context.Context, did string, serviceId string, reqEditors ...RequestEditorFn) (*DeleteServiceResponse, error)
-
-	// FilterServicesWithResponse request
-	FilterServicesWithResponse(ctx context.Context, did string, serviceId string, params *FilterServicesParams, reqEditors ...RequestEditorFn) (*FilterServicesResponse, error)
 
 	// UpdateServiceWithBodyWithResponse request with any body
 	UpdateServiceWithBodyWithResponse(ctx context.Context, did string, serviceId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateServiceResponse, error)
@@ -963,6 +964,38 @@ func (r ResolveDIDResponse) StatusCode() int {
 	return 0
 }
 
+type FilterServicesResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *[]Service
+	ApplicationproblemJSONDefault *struct {
+		// Detail A human-readable explanation specific to this occurrence of the problem.
+		Detail string `json:"detail"`
+
+		// Status HTTP statuscode
+		Status float32 `json:"status"`
+
+		// Title A short, human-readable summary of the problem type.
+		Title string `json:"title"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r FilterServicesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FilterServicesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateServiceResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -1020,38 +1053,6 @@ func (r DeleteServiceResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DeleteServiceResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type FilterServicesResponse struct {
-	Body                          []byte
-	HTTPResponse                  *http.Response
-	JSON200                       *[]Service
-	ApplicationproblemJSONDefault *struct {
-		// Detail A human-readable explanation specific to this occurrence of the problem.
-		Detail string `json:"detail"`
-
-		// Status HTTP statuscode
-		Status float32 `json:"status"`
-
-		// Title A short, human-readable summary of the problem type.
-		Title string `json:"title"`
-	}
-}
-
-// Status returns HTTPResponse.Status
-func (r FilterServicesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r FilterServicesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1197,6 +1198,15 @@ func (c *ClientWithResponses) ResolveDIDWithResponse(ctx context.Context, did st
 	return ParseResolveDIDResponse(rsp)
 }
 
+// FilterServicesWithResponse request returning *FilterServicesResponse
+func (c *ClientWithResponses) FilterServicesWithResponse(ctx context.Context, did string, params *FilterServicesParams, reqEditors ...RequestEditorFn) (*FilterServicesResponse, error) {
+	rsp, err := c.FilterServices(ctx, did, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFilterServicesResponse(rsp)
+}
+
 // CreateServiceWithBodyWithResponse request with arbitrary body returning *CreateServiceResponse
 func (c *ClientWithResponses) CreateServiceWithBodyWithResponse(ctx context.Context, did string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error) {
 	rsp, err := c.CreateServiceWithBody(ctx, did, contentType, body, reqEditors...)
@@ -1221,15 +1231,6 @@ func (c *ClientWithResponses) DeleteServiceWithResponse(ctx context.Context, did
 		return nil, err
 	}
 	return ParseDeleteServiceResponse(rsp)
-}
-
-// FilterServicesWithResponse request returning *FilterServicesResponse
-func (c *ClientWithResponses) FilterServicesWithResponse(ctx context.Context, did string, serviceId string, params *FilterServicesParams, reqEditors ...RequestEditorFn) (*FilterServicesResponse, error) {
-	rsp, err := c.FilterServices(ctx, did, serviceId, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseFilterServicesResponse(rsp)
 }
 
 // UpdateServiceWithBodyWithResponse request with arbitrary body returning *UpdateServiceResponse
@@ -1428,6 +1429,48 @@ func ParseResolveDIDResponse(rsp *http.Response) (*ResolveDIDResponse, error) {
 	return response, nil
 }
 
+// ParseFilterServicesResponse parses an HTTP response from a FilterServicesWithResponse call
+func ParseFilterServicesResponse(rsp *http.Response) (*FilterServicesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FilterServicesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Service
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest struct {
+			// Detail A human-readable explanation specific to this occurrence of the problem.
+			Detail string `json:"detail"`
+
+			// Status HTTP statuscode
+			Status float32 `json:"status"`
+
+			// Title A short, human-readable summary of the problem type.
+			Title string `json:"title"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCreateServiceResponse parses an HTTP response from a CreateServiceWithResponse call
 func ParseCreateServiceResponse(rsp *http.Response) (*CreateServiceResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -1484,48 +1527,6 @@ func ParseDeleteServiceResponse(rsp *http.Response) (*DeleteServiceResponse, err
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest struct {
-			// Detail A human-readable explanation specific to this occurrence of the problem.
-			Detail string `json:"detail"`
-
-			// Status HTTP statuscode
-			Status float32 `json:"status"`
-
-			// Title A short, human-readable summary of the problem type.
-			Title string `json:"title"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.ApplicationproblemJSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseFilterServicesResponse parses an HTTP response from a FilterServicesWithResponse call
-func ParseFilterServicesResponse(rsp *http.Response) (*FilterServicesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &FilterServicesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Service
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest struct {
 			// Detail A human-readable explanation specific to this occurrence of the problem.
