@@ -33,7 +33,7 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-w -s" -o
 #
 # Runtime
 #
-FROM alpine:3.19
+FROM alpine:3.20
 RUN mkdir /app && cd /app
 WORKDIR /app
 COPY --from=backend-builder /app/nuts-admin .
