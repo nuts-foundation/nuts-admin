@@ -11,7 +11,7 @@
     <div v-else>
       <section>
         <header>Credential type</header>
-        <select v-on:change="selectCredentialType">
+        <select v-on:change="e => selectCredentialType(e.target.value)">
           <option :value="currentType" v-for="currentType in Object.keys(templates)" :key="currentType"
                   :selected="currentType === credentialType">
             {{ currentType }}

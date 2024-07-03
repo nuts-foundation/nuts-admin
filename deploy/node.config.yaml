@@ -1,5 +1,4 @@
 strictmode: false
-url: https://mutt-classic-actually.ngrok-free.app
 datadir: /opt/nuts/data
 auth:
   irma:
