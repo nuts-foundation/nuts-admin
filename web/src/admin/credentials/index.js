@@ -1,7 +1,7 @@
 import NutsOrganizationCredential from "./NutsOrganizationCredential";
-import URACredential from "./URACredential";
+import NutsUraCredential from "./NutsUraCredential";
 
 export default {
     'NutsOrganizationCredential': NutsOrganizationCredential,
-    'URACredential': URACredential,
+    'NutsUraCredential': NutsUraCredential,
 }
