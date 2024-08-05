@@ -3,5 +3,8 @@ node_modules
 web/dist
 data
 
+# Binaries
+nuts-admin
+
 # mac
 .DS_Store
