@@ -23,13 +23,13 @@
         <thead>
         <tr>
           <th class="thead">Name</th>
-          <th class="thead">DID</th>
+          <th class="thead">DIDs</th>
         </tr>
         </thead>
         <tbody class="tbody">
-        <tr class="hover:bg-gray-100 cursor-pointer" v-for="{name, did} in identities" :key="did"
-            @click="$router.push({name: 'admin.identityDetails', params: {id: did}})">
-          <td>{{ name }}</td>
+        <tr class="hover:bg-gray-100 cursor-pointer" v-for="{subject, dids} in identities" :key="subject"
+            @click="$router.push({name: 'admin.identityDetails', params: {subjectID: subject}})">
+          <td>{{ subject }}</td>
           <td>{{ did }}</td>
         </tr>
         </tbody>

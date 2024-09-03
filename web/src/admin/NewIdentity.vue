@@ -2,7 +2,9 @@
   <modal-window :cancelRoute="{name: 'admin.identities'}" :confirmFn="checkForm" confirmText="Create Identity"
                 title="Create a new identity" type="add">
 
-    <p class="mb-3 text-sm">Here you can create new identities (DIDs) on the Nuts Node.</p>
+    <p class="mb-3 text-sm">
+      Here you can create new identities (subject) on the Nuts Node. Identities consist of one or more DIDs.
+    </p>
 
     <p v-if="apiError" class="p-3 bg-red-100 rounded-md">Could not create identity: {{ apiError }}</p>
 
@@ -33,7 +35,7 @@ export default {
       apiError: '',
       formErrors: [],
       identity: {
-        did_qualifier: '',
+        subject: '',
       }
     }
   },
