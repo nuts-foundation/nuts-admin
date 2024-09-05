@@ -30,7 +30,11 @@
         <tr class="hover:bg-gray-100 cursor-pointer" v-for="{subject, dids} in identities" :key="subject"
             @click="$router.push({name: 'admin.identityDetails', params: {subjectID: subject}})">
           <td>{{ subject }}</td>
-          <td>{{ did }}</td>
+          <td>
+            <div v-for="did in dids" :key="did">
+              <pre>{{ did }}</pre>
+            </div>
+          </td>
         </tr>
         </tbody>
       </table>

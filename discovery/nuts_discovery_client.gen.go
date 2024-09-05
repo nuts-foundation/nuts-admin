@@ -22,15 +22,15 @@ const (
 
 // SearchResult defines model for SearchResult.
 type SearchResult struct {
+	// CredentialSubjectId The ID of the Verifiable Credential subject (holder), typically a DID.
+	CredentialSubjectId string `json:"credential_subject_id"`
+
 	// Fields Input descriptor IDs and their mapped values that from the Verifiable Credential.
 	Fields map[string]interface{} `json:"fields"`
 
 	// Id The ID of the Verifiable Presentation.
-	Id string `json:"id"`
-
-	// SubjectId The ID of the Verifiable Credential subject (holder), typically a DID.
-	SubjectId string                 `json:"subject_id"`
-	Vp        VerifiablePresentation `json:"vp"`
+	Id string                 `json:"id"`
+	Vp VerifiablePresentation `json:"vp"`
 }
 
 // ServiceDefinition defines model for ServiceDefinition.
@@ -135,14 +135,14 @@ type ClientInterface interface {
 	// SearchPresentations request
 	SearchPresentations(ctx context.Context, serviceID string, params *SearchPresentationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeactivateServiceForDID request
-	DeactivateServiceForDID(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeactivateServiceForSubject request
+	DeactivateServiceForSubject(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetServiceActivation request
-	GetServiceActivation(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetServiceActivation(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ActivateServiceForDID request
-	ActivateServiceForDID(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ActivateServiceForSubject request
+	ActivateServiceForSubject(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetServices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -169,8 +169,8 @@ func (c *Client) SearchPresentations(ctx context.Context, serviceID string, para
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeactivateServiceForDID(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeactivateServiceForDIDRequest(c.Server, serviceID, did)
+func (c *Client) DeactivateServiceForSubject(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeactivateServiceForSubjectRequest(c.Server, serviceID, subjectID)
 	if err != nil {
 		return nil, err
 	}
@@ -181,8 +181,8 @@ func (c *Client) DeactivateServiceForDID(ctx context.Context, serviceID string, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetServiceActivation(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetServiceActivationRequest(c.Server, serviceID, did)
+func (c *Client) GetServiceActivation(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetServiceActivationRequest(c.Server, serviceID, subjectID)
 	if err != nil {
 		return nil, err
 	}
@@ -193,8 +193,8 @@ func (c *Client) GetServiceActivation(ctx context.Context, serviceID string, did
 	return c.Client.Do(req)
 }
 
-func (c *Client) ActivateServiceForDID(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewActivateServiceForDIDRequest(c.Server, serviceID, did)
+func (c *Client) ActivateServiceForSubject(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActivateServiceForSubjectRequest(c.Server, serviceID, subjectID)
 	if err != nil {
 		return nil, err
 	}
@@ -288,8 +288,8 @@ func NewSearchPresentationsRequest(server string, serviceID string, params *Sear
 	return req, nil
 }
 
-// NewDeactivateServiceForDIDRequest generates requests for DeactivateServiceForDID
-func NewDeactivateServiceForDIDRequest(server string, serviceID string, did string) (*http.Request, error) {
+// NewDeactivateServiceForSubjectRequest generates requests for DeactivateServiceForSubject
+func NewDeactivateServiceForSubjectRequest(server string, serviceID string, subjectID string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -301,7 +301,7 @@ func NewDeactivateServiceForDIDRequest(server string, serviceID string, did stri
 
 	var pathParam1 string
 
-	pathParam1 = did
+	pathParam1 = subjectID
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
@@ -327,7 +327,7 @@ func NewDeactivateServiceForDIDRequest(server string, serviceID string, did stri
 }
 
 // NewGetServiceActivationRequest generates requests for GetServiceActivation
-func NewGetServiceActivationRequest(server string, serviceID string, did string) (*http.Request, error) {
+func NewGetServiceActivationRequest(server string, serviceID string, subjectID string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -339,7 +339,7 @@ func NewGetServiceActivationRequest(server string, serviceID string, did string)
 
 	var pathParam1 string
 
-	pathParam1 = did
+	pathParam1 = subjectID
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
@@ -364,8 +364,8 @@ func NewGetServiceActivationRequest(server string, serviceID string, did string)
 	return req, nil
 }
 
-// NewActivateServiceForDIDRequest generates requests for ActivateServiceForDID
-func NewActivateServiceForDIDRequest(server string, serviceID string, did string) (*http.Request, error) {
+// NewActivateServiceForSubjectRequest generates requests for ActivateServiceForSubject
+func NewActivateServiceForSubjectRequest(server string, serviceID string, subjectID string) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -377,7 +377,7 @@ func NewActivateServiceForDIDRequest(server string, serviceID string, did string
 
 	var pathParam1 string
 
-	pathParam1 = did
+	pathParam1 = subjectID
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
@@ -451,14 +451,14 @@ type ClientWithResponsesInterface interface {
 	// SearchPresentationsWithResponse request
 	SearchPresentationsWithResponse(ctx context.Context, serviceID string, params *SearchPresentationsParams, reqEditors ...RequestEditorFn) (*SearchPresentationsResponse, error)
 
-	// DeactivateServiceForDIDWithResponse request
-	DeactivateServiceForDIDWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*DeactivateServiceForDIDResponse, error)
+	// DeactivateServiceForSubjectWithResponse request
+	DeactivateServiceForSubjectWithResponse(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*DeactivateServiceForSubjectResponse, error)
 
 	// GetServiceActivationWithResponse request
-	GetServiceActivationWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*GetServiceActivationResponse, error)
+	GetServiceActivationWithResponse(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*GetServiceActivationResponse, error)
 
-	// ActivateServiceForDIDWithResponse request
-	ActivateServiceForDIDWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*ActivateServiceForDIDResponse, error)
+	// ActivateServiceForSubjectWithResponse request
+	ActivateServiceForSubjectWithResponse(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*ActivateServiceForSubjectResponse, error)
 }
 
 type GetServicesResponse struct {
@@ -525,7 +525,7 @@ func (r SearchPresentationsResponse) StatusCode() int {
 	return 0
 }
 
-type DeactivateServiceForDIDResponse struct {
+type DeactivateServiceForSubjectResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON202      *struct {
@@ -555,7 +555,7 @@ type DeactivateServiceForDIDResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r DeactivateServiceForDIDResponse) Status() string {
+func (r DeactivateServiceForSubjectResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -563,7 +563,7 @@ func (r DeactivateServiceForDIDResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r DeactivateServiceForDIDResponse) StatusCode() int {
+func (r DeactivateServiceForSubjectResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -574,9 +574,12 @@ type GetServiceActivationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		// Activated Whether the DID is activated on the Discovery Service.
-		Activated bool                    `json:"activated"`
-		Vp        *VerifiablePresentation `json:"vp,omitempty"`
+		// Activated Whether the Discovery Service is activated for the given subject
+		Activated bool `json:"activated"`
+
+		// Vp List of VPs on the Discovery Service for the subject. One per DID method registered on the Service.
+		// The list can be empty even if activated==true if none of the DIDs of a subject is actually registered on the Discovery Service.
+		Vp *[]VerifiablePresentation `json:"vp,omitempty"`
 	}
 	ApplicationproblemJSONDefault *struct {
 		// Detail A human-readable explanation specific to this occurrence of the problem.
@@ -606,7 +609,7 @@ func (r GetServiceActivationResponse) StatusCode() int {
 	return 0
 }
 
-type ActivateServiceForDIDResponse struct {
+type ActivateServiceForSubjectResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON202      *struct {
@@ -636,7 +639,7 @@ type ActivateServiceForDIDResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r ActivateServiceForDIDResponse) Status() string {
+func (r ActivateServiceForSubjectResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -644,7 +647,7 @@ func (r ActivateServiceForDIDResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r ActivateServiceForDIDResponse) StatusCode() int {
+func (r ActivateServiceForSubjectResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -669,31 +672,31 @@ func (c *ClientWithResponses) SearchPresentationsWithResponse(ctx context.Contex
 	return ParseSearchPresentationsResponse(rsp)
 }
 
-// DeactivateServiceForDIDWithResponse request returning *DeactivateServiceForDIDResponse
-func (c *ClientWithResponses) DeactivateServiceForDIDWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*DeactivateServiceForDIDResponse, error) {
-	rsp, err := c.DeactivateServiceForDID(ctx, serviceID, did, reqEditors...)
+// DeactivateServiceForSubjectWithResponse request returning *DeactivateServiceForSubjectResponse
+func (c *ClientWithResponses) DeactivateServiceForSubjectWithResponse(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*DeactivateServiceForSubjectResponse, error) {
+	rsp, err := c.DeactivateServiceForSubject(ctx, serviceID, subjectID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseDeactivateServiceForDIDResponse(rsp)
+	return ParseDeactivateServiceForSubjectResponse(rsp)
 }
 
 // GetServiceActivationWithResponse request returning *GetServiceActivationResponse
-func (c *ClientWithResponses) GetServiceActivationWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*GetServiceActivationResponse, error) {
-	rsp, err := c.GetServiceActivation(ctx, serviceID, did, reqEditors...)
+func (c *ClientWithResponses) GetServiceActivationWithResponse(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*GetServiceActivationResponse, error) {
+	rsp, err := c.GetServiceActivation(ctx, serviceID, subjectID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseGetServiceActivationResponse(rsp)
 }
 
-// ActivateServiceForDIDWithResponse request returning *ActivateServiceForDIDResponse
-func (c *ClientWithResponses) ActivateServiceForDIDWithResponse(ctx context.Context, serviceID string, did string, reqEditors ...RequestEditorFn) (*ActivateServiceForDIDResponse, error) {
-	rsp, err := c.ActivateServiceForDID(ctx, serviceID, did, reqEditors...)
+// ActivateServiceForSubjectWithResponse request returning *ActivateServiceForSubjectResponse
+func (c *ClientWithResponses) ActivateServiceForSubjectWithResponse(ctx context.Context, serviceID string, subjectID string, reqEditors ...RequestEditorFn) (*ActivateServiceForSubjectResponse, error) {
+	rsp, err := c.ActivateServiceForSubject(ctx, serviceID, subjectID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseActivateServiceForDIDResponse(rsp)
+	return ParseActivateServiceForSubjectResponse(rsp)
 }
 
 // ParseGetServicesResponse parses an HTTP response from a GetServicesWithResponse call
@@ -780,15 +783,15 @@ func ParseSearchPresentationsResponse(rsp *http.Response) (*SearchPresentationsR
 	return response, nil
 }
 
-// ParseDeactivateServiceForDIDResponse parses an HTTP response from a DeactivateServiceForDIDWithResponse call
-func ParseDeactivateServiceForDIDResponse(rsp *http.Response) (*DeactivateServiceForDIDResponse, error) {
+// ParseDeactivateServiceForSubjectResponse parses an HTTP response from a DeactivateServiceForSubjectWithResponse call
+func ParseDeactivateServiceForSubjectResponse(rsp *http.Response) (*DeactivateServiceForSubjectResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &DeactivateServiceForDIDResponse{
+	response := &DeactivateServiceForSubjectResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -857,9 +860,12 @@ func ParseGetServiceActivationResponse(rsp *http.Response) (*GetServiceActivatio
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			// Activated Whether the DID is activated on the Discovery Service.
-			Activated bool                    `json:"activated"`
-			Vp        *VerifiablePresentation `json:"vp,omitempty"`
+			// Activated Whether the Discovery Service is activated for the given subject
+			Activated bool `json:"activated"`
+
+			// Vp List of VPs on the Discovery Service for the subject. One per DID method registered on the Service.
+			// The list can be empty even if activated==true if none of the DIDs of a subject is actually registered on the Discovery Service.
+			Vp *[]VerifiablePresentation `json:"vp,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -887,15 +893,15 @@ func ParseGetServiceActivationResponse(rsp *http.Response) (*GetServiceActivatio
 	return response, nil
 }
 
-// ParseActivateServiceForDIDResponse parses an HTTP response from a ActivateServiceForDIDWithResponse call
-func ParseActivateServiceForDIDResponse(rsp *http.Response) (*ActivateServiceForDIDResponse, error) {
+// ParseActivateServiceForSubjectResponse parses an HTTP response from a ActivateServiceForSubjectWithResponse call
+func ParseActivateServiceForSubjectResponse(rsp *http.Response) (*ActivateServiceForSubjectResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &ActivateServiceForDIDResponse{
+	response := &ActivateServiceForSubjectResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

@@ -24,9 +24,11 @@
         <div>
           <select v-on:change="selectIssuerDID">
             <option disabled selected value>choose issuer DID</option>
-            <option :value="currentDID" v-for="currentDID in ownedDIDs" :key="currentDID">
-              {{ currentDID }}
-            </option>
+            <optgroup v-for="entry in subjects" :key="'subject-' + entry.subject" :label="entry.subject">
+              <option :value="currentDID" v-for="currentDID in entry.dids" :key="'did-' + currentDID">
+                {{ currentDID }}
+              </option>
+            </optgroup>
           </select>
         </div>
       </section>
@@ -35,9 +37,11 @@
         <header>Wallet DID</header>
         <select v-on:change="selectSubjectDID" class="inline" style="width: 20%">
           <option disabled value="" selected>choose wallet DID</option>
-          <option :value="currentDID" v-for="currentDID in ownedDIDs" :key="currentDID">
-            {{ currentDID }}
-          </option>
+          <optgroup v-for="entry in subjects" :key="'subject-' + entry.subject" :label="entry.subject">
+            <option :value="currentDID" v-for="currentDID in entry.dids" :key="'did-' + currentDID">
+              {{ currentDID }}
+            </option>
+          </optgroup>
         </select>
         <input type="text" v-model="subjectDID" placeholder="Enter a DID" class="inline" style="width: 80%">
         <p>The credential will be loaded into the wallet if it's owned by the local Nuts node.</p>
@@ -85,7 +89,7 @@ export default {
       credentialType: undefined,
       subjectDID: undefined,
       issuerDID: undefined,
-      ownedDIDs: [],
+      subjects: [],
       templates: templates,
       template: undefined,
       credentialFields: [],
@@ -156,9 +160,9 @@ export default {
 
     },
     fetchData() {
-      this.$api.get('api/proxy/internal/vdr/v2/did')
+      this.$api.get('api/id')
           .then(data => {
-            this.ownedDIDs = data
+            this.subjects = data
           })
           .catch(response => {
             this.fetchError = response

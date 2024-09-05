@@ -43,31 +43,24 @@ func (i Service) Create(ctx context.Context, subject *string) (*Identity, error)
 }
 
 func (i Service) List(ctx context.Context) ([]Identity, error) {
-	//httpResponse, err := i.VDRClient.ListDIDs(ctx)
-	//if err != nil {
-	//	return nil, nuts.UnwrapAPIError(err)
-	//}
-	//response, err := vdr.ParseListDIDsResponse(httpResponse)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//if response.JSON200 == nil {
-	//	return nil, errors.New("unable to list DIDs")
-	//}
-	//identities := make([]Identity, 0)
-	//for _, did := range response.JSON200 {
-	//	identities = append(identities, Identity{
-	//		Subject: did,
-	//		DIDs:    []string{did},
-	//	})
-	//}
-	// TODO: Implement, waiting for https://github.com/nuts-foundation/nuts-node/pull/3336
+	httpResponse, err := i.VDRClient.ListSubjects(ctx)
+	if err != nil {
+		return nil, nuts.UnwrapAPIError(err)
+	}
+	response, err := vdr.ParseListSubjectsResponse(httpResponse)
+	if err != nil {
+		return nil, err
+	}
+	if response.JSON200 == nil {
+		return nil, errors.New("unable to list DIDs")
+	}
 	identities := make([]Identity, 0)
-	identities = append(identities, Identity{
-		Subject: "sub1",
-	}, Identity{
-		Subject: "sub2",
-	})
+	for subject, subjectDIDs := range *response.JSON200 {
+		identities = append(identities, Identity{
+			Subject: subject,
+			DIDs:    subjectDIDs,
+		})
+	}
 	return identities, nil
 }
 
