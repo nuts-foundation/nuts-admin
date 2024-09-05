@@ -40,7 +40,7 @@ const routes = [
         ]
       },
       {
-        path: 'id/:id',
+        path: 'id/:subjectID',
         name: 'admin.identityDetails',
         component: IdentityDetails
       },

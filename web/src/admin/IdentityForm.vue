@@ -1,13 +1,13 @@
 <template>
   <form class="space-y-3">
     <div>
-      <label for="identity-did-qualifier-input">DID Qualifier</label>
-      <input type="text" v-model="localValue.did_qualifier" id="identity-did-qualifier-input">
+      <label for="subject-input">Name</label>
+      <input type="text" v-model="localValue.subject" id="subject-input">
       <p>
-        The DID Qualifier is a postfix that is added to the did:web of your Nuts node.
-        It can be used as human-readable part of the DID, e.g. "hospital_x".
-        If not set, a GUID will be used.
+        The name is for how you refer to the identity when calling the Nuts node's APIs.
+        It can be set to have a human-readable identifier, e.g. "hospital_x". Allowed characters are <code>a-z A-Z 0-9 _ -</code>.
       </p>
+      <p>If not set, a random GUID will be generated.</p>
     </div>
   </form>
 </template>

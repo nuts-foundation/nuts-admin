@@ -7,13 +7,13 @@ import (
 )
 
 type Identity struct {
-	Name string  `json:"name"`
-	DID  did.DID `json:"did"`
+	Subject string   `json:"subject"`
+	DIDs    []string `json:"dids"`
 }
 
 type IdentityDetails struct {
 	Identity
-	DIDDocument       did.Document              `json:"did_document"`
+	DIDDocuments      []did.Document            `json:"did_documents"`
 	DiscoveryServices []discovery.DIDStatus     `json:"discovery_services"`
 	WalletCredentials []vc.VerifiableCredential `json:"wallet_credentials"`
 }

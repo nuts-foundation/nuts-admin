@@ -37,9 +37,12 @@ func (i Service) ActivationStatus(ctx context.Context, serviceID string, subject
 	if response.JSON200 == nil {
 		return nil, errors.New("unable to get service activation")
 	}
-	return &DIDStatus{
-		ServiceID:    serviceID,
-		Active:       response.JSON200.Activated,
-		Presentation: response.JSON200.Vp,
-	}, nil
+	result := &DIDStatus{
+		ServiceID: serviceID,
+		Active:    response.JSON200.Activated,
+	}
+	if response.JSON200.Vp != nil {
+		result.Presentations = *response.JSON200.Vp
+	}
+	return result, nil
 }

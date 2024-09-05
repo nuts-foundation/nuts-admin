@@ -32,11 +32,11 @@ func (w Wrapper) CreateIdentity(ctx echo.Context) error {
 	if err := ctx.Bind(&identityRequest); err != nil {
 		return err
 	}
-	id, err := w.Identity.Create(ctx.Request().Context(), identityRequest.DidQualifier)
+	result, err := w.Identity.Create(ctx.Request().Context(), identityRequest.Subject)
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(http.StatusOK, id)
+	return ctx.JSON(http.StatusOK, result)
 }
 
 func (w Wrapper) GetIdentity(ctx echo.Context, did string) error {
@@ -54,11 +54,13 @@ func (w Wrapper) GetIssuedCredentials(ctx echo.Context, params GetIssuedCredenti
 	}
 	result := make([]vc.VerifiableCredential, 0)
 	for _, currID := range identities {
-		credentials, err := w.IssuerService.GetIssuedCredentials(ctx.Request().Context(), currID.DID, strings.Split(params.CredentialTypes, ","))
-		if err != nil {
-			return err
+		for _, issuerDID := range currID.DIDs {
+			credentials, err := w.IssuerService.GetIssuedCredentials(ctx.Request().Context(), issuerDID, strings.Split(params.CredentialTypes, ","))
+			if err != nil {
+				return err
+			}
+			result = append(result, credentials...)
 		}
-		result = append(result, credentials...)
 	}
 	return ctx.JSON(http.StatusOK, result)
 }

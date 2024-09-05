@@ -2,7 +2,6 @@ package issuer
 
 import (
 	"context"
-	"github.com/nuts-foundation/go-did/did"
 	"github.com/nuts-foundation/go-did/vc"
 	"github.com/nuts-foundation/nuts-admin/identity"
 	"github.com/nuts-foundation/nuts-admin/nuts/vcr"
@@ -14,7 +13,7 @@ type Service struct {
 	VCRClient       *vcr.Client
 }
 
-func (s Service) GetIssuedCredentials(ctx context.Context, issuer did.DID, credentialTypes []string) ([]vc.VerifiableCredential, error) {
+func (s Service) GetIssuedCredentials(ctx context.Context, issuer string, credentialTypes []string) ([]vc.VerifiableCredential, error) {
 	var result []vc.VerifiableCredential
 	for _, credentialType := range credentialTypes {
 		credentialType = strings.TrimSpace(credentialType)
@@ -23,7 +22,7 @@ func (s Service) GetIssuedCredentials(ctx context.Context, issuer did.DID, crede
 		}
 		searchHTTPResponse, err := s.VCRClient.SearchIssuedVCs(ctx, &vcr.SearchIssuedVCsParams{
 			CredentialType: credentialType,
-			Issuer:         issuer.String(),
+			Issuer:         issuer,
 		})
 		if err != nil {
 			return nil, err

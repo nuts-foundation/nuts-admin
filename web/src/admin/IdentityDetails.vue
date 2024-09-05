@@ -1,24 +1,20 @@
 <template>
   <div>
-    <h1>Identity</h1>
+    <h1>Identity: {{ this.$route.params.subjectID }}</h1>
     <p v-if="fetchError" class="m-4">Error: {{ fetchError }}</p>
-    <div v-if="details && discoveryServices">
+    <div v-if="details">
       <section>
-        <code class="inline">{{ details.did }}</code>
-        &nbsp;
-        <button class="btn btn-primary btn-tiny" v-on:click="showDIDDocument = !showDIDDocument">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-               stroke="currentColor" class="w-6 h-6 inline">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-          </svg>
-          &nbsp;
-          Show DID Document
-        </button>
-        <pre v-if="showDIDDocument">{{ details.did_document }}</pre>
-      </section>
-      <section>
-
+        <header>DID Documents</header>
+        <table class="min-w-full divide-y divide-gray-200" v-if="details.did_documents.length > 0">
+          <tbody>
+          <tr v-for="didDocument in details.did_documents" :key="didDocument.id">
+            <td>
+              <pre v-on:click="showDIDDocument(didDocument.id)" style="cursor: pointer;">{{ didDocument.id }}</pre>
+              <pre v-if="shownDIDDocument === didDocument.id">{{ JSON.stringify(didDocument, null, 2) }}</pre>
+            </td>
+          </tr>
+          </tbody>
+        </table>
       </section>
       <section>
         <header>Discovery Services</header>
@@ -109,8 +105,8 @@ export default {
     return {
       fetchError: undefined,
       details: undefined,
+      shownDIDDocument: undefined,
       discoveryServices: {},
-      showDIDDocument: false,
     }
   },
   created() {
@@ -121,7 +117,7 @@ export default {
       this.$emit('statusUpdate', event)
     },
     fetchData() {
-      this.$api.get('api/id/' + this.$route.params.id)
+      this.$api.get('api/id/' + this.$route.params.subjectID)
           .then(data => {
             this.details = data
           })
@@ -141,9 +137,12 @@ export default {
             this.discoveryServices = {}
           })
     },
+    showDIDDocument(id) {
+      this.shownDIDDocument = this.shownDIDDocument === id ? undefined : id
+    },
     activateService(id) {
       this.fetchError = undefined
-      this.$api.post(`api/proxy/internal/discovery/v1/${id}/${this.details.did}`)
+      this.$api.post(`api/proxy/internal/discovery/v1/${id}/${this.details.subject}`)
           .then(data => {
             if (data.reason) {
               this.fetchError = data.reason
@@ -158,7 +157,7 @@ export default {
     },
     deactivateService(id) {
       this.fetchError = undefined
-      this.$api.delete(`api/proxy/internal/discovery/v1/${id}/${this.details.did}`)
+      this.$api.delete(`api/proxy/internal/discovery/v1/${id}/${this.details.subject}`)
           .then(data => {
             if (data.reason) {
               this.fetchError = data.reason

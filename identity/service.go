@@ -3,7 +3,6 @@ package identity
 import (
 	"context"
 	"errors"
-	"github.com/nuts-foundation/go-did/did"
 	"github.com/nuts-foundation/go-did/vc"
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/nuts"
@@ -19,9 +18,12 @@ type Service struct {
 	DiscoveryService discovery.Service
 }
 
-func (i Service) Create(ctx context.Context, shortName string) (*Identity, error) {
+func (i Service) Create(ctx context.Context, subject *string) (*Identity, error) {
+	if subject != nil && *subject == "" {
+		subject = nil
+	}
 	httpResponse, err := i.VDRClient.CreateDID(ctx, vdr.CreateDIDJSONRequestBody{
-		Tenant: &shortName,
+		Subject: subject,
 	})
 	if err != nil {
 		return nil, nuts.UnwrapAPIError(err)
@@ -31,18 +33,21 @@ func (i Service) Create(ctx context.Context, shortName string) (*Identity, error
 		return nil, err
 	}
 	if response.JSON200 == nil {
-		return nil, errors.New("unable to create new DID")
+		return nil, errors.New("unable to create new subject")
 	}
-	result := parseIdentity(response.JSON200.ID)
+	result := Identity{Subject: response.JSON200.Subject}
+	for _, didDocument := range response.JSON200.Documents {
+		result.DIDs = append(result.DIDs, didDocument.ID.String())
+	}
 	return &result, nil
 }
 
 func (i Service) List(ctx context.Context) ([]Identity, error) {
-	httpResponse, err := i.VDRClient.ListDIDs(ctx)
+	httpResponse, err := i.VDRClient.ListSubjects(ctx)
 	if err != nil {
 		return nil, nuts.UnwrapAPIError(err)
 	}
-	response, err := vdr.ParseListDIDsResponse(httpResponse)
+	response, err := vdr.ParseListSubjectsResponse(httpResponse)
 	if err != nil {
 		return nil, err
 	}
@@ -50,26 +55,39 @@ func (i Service) List(ctx context.Context) ([]Identity, error) {
 		return nil, errors.New("unable to list DIDs")
 	}
 	identities := make([]Identity, 0)
-	for _, didStr := range *response.JSON200 {
-		curr, err := did.ParseDID(didStr)
-		if err != nil {
-			return nil, err
-		}
-		identities = append(identities, parseIdentity(*curr))
+	for subject, subjectDIDs := range *response.JSON200 {
+		identities = append(identities, Identity{
+			Subject: subject,
+			DIDs:    subjectDIDs,
+		})
 	}
 	return identities, nil
 }
 
 func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, error) {
 	// Make sure it exists
-	didDocument, err := i.resolveDID(ctx, subjectID)
+	identity, err := i.getSubject(ctx, subjectID)
 	if err != nil {
 		return nil, err
 	}
+
 	result := IdentityDetails{
-		Identity:          parseIdentity(didDocument.ID),
-		DIDDocument:       *didDocument,
+		Identity:          *identity,
 		DiscoveryServices: make([]discovery.DIDStatus, 0),
+		WalletCredentials: make([]vc.VerifiableCredential, 0),
+	}
+
+	// Get DIDDocuments
+	for _, currentDID := range identity.DIDs {
+		resp, err := i.VDRClient.ResolveDID(ctx, currentDID)
+		if err != nil {
+			return nil, err
+		}
+		didResponse, err := vdr.ParseResolveDIDResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+		result.DIDDocuments = append(result.DIDDocuments, didResponse.JSON200.Document)
 	}
 
 	// Get DiscoveryService status
@@ -90,34 +108,37 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 	})
 
 	// Get WalletCredentials
-	credentials, err := i.credentialsInWallet(ctx, didDocument.ID)
-	if err != nil {
-		return nil, err
+	for _, currentDID := range identity.DIDs {
+		credentials, err := i.credentialsInWallet(ctx, currentDID)
+		if err != nil {
+			return nil, err
+		}
+		result.WalletCredentials = append(result.WalletCredentials, credentials...)
 	}
-	if credentials == nil {
-		credentials = make([]vc.VerifiableCredential, 0)
-	}
-	result.WalletCredentials = credentials
+
 	return &result, nil
 }
 
-func (i Service) resolveDID(ctx context.Context, did string) (*did.Document, error) {
-	httpResponse, err := i.VDRClient.ResolveDID(ctx, did)
+func (i Service) getSubject(ctx context.Context, subject string) (*Identity, error) {
+	httpResponse, err := i.VDRClient.SubjectDIDs(ctx, subject)
 	if err != nil {
 		return nil, nuts.UnwrapAPIError(err)
 	}
-	response, err := vdr.ParseResolveDIDResponse(httpResponse)
+	response, err := vdr.ParseSubjectDIDsResponse(httpResponse)
 	if err != nil {
 		return nil, err
 	}
 	if response.JSON200 == nil {
 		return nil, errors.New("unable to resolve DID")
 	}
-	return &response.JSON200.Document, nil
+	return &Identity{
+		Subject: subject,
+		DIDs:    *response.JSON200,
+	}, nil
 }
 
-func (i Service) credentialsInWallet(ctx context.Context, id did.DID) ([]vc.VerifiableCredential, error) {
-	httpResponse, err := i.VCRClient.GetCredentialsInWallet(ctx, id.String())
+func (i Service) credentialsInWallet(ctx context.Context, id string) ([]vc.VerifiableCredential, error) {
+	httpResponse, err := i.VCRClient.GetCredentialsInWallet(ctx, id)
 	if err != nil {
 		return nil, nuts.UnwrapAPIError(err)
 	}
@@ -129,16 +150,4 @@ func (i Service) credentialsInWallet(ctx context.Context, id did.DID) ([]vc.Veri
 		return nil, errors.New("unable to list credentials")
 	}
 	return *response.JSON200, nil
-}
-
-func parseIdentity(id did.DID) Identity {
-	result := Identity{
-		DID: id,
-	}
-	if strings.Contains(id.ID, ":") {
-		result.Name = id.ID[strings.LastIndex(id.ID, ":")+1:]
-	} else {
-		result.Name = id.String()
-	}
-	return result
 }
