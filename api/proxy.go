@@ -38,12 +38,12 @@ var allowedProxyRoutes = []proxyRoute{
 	// Activate Discovery Services for a DID
 	{
 		method: http.MethodPost,
-		path:   "/internal/discovery/v1/([a-z-A-Z0-9_\\-\\:\\.%]+)/([a-z-A-Z0-0_\\-\\:\\.%]+)",
+		path:   "/internal/discovery/v1/([a-z-A-Z0-9_\\-\\:\\.%]+)/([a-z-A-Z0-9_\\-\\:\\.%]+)",
 	},
 	// Deactivate Discovery Services for a DID
 	{
 		method: http.MethodDelete,
-		path:   "/internal/discovery/v1/([a-z-A-Z0-9_\\-\\:\\.%]+)/([a-z-A-Z0-0_\\-\\:\\.%]+)",
+		path:   "/internal/discovery/v1/([a-z-A-Z0-9_\\-\\:\\.%]+)/([a-z-A-Z0-9_\\-\\:\\.%]+)",
 	},
 	// Issue Verifiable Credentials
 	{
