@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"log"
+	"github.com/rs/zerolog"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -64,7 +64,7 @@ var allowedProxyRoutes = []proxyRoute{
 
 // ConfigureProxy configures the proxy middleware for the given Nuts node address.
 // It allows the web application to call a curated list of endpoints on the Nuts node.
-func ConfigureProxy(e *echo.Echo, nodeAddress *url.URL) {
+func ConfigureProxy(logger zerolog.Logger, e *echo.Echo, nodeAddress *url.URL) {
 	e.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{
 		Balancer: middleware.NewRoundRobinBalancer([]*middleware.ProxyTarget{
 			{
@@ -84,7 +84,7 @@ func ConfigureProxy(e *echo.Echo, nodeAddress *url.URL) {
 			proxyURL = "/" + strings.TrimLeft(proxyURL, "/")
 			for _, route := range allowedProxyRoutes {
 				if c.Request().Method == route.method && route.compiledPath.MatchString(proxyURL) {
-					log.Printf("proxying %s %s", c.Request().Method, proxyURL)
+					logger.Info().Msgf("proxying %s %s", c.Request().Method, proxyURL)
 					return false
 				}
 			}

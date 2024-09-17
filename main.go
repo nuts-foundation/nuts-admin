@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lestrrat-go/jwx/jwt"
 	"github.com/nuts-foundation/nuts-admin/discovery"
@@ -15,6 +16,7 @@ import (
 	"github.com/nuts-foundation/nuts-admin/issuer"
 	"github.com/nuts-foundation/nuts-admin/nuts/vcr"
 	"github.com/nuts-foundation/nuts-admin/nuts/vdr"
+	"github.com/rs/zerolog"
 	"io/fs"
 	"log"
 	"net/http"
@@ -32,13 +34,14 @@ const assetPath = "web/dist"
 //go:embed web/dist/*
 var embeddedFiles embed.FS
 
+var logger zerolog.Logger
+
 func getFileSystem(useFS bool) http.FileSystem {
 	if useFS {
-		log.Print("using live mode")
+		logger.Info().Msg("using live mode")
 		return http.FS(os.DirFS(assetPath))
 	}
-
-	log.Print("using embed mode")
+	logger.Debug().Msg("using embed mode")
 	fsys, err := fs.Sub(embeddedFiles, assetPath)
 	if err != nil {
 		panic(err)
@@ -48,12 +51,20 @@ func getFileSystem(useFS bool) http.FileSystem {
 }
 
 func main() {
+	logger = zerolog.New(log.Writer()).With().Timestamp().Logger()
 	config := loadConfig()
-	config.Print(log.Writer())
+	config.Print()
 
 	e := echo.New()
 	e.HideBanner = true
 	e.HTTPErrorHandler = httpErrorHandler
+	e.HideBanner = true
+	e.HidePort = true
+	if config.AccessLogs {
+		e.Use(accessLoggerMiddleware(func(c echo.Context) bool {
+			return c.Request().URL.Path == "/status"
+		}, logger))
+	}
 
 	nodeAddress, err := url.Parse(config.Node.Address)
 	if err != nil {
@@ -92,7 +103,7 @@ func main() {
 	}
 
 	api.RegisterHandlers(e, apiWrapper)
-	api.ConfigureProxy(e, nodeAddress)
+	api.ConfigureProxy(logger, e, nodeAddress)
 
 	// Setup asset serving:
 	// Check if we use live mode from the file system or using embedded files
@@ -215,4 +226,32 @@ func ecAlgUsingPublicKey(key ecdsa.PublicKey) (alg jwa.SignatureAlgorithm, err e
 		err = errors.New("unsupported key")
 	}
 	return
+}
+
+// accessLoggerMiddleware returns middleware that logs metadata of HTTP requests.
+// Should be added as the outer middleware to catch all errors and potential status rewrites
+func accessLoggerMiddleware(skipper middleware.Skipper, logger zerolog.Logger) echo.MiddlewareFunc {
+	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		Skipper:     skipper,
+		LogURI:      true,
+		LogStatus:   true,
+		LogMethod:   true,
+		LogRemoteIP: true,
+		LogError:    true,
+		LogValuesFunc: func(c echo.Context, values middleware.RequestLoggerValues) error {
+			event := logger.Info().Fields(map[string]interface{}{
+				"remote_ip": values.RemoteIP,
+				"method":    values.Method,
+				"uri":       values.URI,
+				"status":    values.Status,
+			})
+			if logger.GetLevel() >= zerolog.DebugLevel {
+				event.Fields(map[string]interface{}{
+					"headers": values.Headers,
+				})
+			}
+			event.Msg("HTTP request")
+			return nil
+		},
+	})
 }
