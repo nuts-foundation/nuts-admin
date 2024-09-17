@@ -101,7 +101,7 @@ func main() {
 	e.GET("/status", func(context echo.Context) error {
 		return context.String(http.StatusOK, "OK")
 	})
-	e.GET("/*", echo.WrapHandler(assetHandler))
+	e.GET("/*", echo.WrapHandler(assetHandler), api.AuthMiddleware())
 
 	// Start server
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.HTTPPort)))
