@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/ssh"
-	"io"
 	"log"
 	"os"
 	"strings"
@@ -34,13 +33,15 @@ func defaultConfig() Config {
 		Node: Node{
 			Address: "http://localhost:8081",
 		},
+		AccessLogs: true,
 	}
 }
 
 type Config struct {
-	HTTPPort int  `koanf:"port"`
-	Node     Node `koanf:"node"`
-	apiKey   crypto.Signer
+	HTTPPort   int  `koanf:"port"`
+	Node       Node `koanf:"node"`
+	AccessLogs bool `koanf:"accesslogs"`
+	apiKey     crypto.Signer
 }
 
 type Node struct {
@@ -66,19 +67,9 @@ func generateSessionKey() (*ecdsa.PrivateKey, error) {
 	return key, nil
 }
 
-func (c Config) Print(writer io.Writer) error {
-	if _, err := fmt.Fprintln(writer, "========== CONFIG: =========="); err != nil {
-		return err
-	}
-	var pr Config = c
-	data, _ := json.MarshalIndent(pr, "", "  ")
-	if _, err := fmt.Println(writer, string(data)); err != nil {
-		return err
-	}
-	if _, err := fmt.Fprintln(writer, "========= END CONFIG ========="); err != nil {
-		return err
-	}
-	return nil
+func (c Config) Print() {
+	data, _ := json.Marshal(c)
+	logger.Info().Msgf("Config: %s", string(data))
 }
 
 func loadConfig() Config {
@@ -90,12 +81,12 @@ func loadConfig() Config {
 	configFilePath := resolveConfigFile(flagset)
 	// Check if the file exists
 	if _, err := os.Stat(configFilePath); err == nil {
-		log.Printf("Loading config from file: %s", configFilePath)
+		logger.Info().Msgf("Loading config from file: %s", configFilePath)
 		if err := k.Load(file.Provider(configFilePath), yaml.Parser()); err != nil {
-			log.Fatalf("error while loading config from file: %v", err)
+			logger.Fatal().Msgf("error while loading config from file: %v", err)
 		}
 	} else {
-		log.Printf("Using default config because no file was found at: %s", configFilePath)
+		logger.Info().Msgf("Using default config because no file was found at: %s", configFilePath)
 	}
 
 	// load env flags, can't return error
