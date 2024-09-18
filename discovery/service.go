@@ -2,40 +2,31 @@ package discovery
 
 import (
 	"context"
-	"errors"
-	"github.com/nuts-foundation/nuts-admin/nuts"
+	"github.com/nuts-foundation/go-nuts-client/nuts"
+	"github.com/nuts-foundation/go-nuts-client/nuts/discovery"
 )
 
 type Service struct {
-	Client *Client
+	Client *discovery.Client
 }
 
-func (i Service) GetDiscoveryServices(ctx context.Context) ([]ServiceDefinition, error) {
+func (i Service) GetDiscoveryServices(ctx context.Context) ([]discovery.ServiceDefinition, error) {
 	httpResponse, err := i.Client.GetServices(ctx)
-	if err != nil {
-		return nil, nuts.UnwrapAPIError(err)
-	}
-	response, err := ParseGetServicesResponse(httpResponse)
+	response, err := nuts.ParseResponse(err, httpResponse, discovery.ParseGetServicesResponse)
 	if err != nil {
 		return nil, err
-	}
-	if response.JSON200 == nil {
-		return nil, errors.New("unable to get services")
 	}
 	return *response.JSON200, nil
 }
 
 func (i Service) ActivationStatus(ctx context.Context, serviceID string, subjectID string) (*DIDStatus, error) {
 	httpResponse, err := i.Client.GetServiceActivation(ctx, serviceID, subjectID)
-	if err != nil {
-		return nil, nuts.UnwrapAPIError(err)
-	}
-	response, err := ParseGetServiceActivationResponse(httpResponse)
+	response, err := nuts.ParseResponse(err, httpResponse, discovery.ParseGetServiceActivationResponse)
 	if err != nil {
 		return nil, err
 	}
-	if response.JSON200 == nil {
-		return nil, errors.New("unable to get service activation")
+	if err != nil {
+		return nil, err
 	}
 	result := &DIDStatus{
 		ServiceID: serviceID,

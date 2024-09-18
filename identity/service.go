@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"github.com/nuts-foundation/go-did/vc"
+	"github.com/nuts-foundation/go-nuts-client/nuts"
+	"github.com/nuts-foundation/go-nuts-client/nuts/vcr"
+	"github.com/nuts-foundation/go-nuts-client/nuts/vdr"
 	"github.com/nuts-foundation/nuts-admin/discovery"
-	"github.com/nuts-foundation/nuts-admin/nuts"
-	"github.com/nuts-foundation/nuts-admin/nuts/vcr"
-	"github.com/nuts-foundation/nuts-admin/nuts/vdr"
 	"slices"
 	"strings"
 )
@@ -22,18 +22,12 @@ func (i Service) Create(ctx context.Context, subject *string) (*Identity, error)
 	if subject != nil && *subject == "" {
 		subject = nil
 	}
-	httpResponse, err := i.VDRClient.CreateDID(ctx, vdr.CreateDIDJSONRequestBody{
+	httpResponse, err := i.VDRClient.CreateSubject(ctx, vdr.CreateSubjectJSONRequestBody{
 		Subject: subject,
 	})
-	if err != nil {
-		return nil, nuts.UnwrapAPIError(err)
-	}
-	response, err := vdr.ParseCreateDIDResponse(httpResponse)
+	response, err := nuts.ParseResponse(err, httpResponse, vdr.ParseCreateSubjectResponse)
 	if err != nil {
 		return nil, err
-	}
-	if response.JSON200 == nil {
-		return nil, errors.New("unable to create new subject")
 	}
 	result := Identity{Subject: response.JSON200.Subject}
 	for _, didDocument := range response.JSON200.Documents {
@@ -44,15 +38,9 @@ func (i Service) Create(ctx context.Context, subject *string) (*Identity, error)
 
 func (i Service) List(ctx context.Context) ([]Identity, error) {
 	httpResponse, err := i.VDRClient.ListSubjects(ctx)
-	if err != nil {
-		return nil, nuts.UnwrapAPIError(err)
-	}
-	response, err := vdr.ParseListSubjectsResponse(httpResponse)
+	response, err := nuts.ParseResponse(err, httpResponse, vdr.ParseListSubjectsResponse)
 	if err != nil {
 		return nil, err
-	}
-	if response.JSON200 == nil {
-		return nil, errors.New("unable to list DIDs")
 	}
 	identities := make([]Identity, 0)
 	for subject, subjectDIDs := range *response.JSON200 {
@@ -121,15 +109,9 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 
 func (i Service) getSubject(ctx context.Context, subject string) (*Identity, error) {
 	httpResponse, err := i.VDRClient.SubjectDIDs(ctx, subject)
-	if err != nil {
-		return nil, nuts.UnwrapAPIError(err)
-	}
-	response, err := vdr.ParseSubjectDIDsResponse(httpResponse)
+	response, err := nuts.ParseResponse(err, httpResponse, vdr.ParseSubjectDIDsResponse)
 	if err != nil {
 		return nil, err
-	}
-	if response.JSON200 == nil {
-		return nil, errors.New("unable to resolve DID")
 	}
 	return &Identity{
 		Subject: subject,
@@ -139,10 +121,7 @@ func (i Service) getSubject(ctx context.Context, subject string) (*Identity, err
 
 func (i Service) credentialsInWallet(ctx context.Context, id string) ([]vc.VerifiableCredential, error) {
 	httpResponse, err := i.VCRClient.GetCredentialsInWallet(ctx, id)
-	if err != nil {
-		return nil, nuts.UnwrapAPIError(err)
-	}
-	response, err := vcr.ParseGetCredentialsInWalletResponse(httpResponse)
+	response, err := nuts.ParseResponse(err, httpResponse, vcr.ParseGetCredentialsInWalletResponse)
 	if err != nil {
 		return nil, err
 	}

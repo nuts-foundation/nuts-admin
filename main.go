@@ -11,11 +11,12 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lestrrat-go/jwx/jwt"
+	libDiscovery "github.com/nuts-foundation/go-nuts-client/nuts/discovery"
+	"github.com/nuts-foundation/go-nuts-client/nuts/vcr"
+	"github.com/nuts-foundation/go-nuts-client/nuts/vdr"
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
 	"github.com/nuts-foundation/nuts-admin/issuer"
-	"github.com/nuts-foundation/nuts-admin/nuts/vcr"
-	"github.com/nuts-foundation/nuts-admin/nuts/vdr"
 	"github.com/rs/zerolog"
 	"io/fs"
 	"log"
@@ -82,7 +83,7 @@ func main() {
 
 	vdrClient, _ := vdr.NewClient(config.Node.Address)
 	vcrClient, _ := vcr.NewClient(config.Node.Address)
-	discoveryClient, _ := discovery.NewClient(config.Node.Address)
+	discoveryClient, _ := libDiscovery.NewClient(config.Node.Address)
 
 	// Initialize wrapper
 	discoveryService := discovery.Service{

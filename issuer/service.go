@@ -3,8 +3,9 @@ package issuer
 import (
 	"context"
 	"github.com/nuts-foundation/go-did/vc"
+	"github.com/nuts-foundation/go-nuts-client/nuts"
+	"github.com/nuts-foundation/go-nuts-client/nuts/vcr"
 	"github.com/nuts-foundation/nuts-admin/identity"
-	"github.com/nuts-foundation/nuts-admin/nuts/vcr"
 	"strings"
 )
 
@@ -20,18 +21,15 @@ func (s Service) GetIssuedCredentials(ctx context.Context, issuer string, creden
 		if credentialType == "" {
 			continue
 		}
-		searchHTTPResponse, err := s.VCRClient.SearchIssuedVCs(ctx, &vcr.SearchIssuedVCsParams{
+		httpResponse, err := s.VCRClient.SearchIssuedVCs(ctx, &vcr.SearchIssuedVCsParams{
 			CredentialType: credentialType,
 			Issuer:         issuer,
 		})
+		response, err := nuts.ParseResponse(err, httpResponse, vcr.ParseSearchIssuedVCsResponse)
 		if err != nil {
 			return nil, err
 		}
-		searchResponse, err := vcr.ParseSearchIssuedVCsResponse(searchHTTPResponse)
-		if err != nil {
-			return nil, err
-		}
-		for _, searchResult := range searchResponse.JSON200.VerifiableCredentials {
+		for _, searchResult := range response.JSON200.VerifiableCredentials {
 			result = append(result, searchResult.VerifiableCredential)
 		}
 	}
