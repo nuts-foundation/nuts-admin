@@ -41,7 +41,7 @@
               </svg>
               active
             </td>
-            <td v-if="service.active && !service.vp" class="whitespace-nowrap">
+            <td v-if="service.active && service.vps && service.vps.length > 0" class="whitespace-nowrap">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                    stroke="DarkOrange" class="w-6 h-6 inline-block">
                 <path stroke-linecap="round" stroke-linejoin="round"
