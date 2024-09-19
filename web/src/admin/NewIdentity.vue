@@ -48,14 +48,13 @@ export default {
       return this.confirm()
     },
     confirm () {
-      console.log('Creating identity', this.identity);
       this.$api.post('api/id', this.identity)
         .then(response => {
           this.$emit('statusUpdate', 'Identity created')
           this.$router.push({ name: 'admin.identities' })
         })
         .catch(response => {
-          this.apiError = response.statusText
+          this.apiError = response
         })
     }
   }
