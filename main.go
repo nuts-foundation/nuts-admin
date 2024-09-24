@@ -48,8 +48,10 @@ func getFileSystem(useFS bool) http.FileSystem {
 }
 
 func main() {
-	config := loadConfig()
-	config.Print(log.Writer())
+	config, err := loadConfig()
+	if err != nil {
+		log.Fatalf("unable to load config: %s", err)
+	}
 
 	e := echo.New()
 	e.HideBanner = true
@@ -91,6 +93,12 @@ func main() {
 		},
 	}
 
+	if authMiddleware, err := createAuthMiddleware(*config, e); err != nil {
+		log.Fatalf("auth init: %s", err)
+	} else {
+		e.Use(authMiddleware)
+	}
+
 	api.RegisterHandlers(e, apiWrapper)
 	api.ConfigureProxy(e, nodeAddress)
 
@@ -101,10 +109,37 @@ func main() {
 	e.GET("/status", func(context echo.Context) error {
 		return context.String(http.StatusOK, "OK")
 	})
-	e.GET("/*", echo.WrapHandler(assetHandler), api.AuthMiddleware())
+	e.GET("/*", echo.WrapHandler(assetHandler))
 
 	// Start server
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.HTTPPort)))
+}
+
+func createAuthMiddleware(config Config, e *echo.Echo) (echo.MiddlewareFunc, error) {
+	switch config.Auth.Type {
+	case AuthTypeOidc:
+		// OpenID Connect authentication
+		issuerUrl := config.Auth.Oidc.ParseIssuer()
+		if issuerUrl == nil {
+			return nil, errors.New("missing/invalid OIDC issuer URL")
+		}
+		if config.Auth.Oidc.Client.Id == "" || config.Auth.Oidc.Client.Secret == "" {
+			return nil, errors.New("missing OIDC client ID and/or secret")
+		}
+		appUrl := config.ParseUrl()
+		if appUrl == nil || appUrl.String() == "" {
+			return nil, errors.New("missing/invalid application URL (required when OIDC auth is enabled)")
+		}
+		securedPaths := []string{"/", "/api"}
+		return api.AuthMiddleware(e, appUrl, config.Auth.Oidc.ParseIssuer(), config.Auth.Oidc.Client.Id, config.Auth.Oidc.Client.Secret, securedPaths), nil
+	case AuthTypeNone:
+		// No authentication
+		return func(next echo.HandlerFunc) echo.HandlerFunc {
+			return next
+		}, nil
+	default:
+		return nil, fmt.Errorf("unsupported auth type: %s", config.Auth.Type)
+	}
 }
 
 // httpErrorHandler includes the err.Err() string in a { "error": "msg" } json hash

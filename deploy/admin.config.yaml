@@ -1,3 +1,11 @@
 port: 1305
 node:
   address: "http://localhost:8081"
+url: http://localhost:1305
+auth:
+  type: "openid-connect"
+  oidc:
+    client:
+      id: "3e681ba5-7a54-4f97-8a70-5b6090d5e0ee"
+      secret: "pf1Lmu1ibsD2-nR.D.eSinzrdU"
+    issuer: "http://127.0.0.1:4444"

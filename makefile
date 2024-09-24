@@ -19,6 +19,9 @@ dev:
 dev-no-api:
 	make -j3 watch run-nuts-node
 
+dev-oidc:
+	make -j3 watch run-nuts-oidc run-api
+
 watch:
 	npm install
 	npm run watch
@@ -26,6 +29,10 @@ watch:
 run-nuts-node:
 	docker compose pull
 	docker compose up --wait
+
+run-nuts-node-oidc:
+	docker compose -f docker-compose.yaml -f docker-compose-hydra.yaml pull
+	docker compose -f docker-compose.yaml -f docker-compose-hydra.yaml up --wait
 
 run-api:
 	go run . live --configfile=deploy/admin.config.yaml

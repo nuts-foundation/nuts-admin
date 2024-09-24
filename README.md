@@ -39,6 +39,27 @@ The API and domain types are generated from the `api/api.yaml`.
 make gen-api
 ```
 
+### OpenID Connect
+
+To develop the OpenID Connect implementation, run:
+
+```shell
+make dev-oidc
+```
+
+```shell
+docker compose -f docker-compose-hydra.yaml exec hydra \
+    hydra create client \
+    --endpoint http://127.0.0.1:4445 \
+    --grant-type authorization_code,refresh_token \
+    --response-type code,id_token \
+    --format json \
+    --scope openid --scope offline \
+    --redirect-uri http://localhost:1305/auth/callback
+```
+
+Then copy the client ID and secret into the `deploy/admin.config.yaml` configuration file.
+
 ### Technology Stack
 
 Frontend framework is vue.js 3.x

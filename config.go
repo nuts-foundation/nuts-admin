@@ -6,12 +6,11 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
-	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/ssh"
-	"io"
-	"log"
+	"net/url"
 	"os"
 	"strings"
 
@@ -34,13 +33,60 @@ func defaultConfig() Config {
 		Node: Node{
 			Address: "http://localhost:8081",
 		},
+		Auth: AuthConfig{
+			Type: AuthTypeNone,
+		},
 	}
 }
 
 type Config struct {
-	HTTPPort int  `koanf:"port"`
-	Node     Node `koanf:"node"`
-	apiKey   crypto.Signer
+	HTTPPort int `koanf:"port"`
+	// Url contains the base URL of the application, as it is reachable by the user agent.
+	Url  string `koanf:"url"`
+	Node Node   `koanf:"node"`
+	// Auth contains the configuration authenticating end-users of the application.
+	Auth   AuthConfig `koanf:"auth"`
+	apiKey crypto.Signer
+}
+
+func (c Config) ParseUrl() *url.URL {
+	u, err := url.Parse(c.Url)
+	if err != nil {
+		log.Logger.Warn().Err(err).Msg("unable to parse URL")
+	}
+	return u
+}
+
+type AuthType string
+
+// AuthTypeNone is the default authentication type, which means no authentication is required.
+const AuthTypeNone AuthType = "none"
+
+// AuthTypeOidc is the OpenID Connect authentication type.
+const AuthTypeOidc AuthType = "openid-connect"
+
+type AuthConfig struct {
+	Type AuthType `koanf:"type"`
+	// Oidc contains the configuration for the OpenID Connect authentication provider.
+	Oidc OidcAuthConfig `koanf:"oidc"`
+}
+
+type OidcAuthConfig struct {
+	IssuerUrl string               `koanf:"issuer"`
+	Client    OidcAuthClientConfig `koanf:"client"`
+}
+
+func (a OidcAuthConfig) ParseIssuer() *url.URL {
+	u, err := url.Parse(a.IssuerUrl)
+	if err != nil {
+		log.Logger.Warn().Err(err).Msg("unable to parse OIDC issuer URL")
+	}
+	return u
+}
+
+type OidcAuthClientConfig struct {
+	Id     string `koanf:"id"`
+	Secret string `koanf:"secret"`
 }
 
 type Node struct {
@@ -66,22 +112,7 @@ func generateSessionKey() (*ecdsa.PrivateKey, error) {
 	return key, nil
 }
 
-func (c Config) Print(writer io.Writer) error {
-	if _, err := fmt.Fprintln(writer, "========== CONFIG: =========="); err != nil {
-		return err
-	}
-	var pr Config = c
-	data, _ := json.MarshalIndent(pr, "", "  ")
-	if _, err := fmt.Println(writer, string(data)); err != nil {
-		return err
-	}
-	if _, err := fmt.Fprintln(writer, "========= END CONFIG ========="); err != nil {
-		return err
-	}
-	return nil
-}
-
-func loadConfig() Config {
+func loadConfig() (*Config, error) {
 	flagset := loadFlagSet(os.Args[1:])
 
 	var k = koanf.New(".")
@@ -92,7 +123,7 @@ func loadConfig() Config {
 	if _, err := os.Stat(configFilePath); err == nil {
 		log.Printf("Loading config from file: %s", configFilePath)
 		if err := k.Load(file.Provider(configFilePath), yaml.Parser()); err != nil {
-			log.Fatalf("error while loading config from file: %v", err)
+			return nil, fmt.Errorf("error while loading config from file: %v", err)
 		}
 	} else {
 		log.Printf("Using default config because no file was found at: %s", configFilePath)
@@ -105,28 +136,28 @@ func loadConfig() Config {
 
 	// Unmarshal values of the config file into the config struct, potentially replacing default values
 	if err := k.Unmarshal("", &config); err != nil {
-		log.Fatalf("error while unmarshalling config: %v", err)
+		return nil, fmt.Errorf("error while unmarshalling config: %v", err)
 	}
 
 	// Load the API key
 	if len(config.Node.Auth.KeyFile) > 0 {
 		bytes, err := os.ReadFile(config.Node.Auth.KeyFile)
 		if err != nil {
-			log.Fatalf("error while reading private key file: %v", err)
+			return nil, fmt.Errorf("error while reading private key file: %v", err)
 		}
 		config.apiKey, err = pemToPrivateKey(bytes)
 		if err != nil {
-			log.Fatalf("error while decoding private key file: %v", err)
+			return nil, fmt.Errorf("error while decoding private key file: %v", err)
 		}
 		if len(config.Node.Auth.User) == 0 {
-			log.Fatal("node.auth.user config is required with node.auth.keyfile")
+			return nil, errors.New("node.auth.user config is required with node.auth.keyfile")
 		}
 		if len(config.Node.Auth.Audience) == 0 {
-			log.Fatal("node.auth.audience config is required with node.auth.keyfile")
+			return nil, errors.New("node.auth.audience config is required with node.auth.keyfile")
 		}
 	}
 
-	return config
+	return &config, nil
 }
 
 func loadFlagSet(args []string) *pflag.FlagSet {
