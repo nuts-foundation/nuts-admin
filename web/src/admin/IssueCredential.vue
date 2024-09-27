@@ -38,7 +38,8 @@
         <select v-on:change="selectSubjectDID" class="inline" style="width: 20%">
           <option disabled value="" selected>choose wallet DID</option>
           <optgroup v-for="entry in subjects" :key="'subject-' + entry.subject" :label="entry.subject">
-            <option :value="currentDID" v-for="currentDID in entry.dids" :key="'did-' + currentDID">
+            <option :value="entry.subject + '/' + currentDID" v-for="currentDID in entry.dids"
+                    :key="'did-' + currentDID">
               {{ currentDID }}
             </option>
           </optgroup>
@@ -88,6 +89,7 @@ export default {
       fetchError: undefined,
       credentialType: undefined,
       subjectDID: undefined,
+      holderSubjectID: undefined,
       issuerDID: undefined,
       subjects: [],
       templates: templates,
@@ -115,9 +117,11 @@ export default {
       this.issuerDID = event.target.value
     },
     selectSubjectDID(event) {
-      this.subjectDID = event.target.value
+      // subject is in form of subjectID/did, need to parse it to set both
+      const parts = event.target.value.split('/')
+      this.holderSubjectID = parts[0]
+      this.subjectDID = parts[1]
       event.target.value = ""
-
     },
     selectCredentialType(type) {
       this.template = this.templates[type]
@@ -145,14 +149,18 @@ export default {
           .then(issuedCredential => {
             // Load issued VC into wallet
             this.issuedCredential = issuedCredential
-            this.$api.post(`api/proxy/internal/vcr/v2/holder/${this.subjectDID}/vc`, issuedCredential)
-                .then(() => {
-                  this.$emit('statusUpdate', 'Verifiable Credential issued and loaded into wallet')
-                })
-                .catch(reason => {
-                  this.fetchError = "Couldn't load credential into wallet: " + reason
-                })
-
+            // If it's a local wallet, load it into the wallet
+            if (this.holderSubjectID) {
+              this.$api.post(`api/proxy/internal/vcr/v2/holder/${this.holderSubjectID}/vc`, issuedCredential)
+                  .then(() => {
+                    this.$emit('statusUpdate', 'Verifiable Credential issued, and loaded into wallet')
+                  })
+                  .catch(reason => {
+                    this.fetchError = "Couldn't load credential into wallet: " + reason
+                  })
+            } else {
+              this.$emit('statusUpdate', 'Verifiable Credential issued, NOTE: make sure to copy it to provide it to the holder!')
+            }
           })
           .catch(reason => {
             this.fetchError = "Couldn't issue credential: " + reason

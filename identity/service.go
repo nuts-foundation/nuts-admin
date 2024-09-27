@@ -96,12 +96,9 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 	})
 
 	// Get WalletCredentials
-	for _, currentDID := range identity.DIDs {
-		credentials, err := i.credentialsInWallet(ctx, currentDID)
-		if err != nil {
-			return nil, err
-		}
-		result.WalletCredentials = append(result.WalletCredentials, credentials...)
+	result.WalletCredentials, err = i.credentialsInWallet(ctx, subjectID)
+	if err != nil {
+		return nil, err
 	}
 
 	return &result, nil
@@ -119,8 +116,8 @@ func (i Service) getSubject(ctx context.Context, subject string) (*Identity, err
 	}, nil
 }
 
-func (i Service) credentialsInWallet(ctx context.Context, id string) ([]vc.VerifiableCredential, error) {
-	httpResponse, err := i.VCRClient.GetCredentialsInWallet(ctx, id)
+func (i Service) credentialsInWallet(ctx context.Context, subjectID string) ([]vc.VerifiableCredential, error) {
+	httpResponse, err := i.VCRClient.GetCredentialsInWallet(ctx, subjectID)
 	response, err := nuts.ParseResponse(err, httpResponse, vcr.ParseGetCredentialsInWalletResponse)
 	if err != nil {
 		return nil, err

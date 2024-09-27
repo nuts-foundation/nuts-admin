@@ -10,7 +10,7 @@ require (
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/lestrrat-go/jwx v1.2.28
 	github.com/nuts-foundation/go-did v0.14.0
-	github.com/nuts-foundation/go-nuts-client v0.1.4
+	github.com/nuts-foundation/go-nuts-client v0.1.6
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/pflag v1.0.5
