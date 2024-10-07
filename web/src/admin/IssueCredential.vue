@@ -143,7 +143,8 @@ export default {
       credentialToIssue['@context'] = credentialToIssue['@context'][0]
       credentialToIssue['type'] = credentialToIssue['type'].find(t => t !== "VerifiableCredential")
       credentialToIssue['expirationDate'] = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * this.daysValid).toISOString()
-      credentialToIssue.withStatusList2021Revocation = true
+      // disable statusListRevocation2021 for now, causes issues on MS SQL Server
+      //credentialToIssue.withStatusList2021Revocation = true
       this.fetchError = undefined
       this.$api.post('api/proxy/internal/vcr/v2/issuer/vc', credentialToIssue)
           .then(issuedCredential => {
