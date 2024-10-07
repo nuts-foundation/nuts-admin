@@ -79,12 +79,18 @@
           <tr>
             <th class="thead">Type</th>
             <th class="thead">Issuer</th>
+            <th class="thead">Actions</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="credential in details.wallet_credentials" :key="credential.id">
             <td>{{ credential.type.filter(t => t !== "VerifiableCredential").join(', ') }}</td>
             <td>{{ credential.issuer }}</td>
+            <td>
+              <button class="btn btn-secondary" @click="deleteCredential(credential.credentialSubject.id, credential.id)">
+                Delete
+              </button>
+            </td>
           </tr>
           </tbody>
         </table>
@@ -158,6 +164,24 @@ export default {
     deactivateService(id) {
       this.fetchError = undefined
       this.$api.delete(`api/proxy/internal/discovery/v1/${id}/${this.details.subject}`)
+          .then(data => {
+            if (data.reason) {
+              this.fetchError = data.reason
+            }
+          })
+          .catch(response => {
+            this.fetchError = response
+          })
+          .finally(() => {
+            this.fetchData()
+          })
+    },
+    deleteCredential(did, credentialId) {
+      if (confirm("Are you sure you want to delete this credential?") !== true) {
+        return
+      }
+      this.fetchError = undefined
+      this.$api.delete(`api/proxy/internal/vcr/v2/holder/${did}/vc/${encodeURIComponent(credentialId)}`)
           .then(data => {
             if (data.reason) {
               this.fetchError = data.reason
