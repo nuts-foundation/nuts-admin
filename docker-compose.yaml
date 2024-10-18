@@ -14,6 +14,7 @@ services:
       NUTS_STRICTMODE: false
       NUTS_DISCOVERY_DEFINITIONS_DIRECTORY: /opt/nuts/discovery
       NUTS_POLICY_DIRECTORY: /opt/nuts/policy
+      NUTS_AUTH_CONTRACTVALIDATORS: dummy
 #  nuts-admin:
 #    build:
 #      context: .

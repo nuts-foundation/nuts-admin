@@ -61,7 +61,7 @@
               <button v-if="service.active" class="btn btn-primary" @click="deactivateService(service.id)">
                 Deactivate
               </button>
-              <button v-else class="btn btn-primary" @click="activateService(service.id)">
+              <button v-else class="btn btn-primary" @click="$router.push({name: 'admin.activateDiscoveryService', params: {subjectID: this.$route.params.subjectID, discoveryServiceID: service.id}})">
                 Activate
               </button>
             </td>
@@ -145,21 +145,6 @@ export default {
     },
     showDIDDocument(id) {
       this.shownDIDDocument = this.shownDIDDocument === id ? undefined : id
-    },
-    activateService(id) {
-      this.fetchError = undefined
-      this.$api.post(`api/proxy/internal/discovery/v1/${id}/${this.details.subject}`)
-          .then(data => {
-            if (data.reason) {
-              this.fetchError = data.reason
-            }
-          })
-          .catch(response => {
-            this.fetchError = response
-          })
-          .finally(() => {
-            this.fetchData()
-          })
     },
     deactivateService(id) {
       this.fetchError = undefined

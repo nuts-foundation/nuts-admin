@@ -12,6 +12,7 @@ import IssuedCredentials from './admin/IssuedCredentials.vue'
 import Api from './plugins/api'
 import IdentityDetails from "./admin/IdentityDetails.vue";
 import IssueCredential from "./admin/IssueCredential.vue";
+import ActivateDiscoveryService from "./admin/ActivateDiscoveryService.vue";
 
 const routes = [
   {
@@ -37,15 +38,20 @@ const routes = [
               modal: NewIdentity
             }
           },
-        ]
+        ],
       },
       {
         path: 'id/:subjectID',
         name: 'admin.identityDetails',
-        component: IdentityDetails
+        component: IdentityDetails,
       },
       {
-        path: 'vc/issue/:credentialType?/:subjectDID?',
+        path: 'id/:subjectID/discovery/:discoveryServiceID/activate',
+        name: 'admin.activateDiscoveryService',
+        component: ActivateDiscoveryService
+      },
+      {
+        path: 'vc/issue/:credentialType?/:subjectDID',
         name: 'admin.issueCredential',
         component: IssueCredential
       },

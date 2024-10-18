@@ -10,8 +10,20 @@
           "JsonWebSignature2020"
         ]
       },
+      "jwt_vc": {
+        "alg": [
+          "ES256"
+        ]
+      },
+      "ldp_vp": {
+        "proof_type": [
+          "JsonWebSignature2020"
+        ]
+      },
       "jwt_vp": {
-        "alg": ["ES256"]
+        "alg": [
+          "ES256"
+        ]
       }
     },
     "input_descriptors": [
@@ -41,6 +53,44 @@
               "id": "organization.city",
               "path": [
                 "$.credentialSubject.organization.city"
+              ],
+              "filter": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "id_registration_parameters_credential",
+        "name": "Registration parameters",
+        "purpose": "Finding endpoints registered by the care organization.",
+        "constraints": {
+          "fields": [
+            {
+              "path": [
+                "$.type"
+              ],
+              "filter": {
+                "type": "string",
+                "const": "DiscoveryRegistrationCredential"
+              }
+            },
+            {
+              "id": "authorization_server_url",
+              "purpose": "Used by clients to request OAuth2 access tokens.",
+              "path": [
+                "$.credentialSubject.authServerURL"
+              ],
+              "filter": {
+                "type": "string"
+              }
+            },
+            {
+              "id": "fhir_notification_url",
+              "purpose": "FHIR subscription REST channel endpoint, issued by SCP-nodes notify about FHIR resources.",
+              "path": [
+                "$.credentialSubject.fhirNotificationURL"
               ],
               "filter": {
                 "type": "string"
