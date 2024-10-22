@@ -7,7 +7,7 @@
       <input type="text" id="credentialTypes" v-model="credentialTypes" v-on:change="fetchData" class="inline" style="width: 50%">
     </section>
     <section v-if="credentials.length > 0">
-      <table class="w-full">
+      <table class="table w-full">
         <thead>
         <tr>
           <th class="thead">Issuer</th>

@@ -5,21 +5,21 @@
     <div v-if="credential">
       <section>
         <div>
-          <label for="credentialID">ID</label>
-          <input id="credentialID" v-model="credential.credentialSubject.id" type="text" readonly>
+          <label>ID</label>
+          <div>{{credential.credentialSubject.id}}</div>
         </div>
         <div>
-          <label for="credentialType">Type</label>
-          <input id="credentialType" v-model="credentialType" type="text" readonly>
+          <label>Type</label>
+          <div>{{credentialType}}</div>
         </div>
         <div>
-          <label for="credentialIssuer">Issuer</label>
-          <input id="credentialIssuer" v-model="credential.issuer" type="text" readonly>
+          <label>Issuer</label>
+          <div>{{credential.issuer}}</div>
         </div>
       </section>
       <section>
         <header>Credential Subject</header>
-        <table class="w-full">
+        <table class="table w-full divide-y divide-gray-200">
           <thead>
           <tr>
             <th class="w-1/3">Key</th>

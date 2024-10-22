@@ -6,18 +6,17 @@
     </p>
     <p v-if="fetchError" class="m-4">Error: {{ fetchError }}</p>
     <section v-if="selectedDiscoveryService">
-      <header>Discovery Service</header>
       <div>
-        <label for="subjectID">Subject ID</label>
-        <input id="subjectID" v-model="$route.params.subjectID" type="text" readonly>
+        <label>Discovery Service</label>
+        <div>{{selectedDiscoveryService.id}}</div>
       </div>
       <div>
-        <label for="discoveryServiceID">Discovery Service</label>
-        <input id="discoveryServiceID" v-model="selectedDiscoveryService.id" type="text" readonly>
+        <label>Subject ID</label>
+        <div>{{$route.params.subjectID}}</div>
       </div>
       <div>
-        <label for="discoveryServiceEndpoint">Endpoint</label>
-        <input id="discoveryServiceEndpoint" v-model="selectedDiscoveryService.endpoint" type="text" readonly>
+        <label>Endpoint</label>
+        <div>{{selectedDiscoveryService.endpoint}}</div>
       </div>
     </section>
 
@@ -36,10 +35,10 @@
         <tr v-for="(param, idx) in registrationParameters" :key="'search-' + idx">
           <td style="vertical-align: top">
             <input type="text" v-model="param.key" :id="'param-key-' + idx">
-            <div if="param.label" style="padding-left: 10px;">{{ param.label }}</div>
+            <div v-if="param.label" style="padding-left: 10px;">{{ param.label }}</div>
           </td>
           <td style="vertical-align: top">
-            <input type="text" v-model="param.value" v-on:keyup="search" :id="'param-value-' + idx">
+            <input type="text" v-model="param.value" :id="'param-value-' + idx" :placeholder="parameterPlaceholder(param.key)">
           </td>
           <td style="vertical-align: top; padding-top: 15px;">
             <svg @click="registrationParameters.splice(idx, 1)" style="cursor: pointer"
@@ -99,6 +98,12 @@ export default {
   methods: {
     updateStatus(event) {
       this.$emit('statusUpdate', event)
+    },
+    parameterPlaceholder(paramName) {
+      if (paramName === 'authServerURL') {
+        return 'Leave empty to have the Nuts node auto-generate it.'
+      }
+      return '';
     },
     activate() {
       this.fetchError = undefined

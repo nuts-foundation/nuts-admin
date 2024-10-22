@@ -5,7 +5,7 @@
     <div v-if="details">
       <section>
         <header>DID Documents</header>
-        <table class="min-w-full divide-y divide-gray-200" v-if="details.did_documents.length > 0">
+        <table class="min-w-full" v-if="details.did_documents.length > 0">
           <tbody>
           <tr v-for="didDocument in details.did_documents" :key="didDocument.id">
             <td>
@@ -84,12 +84,11 @@
           </thead>
           <tbody>
           <tr v-for="credential in details.wallet_credentials" :key="credential.id"
-              style="cursor: pointer"
-              @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">
-            <td>{{ credential.type.filter(t => t !== "VerifiableCredential").join(', ') }}</td>
-            <td>{{ credential.issuer }}</td>
+              style="cursor: pointer">
+            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">{{ credential.type.filter(t => t !== "VerifiableCredential").join(', ') }}</td>
+            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">{{ credential.issuer }}</td>
             <td>
-              <button class="btn btn-secondary" @click="deleteCredential(credential.credentialSubject.id, credential.id)">
+              <button class="btn btn-danger" @click="deleteCredential(credential.credentialSubject.id, credential.id)">
                 Delete
               </button>
             </td>

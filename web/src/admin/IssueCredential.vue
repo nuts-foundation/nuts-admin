@@ -10,19 +10,20 @@
 
     <div v-else>
       <section>
-        <header>Credential type</header>
-        <select v-on:change="e => selectCredentialType(e.target.value)">
-          <option :value="currentType" v-for="currentType in Object.keys(templates)" :key="currentType"
-                  :selected="currentType === credentialType">
-            {{ currentType }}
-          </option>
-        </select>
-      </section>
-
-      <section>
-        <header>Issuer DID</header>
+        <header>Credential properties</header>
         <div>
-          <select v-on:change="selectIssuerDID">
+          <label for="type">Type</label>
+          <select v-on:change="e => selectCredentialType(e.target.value)" id="type">
+            <option :value="currentType" v-for="currentType in Object.keys(templates)" :key="currentType"
+                    :selected="currentType === credentialType">
+              {{ currentType }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label for="issuerDID">Issuer DID</label>
+          <select v-on:change="selectIssuerDID" id="issuerDID">
             <option disabled selected value>choose issuer DID</option>
             <optgroup v-for="entry in subjects" :key="'subject-' + entry.subject" :label="entry.subject">
               <option :value="currentDID" v-for="currentDID in entry.dids" :key="'did-' + currentDID">
@@ -31,38 +32,35 @@
             </optgroup>
           </select>
         </div>
-      </section>
 
-      <section>
-        <header>Wallet DID</header>
-        <select v-on:change="selectSubjectDID" class="inline" style="width: 20%">
-          <option disabled value="" selected>choose wallet DID</option>
-          <optgroup v-for="entry in subjects" :key="'subject-' + entry.subject" :label="entry.subject">
-            <option :value="entry.subject + '/' + currentDID" v-for="currentDID in entry.dids"
-                    :key="'did-' + currentDID">
-              {{ currentDID }}
-            </option>
-          </optgroup>
-        </select>
-        <input type="text" v-model="subjectDID" placeholder="Enter a DID" class="inline" style="width: 80%">
-        <p>The credential will be loaded into the wallet if it's owned by the local Nuts node.</p>
-      </section>
-
-      <section v-if="template">
-        <header>Fields</header>
         <div>
-          <label :for="expirationDate">
-            <p>Days valid</p>
-          </label>
-          <input id="daysValid" v-model="daysValid" type="number">
-          <p>This will be used to set the credentials <code>expirationDate</code> property.</p>
+          <label for="subjectDID">Wallet DID</label>
+          <select v-on:change="selectSubjectDID" class="inline" style="width: 20%">
+            <option disabled value="" selected>choose wallet DID</option>
+            <optgroup v-for="entry in subjects" :key="'subject-' + entry.subject" :label="entry.subject">
+              <option :value="entry.subject + '/' + currentDID" v-for="currentDID in entry.dids"
+                      :key="'did-' + currentDID">
+                {{ currentDID }}
+              </option>
+            </optgroup>
+          </select>
+          <input id="subjectDID" type="text" v-model="subjectDID" placeholder="Enter a DID" class="inline" style="width: 80%">
+          <p>The credential will be loaded into the wallet if it's owned by the local Nuts node.</p>
         </div>
-        <div v-for="(field, idx) in template.fields" :key="field.name">
-          <label :for="field.name">
-            {{ field.name }}
-            <p>{{ field.description }}</p>
-          </label>
-          <input :id="field.name" v-model="credentialFields[idx]" type="text">
+
+        <div v-if="template">
+          <div>
+            <label for="daysValid">Days valid</label>
+            <input id="daysValid" v-model="daysValid" type="number">
+            <p>This will be used to set the credentials <code>expirationDate</code> property.</p>
+          </div>
+          <div v-for="(field, idx) in template.fields" :key="field.name">
+            <label :for="field.name">
+              {{ field.name }}
+              <p>{{ field.description }}</p>
+            </label>
+            <input :id="field.name" v-model="credentialFields[idx]" type="text">
+          </div>
         </div>
       </section>
 
