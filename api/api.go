@@ -1,10 +1,10 @@
 package api
 
 import (
-	"github.com/nuts-foundation/go-did/vc"
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
 	"github.com/nuts-foundation/nuts-admin/issuer"
+	"github.com/nuts-foundation/nuts-admin/model"
 	"net/http"
 	"strings"
 
@@ -52,7 +52,7 @@ func (w Wrapper) GetIssuedCredentials(ctx echo.Context, params GetIssuedCredenti
 	if err != nil {
 		return err
 	}
-	result := make([]vc.VerifiableCredential, 0)
+	result := make([]model.VerifiableCredential, 0)
 	for _, currID := range identities {
 		for _, issuerDID := range currID.DIDs {
 			credentials, err := w.IssuerService.GetIssuedCredentials(ctx.Request().Context(), issuerDID, strings.Split(params.CredentialTypes, ","))

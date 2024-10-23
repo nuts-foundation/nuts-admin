@@ -8,6 +8,7 @@ import (
 	"github.com/nuts-foundation/go-nuts-client/nuts/vcr"
 	"github.com/nuts-foundation/go-nuts-client/nuts/vdr"
 	"github.com/nuts-foundation/nuts-admin/discovery"
+	"github.com/nuts-foundation/nuts-admin/model"
 	"slices"
 	"strings"
 )
@@ -62,7 +63,7 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 	result := IdentityDetails{
 		Identity:          *identity,
 		DiscoveryServices: make([]discovery.DIDStatus, 0),
-		WalletCredentials: make([]vc.VerifiableCredential, 0),
+		WalletCredentials: make([]model.VerifiableCredential, 0),
 	}
 
 	// Get DIDDocuments
@@ -96,10 +97,12 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 	})
 
 	// Get WalletCredentials
-	result.WalletCredentials, err = i.credentialsInWallet(ctx, subjectID)
+	vcs, err := i.credentialsInWallet(ctx, subjectID)
 	if err != nil {
 		return nil, err
 	}
+	creds := model.ToModel(vcs)
+	result.WalletCredentials = creds
 
 	return &result, nil
 }

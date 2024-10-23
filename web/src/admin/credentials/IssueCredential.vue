@@ -20,6 +20,15 @@
             </option>
           </select>
         </div>
+        <div>
+          <label for="proofFormat">Proof format</label>
+          <select v-model="credentialProofFormat" id="proofFormat">
+            <option :value="format" v-for="format in ['ldp_vc', 'jwt_vc']" :key="format"
+                    :selected="format === credentialProofFormat">
+              {{ format }}
+            </option>
+          </select>
+        </div>
 
         <div>
           <label for="issuerDID">Issuer DID</label>
@@ -85,6 +94,7 @@ export default {
   data() {
     return {
       fetchError: undefined,
+      credentialProofFormat: 'ldp_vc',
       credentialType: undefined,
       subjectDID: undefined,
       holderSubjectID: undefined,
@@ -141,6 +151,7 @@ export default {
       credentialToIssue['@context'] = credentialToIssue['@context'][0]
       credentialToIssue['type'] = credentialToIssue['type'].find(t => t !== "VerifiableCredential")
       credentialToIssue['expirationDate'] = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * this.daysValid).toISOString()
+      credentialToIssue['format'] = this.credentialProofFormat
       // disable statusListRevocation2021 for now, causes issues on MS SQL Server
       //credentialToIssue.withStatusList2021Revocation = true
       this.fetchError = undefined

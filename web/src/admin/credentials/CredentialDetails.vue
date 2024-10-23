@@ -4,7 +4,7 @@
       <section>
         <div>
           <label>ID</label>
-          <div>{{credential.credentialSubject.id}}</div>
+          <div>{{credentialSubject.id}}</div>
         </div>
         <div>
           <label>Type</label>
@@ -13,6 +13,14 @@
         <div>
           <label>Issuer</label>
           <div>{{credential.issuer}}</div>
+        </div>
+        <div>
+          <label>Issuance date</label>
+          <div>{{credential.issuanceDate}}</div>
+        </div>
+        <div>
+          <label>Expiration date</label>
+          <div>{{credential.expirationDate}}</div>
         </div>
       </section>
       <section>
@@ -33,7 +41,6 @@
         </table>
       </section>
     </div>
-
 </template>
 <script>
 export default {
@@ -41,6 +48,12 @@ export default {
     credential: Object
   },
   computed: {
+    credentialSubject() {
+      if (Array.isArray(this.credential.credentialSubject) && this.credential.credentialSubject.length === 1) {
+        return this.credential.credentialSubject[0]
+      }
+      return this.credential.credentialSubject
+    },
     credentialType() {
       return this.credential.type.filter(t => t !== "VerifiableCredential").join(', ')
     },
@@ -55,6 +68,9 @@ export default {
             return acc.concat({key: newKey, value: obj[key]})
           }
         }, [])
+      }
+      if (Array.isArray(this.credential.credentialSubject) && this.credential.credentialSubject.length === 1) {
+        return flatten(this.credential.credentialSubject[0])
       }
       return flatten(this.credential.credentialSubject)
     }

@@ -9,7 +9,7 @@ import Identities from './admin/Identities.vue'
 import NewIdentity from './admin/NewIdentity.vue'
 import DiscoveryServices from './admin/DiscoveryServices.vue'
 import IssuedCredentials from './admin/credentials/IssuedCredentials.vue'
-import WalletCredentialDetails from "./admin/Credentials/WalletCredentialDetails.vue";
+import WalletCredentialDetails from "./admin/credentials/WalletCredentialDetails.vue";
 import Api from './plugins/api'
 import IdentityDetails from "./admin/IdentityDetails.vue";
 import IssueCredential from "./admin/credentials/IssueCredential.vue";

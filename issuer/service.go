@@ -6,6 +6,7 @@ import (
 	"github.com/nuts-foundation/go-nuts-client/nuts"
 	"github.com/nuts-foundation/go-nuts-client/nuts/vcr"
 	"github.com/nuts-foundation/nuts-admin/identity"
+	"github.com/nuts-foundation/nuts-admin/model"
 	"strings"
 )
 
@@ -14,7 +15,7 @@ type Service struct {
 	VCRClient       *vcr.Client
 }
 
-func (s Service) GetIssuedCredentials(ctx context.Context, issuer string, credentialTypes []string) ([]vc.VerifiableCredential, error) {
+func (s Service) GetIssuedCredentials(ctx context.Context, issuer string, credentialTypes []string) ([]model.VerifiableCredential, error) {
 	var result []vc.VerifiableCredential
 	for _, credentialType := range credentialTypes {
 		credentialType = strings.TrimSpace(credentialType)
@@ -33,5 +34,5 @@ func (s Service) GetIssuedCredentials(ctx context.Context, issuer string, creden
 			result = append(result, searchResult.VerifiableCredential)
 		}
 	}
-	return result, nil
+	return model.ToModel(result), nil
 }
