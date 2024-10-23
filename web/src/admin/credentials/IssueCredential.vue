@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Issue Verifiable Credential</h1>
-    <p v-if="fetchError" class="m-4">Error: {{ fetchError }}</p>
+    <ErrorMessage v-if="fetchError" :message="fetchError"/>
 
     <section v-if="issuedCredential">
       <header>Issued Credential</header>
@@ -89,8 +89,10 @@
 
 <script>
 import templates from "./templates";
+import ErrorMessage from "../../components/ErrorMessage.vue";
 
 export default {
+  components: {ErrorMessage},
   data() {
     return {
       fetchError: undefined,

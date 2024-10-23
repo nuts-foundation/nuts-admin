@@ -6,7 +6,7 @@
       Here you can create new identities (subject) on the Nuts Node. Identities consist of one or more DIDs.
     </p>
 
-    <p v-if="apiError" class="p-3 bg-red-100 rounded-md">Could not create identity: {{ apiError }}</p>
+    <ErrorMessage v-if="apiError" :message="apiError" title="Could not create identity"/>
 
     <div class="p-3 bg-red-100 rounded-md" v-if="formErrors.length">
       <b>Please correct the following error(s):</b>
@@ -24,9 +24,11 @@
 <script>
 import ModalWindow from '../components/ModalWindow.vue'
 import IdentityForm from './IdentityForm.vue'
+import ErrorMessage from "../components/ErrorMessage.vue";
 
 export default {
   components: {
+    ErrorMessage,
     ModalWindow,
     IdentityForm
   },

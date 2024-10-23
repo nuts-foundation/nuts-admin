@@ -1,12 +1,14 @@
 <template>
-  <p v-if="fetchError" class="m-4">Error: {{ fetchError }}</p>
+  <ErrorMessage v-if="fetchError" :message="fetchError" :title="'Could not fetch credential'"/>
   <CredentialDetails :credential="credential" v-if="credential" />
 </template>
 
 <script>
 import CredentialDetails from './CredentialDetails.vue'
+import ErrorMessage from "../../components/ErrorMessage.vue";
 export default {
   components: {
+    ErrorMessage,
     CredentialDetails
   },
   data() {

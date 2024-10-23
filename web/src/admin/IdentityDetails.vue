@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Identity: {{ this.$route.params.subjectID }}</h1>
-    <p v-if="fetchError" class="m-4">Error: {{ fetchError }}</p>
+    <ErrorMessage v-if="fetchError" :message="fetchError"/>
     <div v-if="details">
       <section>
         <header>DID Documents</header>
@@ -106,8 +106,10 @@
 <script>
 
 import DiscoveryServiceDefinition from "./DiscoveryServiceDefinition";
+import ErrorMessage from "../components/ErrorMessage.vue";
 
 export default {
+  components: {ErrorMessage},
   data() {
     return {
       fetchError: undefined,

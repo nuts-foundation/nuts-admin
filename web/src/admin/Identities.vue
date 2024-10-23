@@ -16,8 +16,9 @@
       </button>
     </div>
 
+    <ErrorMessage v-if="fetchError" :message="fetchError" :title="'Could not fetch identities'"/>
+
     <div class="mt-8 bg-white p-5 shadow-lg rounded-lg">
-      <p v-if="fetchError" class="m-4">Could not fetch identities: {{ fetchError }}</p>
       <div class="m-4" v-if="identities.length === 0 && !fetchError">No identities yet, add one!</div>
       <table v-if="identities.length > 0" class="min-w-full divide-y divide-gray-200">
         <thead>
@@ -45,7 +46,10 @@
 
 <script>
 
+import ErrorMessage from "../components/ErrorMessage.vue";
+
 export default {
+  components: {ErrorMessage},
   data() {
     return {
       fetchError: '',

@@ -4,7 +4,7 @@
     <p>
       This page allows you to activate a discovery service for a subject.
     </p>
-    <p v-if="fetchError" class="m-4">Error: {{ fetchError }}</p>
+    <ErrorMessage v-if="fetchError" :message="fetchError"/>
     <section v-if="selectedDiscoveryService">
       <div>
         <label>Discovery Service</label>
@@ -61,7 +61,10 @@
 
 <script>
 
+import ErrorMessage from "../components/ErrorMessage.vue";
+
 export default {
+  components: {ErrorMessage},
   data() {
     return {
       fetchError: undefined,

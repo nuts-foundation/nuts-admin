@@ -3,7 +3,7 @@
 
     <h1 class="mb-2">Discovery Services</h1>
 
-    <p v-if="fetchError" class="m-4">Could not fetch Discovery Services: {{ fetchError }}</p>
+    <ErrorMessage v-if="fetchError" :message="fetchError" :title="'Could not fetch Discovery Services'"/>
 
     <section>
       <p>Select a Discovery Service</p>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 class="mb-2">Issued Credentials</h1>
-    <p class="m-4" v-if="fetchError">Could not fetch data: {{ fetchError }}</p>
+    <ErrorMessage v-if="fetchError" :message="fetchError" :title="'Could not fetch data'"/>
     <section>
       <label for="credentialTypes" class="inline">Credential types (comma-separated): </label>
       <input type="text" id="credentialTypes" v-model="credentialTypes" v-on:change="fetchData" class="inline" style="width: 50%">
@@ -34,9 +34,10 @@
 
 <script>
 import CredentialDetails from "./CredentialDetails.vue";
+import ErrorMessage from "../../components/ErrorMessage.vue";
 
 export default {
-  components: {CredentialDetails},
+  components: {ErrorMessage, CredentialDetails},
   data() {
     return {
       fetchError: '',
