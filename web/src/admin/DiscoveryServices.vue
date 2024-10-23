@@ -85,7 +85,10 @@
 }
 </style>
 <script>
+import ErrorMessage from "../components/ErrorMessage.vue";
+
 export default {
+  components: {ErrorMessage},
   data() {
     return {
       fetchError: '',
