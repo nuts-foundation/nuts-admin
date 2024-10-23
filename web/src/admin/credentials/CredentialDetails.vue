@@ -1,8 +1,6 @@
 <template>
   <div>
     <h1>Verifiable Credential</h1>
-    <p v-if="fetchError" class="m-4">Error: {{ fetchError }}</p>
-    <div v-if="credential">
       <section>
         <div>
           <label>ID</label>
@@ -36,17 +34,11 @@
       </section>
     </div>
 
-  </div>
 </template>
-
 <script>
-
 export default {
-  data() {
-    return {
-      fetchError: undefined,
-      credential: undefined
-    }
+  props: {
+    credential: Object
   },
   computed: {
     credentialType() {
@@ -66,15 +58,6 @@ export default {
       }
       return flatten(this.credential.credentialSubject)
     }
-  },
-  mounted() {
-    this.$api.get('api/id/' + encodeURIComponent(this.$route.params.subjectID))
-        .then(data => {
-          this.credential = data.wallet_credentials.filter(c => c.id === this.$route.params.credentialID)[0]
-        })
-        .catch(response => {
-          this.fetchError = response
-        })
-  },
+  }
 }
 </script>

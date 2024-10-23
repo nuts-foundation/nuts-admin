@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import templates from "./credentials";
+import templates from "./templates";
 
 export default {
   data() {

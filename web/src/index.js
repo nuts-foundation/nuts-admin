@@ -8,12 +8,12 @@ import NotFound from './NotFound.vue'
 import Identities from './admin/Identities.vue'
 import NewIdentity from './admin/NewIdentity.vue'
 import DiscoveryServices from './admin/DiscoveryServices.vue'
-import IssuedCredentials from './admin/IssuedCredentials.vue'
+import IssuedCredentials from './admin/credentials/IssuedCredentials.vue'
+import WalletCredentialDetails from "./admin/Credentials/WalletCredentialDetails.vue";
 import Api from './plugins/api'
 import IdentityDetails from "./admin/IdentityDetails.vue";
-import IssueCredential from "./admin/IssueCredential.vue";
+import IssueCredential from "./admin/credentials/IssueCredential.vue";
 import ActivateDiscoveryService from "./admin/ActivateDiscoveryService.vue";
-import CredentialDetails from "./admin/CredentialDetails.vue";
 
 const routes = [
   {
@@ -44,7 +44,7 @@ const routes = [
       {
         path: 'id/:subjectID/credential/:credentialID',
         name: 'admin.credentialDetails',
-        component: CredentialDetails,
+        component: WalletCredentialDetails,
       },
       {
         path: 'id/:subjectID',
