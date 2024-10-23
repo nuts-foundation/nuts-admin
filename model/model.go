@@ -5,7 +5,7 @@ import "github.com/nuts-foundation/go-did/vc"
 type VerifiableCredential vc.VerifiableCredential
 
 func ToModel(vcs []vc.VerifiableCredential) []VerifiableCredential {
-	var result []VerifiableCredential
+	result := make([]VerifiableCredential, 0)
 	for _, credential := range vcs {
 		currentCredential := VerifiableCredential(credential)
 		if credential.Format() == vc.JWTCredentialProofFormat {
