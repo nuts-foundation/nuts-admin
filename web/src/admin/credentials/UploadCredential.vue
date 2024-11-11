@@ -37,8 +37,6 @@ export default {
   },
   methods: {
     confirm () {
-      console.log(this.credential.credentialSubject)
-      console.log(JSON.stringify(this.credential, null, 2))
       this.$api.post(`api/proxy/internal/vcr/v2/holder/${this.subjectID}/vc`, this.credential)
           .then(() => {
             this.$emit('uploadCredential', 'Verifiable Credential issued, and loaded into wallet')

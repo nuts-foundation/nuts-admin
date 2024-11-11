@@ -6,7 +6,6 @@
     <section v-if="issuedCredential">
       <header>Issued Credential</header>
       <button class="btn btn-primary" @click="copyToClipboard">Copy to Clipboard</button>
-      <br><br>
       <pre>{{ JSON.stringify(issuedCredential, null, 2) }}</pre>
     </section>
 
@@ -88,7 +87,12 @@
     </div>
   </div>
 </template>
-
+<style scoped>
+button.btn.btn-primary {
+  display: block;
+  margin-bottom: 1rem;
+}
+</style>
 <script>
 import templates from "./templates";
 import ErrorMessage from "../../components/ErrorMessage.vue";
