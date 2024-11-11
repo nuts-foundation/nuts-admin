@@ -34,6 +34,8 @@ During front-end development, you probably want to use the real filesystem and w
 make dev
 ```
 
+You can access the website at `http://localhost:1305/` by default
+
 The API and domain types are generated from the `api/api.yaml`.
 ```shell
 make gen-api

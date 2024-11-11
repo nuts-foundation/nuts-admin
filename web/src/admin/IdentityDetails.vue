@@ -98,6 +98,14 @@
         <p v-else>
           No credentials in wallet.
         </p>
+        <br>
+        <button
+            id="upload-credential-button"
+            @click="$router.push({name: 'admin.uploadCredential', params: {subjectID: this.$route.params.subjectID}})"
+            class="btn btn-primary"
+        >
+          Upload
+        </button>
       </section>
     </div>
   </div>
@@ -107,9 +115,10 @@
 
 import DiscoveryServiceDefinition from "./DiscoveryServiceDefinition";
 import ErrorMessage from "../components/ErrorMessage.vue";
+import UploadCredential from "./credentials/UploadCredential.vue";
 
 export default {
-  components: {ErrorMessage},
+  components: {ErrorMessage, UploadCredential},
   data() {
     return {
       fetchError: undefined,

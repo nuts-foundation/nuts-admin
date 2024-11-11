@@ -5,6 +5,7 @@
 
     <section v-if="issuedCredential">
       <header>Issued Credential</header>
+      <button class="btn btn-primary" @click="copyToClipboard">Copy to Clipboard</button>
       <pre>{{ JSON.stringify(issuedCredential, null, 2) }}</pre>
     </section>
 
@@ -86,7 +87,12 @@
     </div>
   </div>
 </template>
-
+<style scoped>
+button.btn.btn-primary {
+  display: block;
+  margin-bottom: 1rem;
+}
+</style>
 <script>
 import templates from "./templates";
 import ErrorMessage from "../../components/ErrorMessage.vue";
@@ -186,6 +192,15 @@ export default {
           })
           .catch(response => {
             this.fetchError = response
+          })
+    },
+    copyToClipboard() {
+      navigator.clipboard.writeText(JSON.stringify(this.issuedCredential, null, 2))
+          .then(() => {
+            this.$emit('statusUpdate', 'Credential copied to clipboard')
+          })
+          .catch(err => {
+            this.fetchError = 'Failed to copy credential: ' + err
           })
     }
   }
