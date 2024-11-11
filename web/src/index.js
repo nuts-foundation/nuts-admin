@@ -14,6 +14,7 @@ import Api from './plugins/api'
 import IdentityDetails from "./admin/IdentityDetails.vue";
 import IssueCredential from "./admin/credentials/IssueCredential.vue";
 import ActivateDiscoveryService from "./admin/ActivateDiscoveryService.vue";
+import UploadCredential from "./admin/credentials/UploadCredential.vue";
 
 const routes = [
   {
@@ -50,6 +51,11 @@ const routes = [
         path: 'id/:subjectID',
         name: 'admin.identityDetails',
         component: IdentityDetails,
+      },
+      {
+        path: 'id/:subjectID/upload',
+        name: 'admin.uploadCredential',
+        component: UploadCredential,
       },
       {
         path: 'id/:subjectID/discovery/:discoveryServiceID/activate',
