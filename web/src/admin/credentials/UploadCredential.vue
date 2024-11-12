@@ -3,13 +3,13 @@
                 title="Upload a Credential JSON" type="add">
 
     <p class="mb-3 text-sm">
-      Here you can add a credential issued by another party to be stored in your wallet. Paste the JSON object below.
+      Here you can add a credential issued by another party to be stored in your wallet. Paste the JSON object or JWT below.
     </p>
 
     <ErrorMessage v-if="apiError" :message="apiError" title="Could not upload credential"/>
 
     <div class="mt-4">
-      <upload-credential-form mode="new" :value="credential" @input="(credentialPaste)=> {credential =  credentialPaste}"/>
+      <upload-credential-form mode="new" :value="credential" @input="(credentialPaste)=> {credential = credentialPaste}"/>
     </div>
   </modal-window>
 </template>
@@ -32,7 +32,7 @@ export default {
     return {
       apiError: '',
       subjectID: '',
-      credential: {}
+      credential: undefined,
     }
   },
   methods: {
