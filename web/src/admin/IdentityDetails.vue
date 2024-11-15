@@ -88,7 +88,7 @@
             <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">{{ credential.type.filter(t => t !== "VerifiableCredential").join(', ') }}</td>
             <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">{{ credential.issuer }}</td>
             <td>
-              <button class="btn btn-danger" @click="deleteCredential(credential.credentialSubject.id, credential.id)">
+              <button class="btn btn-danger" @click="deleteCredential(credential.id)">
                 Delete
               </button>
             </td>
@@ -173,12 +173,12 @@ export default {
             this.fetchData()
           })
     },
-    deleteCredential(did, credentialId) {
+    deleteCredential(credentialId) {
       if (confirm("Are you sure you want to delete this credential?") !== true) {
         return
       }
       this.fetchError = undefined
-      this.$api.delete(`api/proxy/internal/vcr/v2/holder/${did}/vc/${encodeURIComponent(credentialId)}`)
+      this.$api.delete(`api/proxy/internal/vcr/v2/holder/${encodeURIComponent(this.$route.params.subjectID)}/vc/${encodeURIComponent(credentialId)}`)
           .then(data => {
             if (data.reason) {
               this.fetchError = data.reason
