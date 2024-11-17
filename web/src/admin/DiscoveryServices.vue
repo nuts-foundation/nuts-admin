@@ -131,6 +131,8 @@ export default {
       const query = new URLSearchParams(entries);
       this.$api.get('api/proxy/internal/discovery/v1/' + this.selectedService.id + '?' + query.toString())
           .then(data => {
+            // fields can be null, initialize with empty object with so. Otherwise, the UI crashes.
+            data.forEach(r => r.fields = r.fields || {})
             this.searchResults = data
           })
           .catch(response => {
