@@ -9,10 +9,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/ssh"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/nuts-foundation/nuts-admin/oidc"
+	"golang.org/x/crypto/ssh"
 
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -30,18 +32,22 @@ const defaultConfigFile = "config.yaml"
 func defaultConfig() Config {
 	return Config{
 		HTTPPort: 1305,
+		BaseURL:  "",
 		Node: Node{
 			Address: "http://localhost:8081",
 		},
 		AccessLogs: true,
+		OIDC:       oidc.DefaultConfig(),
 	}
 }
 
 type Config struct {
-	HTTPPort   int  `koanf:"port"`
-	Node       Node `koanf:"node"`
-	AccessLogs bool `koanf:"accesslogs"`
+	HTTPPort   int    `koanf:"port"`
+	BaseURL    string `koanf:"base_url"`
+	Node       Node   `koanf:"node"`
+	AccessLogs bool   `koanf:"accesslogs"`
 	apiKey     crypto.Signer
+	OIDC       oidc.Config `koanf:"oidc"`
 }
 
 type Node struct {
@@ -65,6 +71,13 @@ func generateSessionKey() (*ecdsa.PrivateKey, error) {
 		return nil, err
 	}
 	return key, nil
+}
+
+func (c Config) Validate() error {
+	if err := c.OIDC.Validate(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c Config) Print() {
