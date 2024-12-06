@@ -1,0 +1,14 @@
+port: 1305
+base_url: ""
+node:
+  address: "http://localhost:8081"
+oidc:
+  enabled: true
+  metadata_url: https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2.0/.well-known/openid-configuration
+  client_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  client_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  session_secret: xxxxxxx-some-random-string-used-to-protect-sessiondata-xxxxxxxx
+  scope:
+    - openid
+    - profile
+    - email
