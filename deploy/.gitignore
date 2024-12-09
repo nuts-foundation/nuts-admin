@@ -1,0 +1,2 @@
+*.config.yaml
+!admin.config.yaml
