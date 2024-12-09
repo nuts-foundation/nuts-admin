@@ -6,40 +6,44 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/gorilla/sessions"
+	"github.com/gorilla/securecookie"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/openidConnect"
+	"github.com/quasoft/memstore"
 )
 
 type OIDC struct {
-	sessionStore *sessions.FilesystemStore
-	provider     *openidConnect.Provider
-
-	name        string
 	baseURL     string
 	signInUrl   string
 	callbackURL string
 }
 
-func SetupOIDC(config Config, baseURL string, e *echo.Echo, skipper middleware.Skipper) (*OIDC, error) {
+func Setup(config Config, baseURL string, e *echo.Echo, authConfig AuthConfig) error {
+	const name = "openid-connect"
+
 	o := &OIDC{
-		name:    "openid-connect",
 		baseURL: baseURL,
 	}
+
 	if o.baseURL == "" {
 		o.baseURL = "/"
 	}
-	o.signInUrl = fmt.Sprintf("%s/auth/%s", baseURL, o.name)
-	o.callbackURL = fmt.Sprintf("%s/auth/%s/callback", baseURL, o.name)
+	o.signInUrl = fmt.Sprintf("%s/auth/%s", o.baseURL, name)
+	o.callbackURL = fmt.Sprintf("%s/auth/%s/callback", o.baseURL, name)
 
-	// Setup a Session Store for Goth
-	o.sessionStore = sessions.NewFilesystemStore("", []byte(config.SessionSecret))
-	o.sessionStore.MaxLength(81920) // 8Kb is now maximum size of the session
-	gothic.Store = o.sessionStore
+	authConfig.redirectURL = o.signInUrl
+
+	// Set up a Session Store for Goth
+	sessionStore := memstore.NewMemStore(
+		securecookie.GenerateRandomKey(32),
+		securecookie.GenerateRandomKey(32),
+	)
+	gothic.Store = sessionStore
 
 	// Setup OIDC provider for Goth
 	provider, err := openidConnect.New(
@@ -50,22 +54,18 @@ func SetupOIDC(config Config, baseURL string, e *echo.Echo, skipper middleware.S
 		config.Scope...,
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if provider == nil {
-		return nil, errors.New("nil pro provider")
+		return errors.New("oidc provider failed to initialize")
 	}
 	goth.UseProviders(provider)
-	o.provider = provider
 
 	o.RegisterHandlers(e)
 
-	e.Use(AuthWithConfig(AuthConfig{
-		Skipper:     skipper,
-		RedirectURL: o.signInUrl,
-	}))
+	e.Use(AuthWithConfig(authConfig))
 
-	return o, nil
+	return nil
 }
 
 type UserInfo struct {
@@ -127,13 +127,14 @@ func (o *OIDC) RegisterHandlers(e *echo.Echo) {
 }
 
 type AuthConfig struct {
-	Skipper     middleware.Skipper
-	RedirectURL string
+	Skipper         middleware.Skipper
+	RedirectSkipper middleware.Skipper
+	redirectURL     string
 }
 
 var DefaultAuthConfig = AuthConfig{
-	Skipper:     middleware.DefaultSkipper,
-	RedirectURL: "",
+	Skipper:         middleware.DefaultSkipper,
+	RedirectSkipper: middleware.DefaultSkipper,
 }
 
 func Auth() echo.MiddlewareFunc {
@@ -147,22 +148,41 @@ func AuthWithConfig(config AuthConfig) echo.MiddlewareFunc {
 			req := c.Request()
 
 			if config.Skipper(c) {
-				return next(c)
+				return next(c) // Skip authentication
 			}
 
 			if strings.HasPrefix(req.URL.Path, "/auth/") {
-				return next(c)
+				return next(c) // Skip authentication
 			}
 
-			nick, err := gothic.GetFromSession("NickName", req)
-			if err != nil || len(nick) == 0 {
-				if len(config.RedirectURL) > 0 {
-					return c.Redirect(http.StatusSeeOther, config.RedirectURL)
+			validSession := true
+
+			// Check if the ExpiresAt in the session is still valid
+			expiresAt, err := gothic.GetFromSession("ExpiresAt", req)
+			if err != nil {
+				validSession = false
+			}
+
+			if expiresAt != "" {
+				expiresAtInt, err := strconv.ParseInt(expiresAt, 10, 64)
+				if err != nil {
+					validSession = false
+				}
+				if expiresAtInt < time.Now().Unix() {
+					validSession = false
+				}
+			}
+
+			// Authorization failed, redirect to login or return 401
+			if !validSession {
+				if len(config.redirectURL) > 0 && !config.RedirectSkipper(c) {
+					return c.Redirect(http.StatusSeeOther, config.redirectURL)
 				}
 
 				return echo.ErrUnauthorized
 			}
 
+			// Authorized, continue
 			return next(c)
 		}
 	}

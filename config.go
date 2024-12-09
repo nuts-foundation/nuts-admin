@@ -32,7 +32,6 @@ const defaultConfigFile = "config.yaml"
 func defaultConfig() Config {
 	return Config{
 		HTTPPort: 1305,
-		BaseURL:  "",
 		Node: Node{
 			Address: "http://localhost:8081",
 		},
@@ -43,7 +42,7 @@ func defaultConfig() Config {
 
 type Config struct {
 	HTTPPort   int    `koanf:"port"`
-	BaseURL    string `koanf:"base_url"`
+	BaseURL    string `koanf:"url"`
 	Node       Node   `koanf:"node"`
 	AccessLogs bool   `koanf:"accesslogs"`
 	apiKey     crypto.Signer
@@ -75,8 +74,13 @@ func generateSessionKey() (*ecdsa.PrivateKey, error) {
 
 func (c Config) Validate() error {
 	if err := c.OIDC.Validate(); err != nil {
-		return err
+		return fmt.Errorf("oidc config error: %w", err)
 	}
+
+	if c.OIDC.Enabled && c.BaseURL == "" {
+		return errors.New("url is required when oidc is enabled")
+	}
+
 	return nil
 }
 

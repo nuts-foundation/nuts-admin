@@ -25,7 +25,7 @@ import (
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
 	"github.com/nuts-foundation/nuts-admin/issuer"
-	oidc2 "github.com/nuts-foundation/nuts-admin/oidc"
+	"github.com/nuts-foundation/nuts-admin/oidc"
 	"github.com/rs/zerolog"
 
 	"github.com/labstack/echo/v4"
@@ -59,6 +59,11 @@ func authSkipper(c echo.Context) bool {
 	return strings.HasPrefix(c.Request().URL.Path, "/status")
 }
 
+// Have the API return 401 instead of redirecting to the login page
+func redirectSkipper(c echo.Context) bool {
+	return strings.HasPrefix(c.Request().URL.Path, "/api/")
+}
+
 func main() {
 	logger = zerolog.New(log.Writer()).With().Timestamp().Logger()
 	config := loadConfig()
@@ -85,7 +90,10 @@ func main() {
 	}
 
 	if config.OIDC.Enabled {
-		_, err := oidc2.SetupOIDC(config.OIDC, config.BaseURL, e, authSkipper)
+		err := oidc.Setup(config.OIDC, config.BaseURL, e, oidc.AuthConfig{
+			Skipper:         authSkipper,
+			RedirectSkipper: redirectSkipper,
+		})
 		if err != nil {
 			log.Fatalf("unable to initialize oidc: %s", err)
 		}

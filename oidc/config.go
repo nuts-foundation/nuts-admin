@@ -1,14 +1,16 @@
 package oidc
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 type Config struct {
-	Enabled       bool     `koanf:"enabled"`
-	MetadataURL   string   `koanf:"metadata_url"`
-	ClientID      string   `koanf:"client_id"`
-	ClientSecret  string   `koanf:"client_secret"`
-	Scope         []string `koanf:"scope"`
-	SessionSecret string   `koanf:"session_secret"`
+	Enabled      bool     `koanf:"enabled"`
+	MetadataURL  string   `koanf:"metadata"`
+	ClientID     string   `koanf:"id"`
+	ClientSecret string   `koanf:"secret"`
+	Scope        []string `koanf:"scope"`
 }
 
 func DefaultConfig() Config {
@@ -39,18 +41,15 @@ func (c Config) Validate() error {
 		return errors.New("client_secret is required")
 	}
 
-	if c.SessionSecret == "" {
-		return errors.New("session_secret is required")
-	}
-
-	if c.Scope == nil {
-		return errors.New("scope is required")
-	}
-
+	scopeCount := 0
 	for _, scope := range c.Scope {
-		if scope == "" {
-			return errors.New("scope cannot be \"\" required")
+		if strings.TrimSpace(scope) == "" {
+			return errors.New("scope cannot be an empty string")
 		}
+		scopeCount++
+	}
+	if scopeCount == 0 {
+		return errors.New("at lease once scope is required")
 	}
 
 	return nil

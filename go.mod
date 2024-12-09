@@ -55,6 +55,7 @@ require (
 	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/quasoft/memstore v0.0.0-20191010062613-2bce066d2b0b // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shengdoushi/base58 v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
