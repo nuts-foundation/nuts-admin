@@ -3,7 +3,8 @@ Application which shows how to integrate with the Nuts node to administer identi
 
 ## Warning on authentication
 
-This application does support OIDC user authentication. However, if OIDC user authentication is not enabled, make sure to restrict access in any other case than local development.
+This application does support OIDC user authentication. (This has only been tested with Azure Entra ID, but it should work with any OIDC provider.)
+However, if OIDC user authentication is not enabled, make sure to restrict access in any other case than local development.
 The application proxies REST API calls to the configured Nuts node, so leaving it unsecured will allow anyone to access the proxied Nuts node REST APIs.
 
 ## Running
