@@ -7,6 +7,14 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io/fs"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/lestrrat-go/jwx/jwk"
@@ -17,13 +25,8 @@ import (
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
 	"github.com/nuts-foundation/nuts-admin/issuer"
+	"github.com/nuts-foundation/nuts-admin/oidc"
 	"github.com/rs/zerolog"
-	"io/fs"
-	"log"
-	"net/http"
-	"net/url"
-	"os"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/lestrrat-go/jwx/jwa"
@@ -51,10 +54,24 @@ func getFileSystem(useFS bool) http.FileSystem {
 	return http.FS(fsys)
 }
 
+func authSkipper(c echo.Context) bool {
+	// For the following, skip authorization
+	return strings.HasPrefix(c.Request().URL.Path, "/status")
+}
+
+func redirectSkipper(c echo.Context) bool {
+	// For the following, have the API return 401 instead of redirecting to the login page
+	return strings.HasPrefix(c.Request().URL.Path, "/api/")
+}
+
 func main() {
 	logger = zerolog.New(log.Writer()).With().Timestamp().Logger()
 	config := loadConfig()
 	config.Print()
+	if err := config.Validate(); err != nil {
+		logger.Fatal().Err(err).Msg("invalid config")
+		os.Exit(1)
+	}
 
 	e := echo.New()
 	e.HideBanner = true
@@ -70,6 +87,16 @@ func main() {
 	nodeAddress, err := url.Parse(config.Node.Address)
 	if err != nil {
 		log.Fatalf("unable to parse node address: %s", err)
+	}
+
+	if config.OIDC.Enabled {
+		err := oidc.Setup(config.OIDC, config.BaseURL, e, oidc.AuthConfig{
+			Skipper:         authSkipper,
+			RedirectSkipper: redirectSkipper,
+		})
+		if err != nil {
+			log.Fatalf("unable to initialize oidc: %s", err)
+		}
 	}
 
 	// API security
@@ -113,6 +140,7 @@ func main() {
 	e.GET("/status", func(context echo.Context) error {
 		return context.String(http.StatusOK, "OK")
 	})
+
 	e.GET("/*", echo.WrapHandler(assetHandler))
 
 	// Start server
