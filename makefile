@@ -1,5 +1,6 @@
 .PHONY: dev
 
+CONFIG_FILE ?= deploy/admin.config.yaml
 run-generators: gen-api
 
 install-tools:
@@ -23,7 +24,7 @@ run-nuts-node:
 	docker compose up --wait
 
 run-api:
-	go run . live --configfile=deploy/admin.config.yaml
+	go run . live --configfile=$(CONFIG_FILE)
 
 docker:
 	docker build -t nutsfoundation/nuts-admin:main .
