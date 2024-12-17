@@ -54,13 +54,13 @@ func getFileSystem(useFS bool) http.FileSystem {
 	return http.FS(fsys)
 }
 
-// Skip authorization middleware for the status endpoint
 func authSkipper(c echo.Context) bool {
+	// For the following, skip authorization
 	return strings.HasPrefix(c.Request().URL.Path, "/status")
 }
 
-// Have the API return 401 instead of redirecting to the login page
 func redirectSkipper(c echo.Context) bool {
+	// For the following, have the API return 401 instead of redirecting to the login page
 	return strings.HasPrefix(c.Request().URL.Path, "/api/")
 }
 
