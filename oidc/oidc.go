@@ -161,6 +161,7 @@ func AuthWithConfig(config AuthConfig) echo.MiddlewareFunc {
 			expiresAt, err := gothic.GetFromSession("ExpiresAt", req)
 			if err != nil {
 				validSession = false
+				c.Logger().Error(fmt.Errorf("error getting ExpiresAt from session: %w", err))
 			}
 
 			if expiresAt != "" {
