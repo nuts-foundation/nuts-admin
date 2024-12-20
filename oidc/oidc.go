@@ -155,26 +155,20 @@ func AuthWithConfig(config AuthConfig) echo.MiddlewareFunc {
 				return next(c) // Skip authentication
 			}
 
-			validSession := true
+			validSession := false
 
-			// Check if the ExpiresAt in the session is still valid
-			expiresAt, err := gothic.GetFromSession("ExpiresAt", req)
-			if err != nil {
-				validSession = false
-				c.Logger().Error(fmt.Errorf("error getting ExpiresAt from session: %w", err))
-			}
-
-			if expiresAt != "" {
+			// Check if the ExpiresAt in the session is not expired
+			expiresAt, _ := gothic.GetFromSession("ExpiresAt", req)
+			if len(expiresAt) > 0 {
 				expiresAtInt, err := strconv.ParseInt(expiresAt, 10, 64)
-				if err != nil {
-					validSession = false
-				}
-				if expiresAtInt < time.Now().Unix() {
-					validSession = false
+				if err == nil {
+					if expiresAtInt > time.Now().Unix() {
+						validSession = true
+					}
 				}
 			}
 
-			// Authorization failed, redirect to login or return 401
+			// If authorization failed, redirect to login or return 401
 			if !validSession {
 				if len(config.redirectURL) > 0 && !config.RedirectSkipper(c) {
 					return c.Redirect(http.StatusSeeOther, config.redirectURL)
