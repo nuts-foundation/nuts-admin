@@ -68,10 +68,6 @@ func Setup(config Config, baseURL string, e *echo.Echo, authConfig AuthConfig) e
 	return nil
 }
 
-type UserInfo struct {
-	NickName string `json:"NickName"`
-}
-
 func (o *OIDC) RegisterHandlers(e *echo.Echo) {
 	e.GET("/auth/:provider", func(c echo.Context) error {
 		provider := c.Param("provider")
@@ -106,18 +102,6 @@ func (o *OIDC) RegisterHandlers(e *echo.Echo) {
 		}
 
 		return c.Redirect(http.StatusTemporaryRedirect, o.baseURL)
-	})
-
-	e.GET("/auth/:provider/info", func(c echo.Context) error {
-		req := c.Request()
-
-		nick, err := gothic.GetFromSession("NickName", req)
-		if err != nil {
-			return c.String(http.StatusBadRequest, err.Error())
-		}
-		return c.JSON(http.StatusOK, UserInfo{
-			NickName: nick,
-		})
 	})
 }
 
