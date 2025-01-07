@@ -47,8 +47,8 @@ func Setup(config Config, baseURL string, e *echo.Echo, authConfig AuthConfig) e
 
 	// Setup OIDC provider for Goth
 	provider, err := openidConnect.New(
-		config.ClientID,
-		config.ClientSecret,
+		config.Client.ID,
+		config.Client.Secret,
 		o.callbackURL,
 		config.MetadataURL,
 		config.Scope...,
@@ -96,11 +96,6 @@ func (o *OIDC) RegisterHandlers(e *echo.Echo) {
 		req := c.Request()
 		res := c.Response().Writer
 		user, err := gothic.CompleteUserAuth(res, req)
-		if err != nil {
-			return c.String(http.StatusBadRequest, err.Error())
-		}
-
-		err = gothic.StoreInSession("NickName", user.NickName, req, res)
 		if err != nil {
 			return c.String(http.StatusBadRequest, err.Error())
 		}

@@ -6,11 +6,15 @@ import (
 )
 
 type Config struct {
-	Enabled      bool     `koanf:"enabled"`
-	MetadataURL  string   `koanf:"metadata"`
-	ClientID     string   `koanf:"id"`
-	ClientSecret string   `koanf:"secret"`
-	Scope        []string `koanf:"scope"`
+	Enabled     bool         `koanf:"enabled"`
+	MetadataURL string       `koanf:"metadata"`
+	Client      ClientConfig `koanf:"client"`
+	Scope       []string     `koanf:"scope"`
+}
+
+type ClientConfig struct {
+	ID     string `koanf:"id"`
+	Secret string `koanf:"secret"`
 }
 
 func DefaultConfig() Config {
@@ -33,11 +37,11 @@ func (c Config) Validate() error {
 		return errors.New("metadata_url is required")
 	}
 
-	if c.ClientID == "" {
+	if c.Client.ID == "" {
 		return errors.New("client_id is required")
 	}
 
-	if c.ClientSecret == "" {
+	if c.Client.Secret == "" {
 		return errors.New("client_secret is required")
 	}
 

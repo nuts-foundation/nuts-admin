@@ -67,9 +67,11 @@ func TestSomething(t *testing.T) {
 
 	// setup OIDC
 	config := Config{
-		Enabled:      true,
-		ClientID:     "client_id",
-		ClientSecret: "client_secret",
+		Enabled: true,
+		Client: ClientConfig{
+			ID:     "client_id",
+			Secret: "client_secret",
+		},
 		//FIXME: Find a better way to load an openid-configuration
 		MetadataURL: "https://accounts.google.com/.well-known/openid-configuration",
 		Scope:       []string{"openid", "profile", "email"},

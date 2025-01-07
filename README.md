@@ -25,8 +25,8 @@ It supports the following configuration options:
 The following properties configure OIDC user authorization in Nuts admin:
 - `oidc.enabled` or `NUTS_OIDC_ENABLED`: set to `true` to enable OIDC user authentication.
 - `oidc.metadata` or `NUTS_OIDC_METADATA`: points to the OIDC metadata endpoint, e.g. `https://auth.example.com/.well-known/openid-configuration`.
-- `oidc.id` or `NUTS_OIDC_ID`: the client ID to use for OIDC authentication.
-- `oidc.secret` or `NUTS_OIDC_SECRET`: the client secret to use for OIDC authentication.
+- `oidc.client.id` or `NUTS_OIDC_CLIENT_ID`: the client ID to use for OIDC authentication.
+- `oidc.client.secret` or `NUTS_OIDC_CLIENT_SECRET`: the client secret to use for OIDC authentication.
 - `oidc.scope` or `NUTS_OIDC_SCOPE`: the scope(s) to use for OIDC authentication, defaults to `openid`, `profile`, and `email`.
 
 The following properties should be used if API authentication is enabled on the Nuts node:

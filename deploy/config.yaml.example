@@ -5,8 +5,9 @@ node:
 oidc:
   enabled: true
   metadata: https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2.0/.well-known/openid-configuration
-  id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-  secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  client:
+    id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   scope:
     - openid
     - profile
