@@ -9,10 +9,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/ssh"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/nuts-foundation/nuts-admin/oidc"
+	"golang.org/x/crypto/ssh"
 
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -34,14 +36,17 @@ func defaultConfig() Config {
 			Address: "http://localhost:8081",
 		},
 		AccessLogs: true,
+		OIDC:       oidc.DefaultConfig(),
 	}
 }
 
 type Config struct {
-	HTTPPort   int  `koanf:"port"`
-	Node       Node `koanf:"node"`
-	AccessLogs bool `koanf:"accesslogs"`
+	HTTPPort   int    `koanf:"port"`
+	BaseURL    string `koanf:"url"`
+	Node       Node   `koanf:"node"`
+	AccessLogs bool   `koanf:"accesslogs"`
 	apiKey     crypto.Signer
+	OIDC       oidc.Config `koanf:"oidc"`
 }
 
 type Node struct {
@@ -65,6 +70,18 @@ func generateSessionKey() (*ecdsa.PrivateKey, error) {
 		return nil, err
 	}
 	return key, nil
+}
+
+func (c Config) Validate() error {
+	if err := c.OIDC.Validate(); err != nil {
+		return fmt.Errorf("oidc config error: %w", err)
+	}
+
+	if c.OIDC.Enabled && c.BaseURL == "" {
+		return errors.New("url is required when oidc is enabled")
+	}
+
+	return nil
 }
 
 func (c Config) Print() {

@@ -1,0 +1,14 @@
+port: 1305
+url: https://nuts.example.com
+node:
+  address: http://localhost:8081
+oidc:
+  enabled: true
+  metadata: https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2.0/.well-known/openid-configuration
+  client:
+    id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  scope:
+    - openid
+    - profile
+    - email
