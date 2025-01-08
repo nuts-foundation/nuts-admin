@@ -48,7 +48,7 @@ func request(e *echo.Echo, method, target, cookie string) *httptest.ResponseReco
 	return rec
 }
 
-func TestSomething(t *testing.T) {
+func TestOIDC(t *testing.T) {
 	// build test echo app
 	e := echo.New()
 	e.HideBanner = true
