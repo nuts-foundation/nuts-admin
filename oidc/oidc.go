@@ -30,11 +30,9 @@ func Setup(config Config, baseURL string, e *echo.Echo, authConfig AuthConfig) e
 		baseURL: baseURL,
 	}
 
-	if o.baseURL == "" {
-		o.baseURL = "/"
-	}
-	o.signInUrl = fmt.Sprintf("%s/auth/%s", o.baseURL, name)
-	o.callbackURL = fmt.Sprintf("%s/auth/%s/callback", o.baseURL, name)
+	normalizedBaseUrl := strings.TrimRight(baseURL, "/")
+	o.signInUrl = fmt.Sprintf("%s/auth/%s", normalizedBaseUrl, name)
+	o.callbackURL = fmt.Sprintf("%s/auth/%s/callback", normalizedBaseUrl, name)
 
 	authConfig.redirectURL = o.signInUrl
 
