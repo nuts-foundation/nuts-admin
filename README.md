@@ -1,12 +1,6 @@
 # nuts-admin
 Application which shows how to integrate with the Nuts node to administer identities.
 
-## Warning on authentication
-
-This application does support OIDC user authentication. (This has only been tested with Azure Entra ID, but it should work with any OIDC provider.)
-However, if OIDC user authentication is not enabled, make sure to restrict access in any other case than local development.
-The application proxies REST API calls to the configured Nuts node, so leaving it unsecured will allow anyone to access the proxied Nuts node REST APIs.
-
 ## Running
 Example running the application, connecting to a Nuts node running on `http://nutsnode:8081`:
 
@@ -33,6 +27,34 @@ The following properties should be used if API authentication is enabled on the 
 - `node.auth.keyfile` or `NUTS_NODE_AUTH_KEYFILE`: points to a PEM encoded private key file. The corresponding public key should be configured on the Nuts node in SSH authorized keys format.
 - `node.auth.user` or `NUTS_NODE_AUTH_USER`: must match the user in the SSH authorized keys file.
 - `node.auth.audience` or `NUTS_NODE_AUTH_AUDIENCE`: must match the configured audience.
+
+## User Authentication
+
+This application does support OIDC user authentication. This has only been tested with Azure Entra ID, but it should work with any OIDC provider.
+
+### Preliminary warning
+
+However, if OIDC user authentication is not enabled, make sure to restrict access in any other case than local development.
+The application proxies REST API calls to the configured Nuts node, so leaving it unsecured will allow anyone to access the proxied Nuts node REST APIs.
+
+### Configuration on Azure
+You can have users logged in with their Azure Entra ID account. Nuts Admin will authenticate to Azure Entra ID using `client_id` and `client_secret`.
+The configuration (as environment variables) could look as below.
+It assumes Nuts Admin runs on `https://example.com/admin/`. Make sure to fill in the correct `tenantId` and `client_id` and `client_secret`.
+
+```shell
+NUTS_URL=https://example.com/admin/
+NUTS_OIDC_ENABLED=true
+NUTS_OIDC_METADATA=https://login.microsoftonline.com/<tenantId>/v2.0/.well-known/openid-configuration
+NUTS_OIDC_CLIENT_ID=<client_id>
+NUTS_OIDC_CLIENT_SECRET=<client_secret>
+```
+
+Typically, you create an enterprise application in Azure Entra ID and configure the redirect URI to `https://example.com/admin/auth/openid-connect/callback` (given the example base URL).
+Then, you make sure the users or groups that you want to give access are assigned to the enterprise application.
+To let Nuts Admin access Azure Entra ID, you can register a user-assigned managed identity in Azure and generate the `client_id` and `client_secret`.
+
+For more information regarding OIDC on Azure, see https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc.
 
 ## Development
 
