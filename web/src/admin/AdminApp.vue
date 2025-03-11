@@ -91,7 +91,7 @@
 
     <main class="ml-72 mb-14 mt-8 px-12 w-full">
       <!-- Main content -->
-      <div class="w-full m-auto max-w-screen-2xl">
+      <div class="w-full m-auto max-w-(--breakpoint-2xl)">
         <router-view @statusUpdate="updateStatus"></router-view>
       </div>
 
@@ -120,6 +120,8 @@ export default {
 </script>
 
 <style>
+@import 'tailwindcss';
+
 .menu-link {
   @apply rounded mb-2 py-3 px-3 inline-flex items-center text-gray-500 text-sm;
 }
