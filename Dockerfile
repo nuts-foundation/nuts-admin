@@ -1,7 +1,7 @@
 #
 # Build frontend
 #
-FROM node:lts-alpine as frontend-builder
+FROM node:lts-alpine AS frontend-builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -12,13 +12,10 @@ RUN npm run build
 #
 # Build backend
 #
-FROM golang:1.24-alpine as backend-builder
+FROM golang:1.24-alpine AS backend-builder
 
 ARG TARGETARCH
 ARG TARGETOS
-
-ENV GO111MODULE on
-ENV GOPATH /
 
 RUN mkdir /app && cd /app
 WORKDIR /app
