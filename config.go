@@ -85,7 +85,11 @@ func (c Config) Validate() error {
 }
 
 func (c Config) Print() {
-	data, _ := json.Marshal(c)
+	maskedCopy := c
+	if len(maskedCopy.OIDC.Client.Secret) > 0 {
+		maskedCopy.OIDC.Client.Secret = "*****"
+	}
+	data, _ := json.Marshal(maskedCopy)
 	logger.Info().Msgf("Config: %s", string(data))
 }
 
