@@ -116,6 +116,7 @@
 import DiscoveryServiceDefinition from "./DiscoveryServiceDefinition";
 import ErrorMessage from "../components/ErrorMessage.vue";
 import UploadCredential from "./credentials/UploadCredential.vue";
+import {encodeURIPath} from "../lib/encode";
 
 export default {
   components: {ErrorMessage, UploadCredential},
@@ -178,7 +179,7 @@ export default {
         return
       }
       this.fetchError = undefined
-      this.$api.delete(`api/proxy/internal/vcr/v2/holder/${encodeURIComponent(this.$route.params.subjectID)}/vc/${encodeURIComponent(credentialId)}`)
+      this.$api.delete(`api/proxy/internal/vcr/v2/holder/${encodeURIPath(this.$route.params.subjectID)}/vc/${encodeURIPath(credentialId)}`)
           .then(data => {
             if (data.reason) {
               this.fetchError = data.reason
