@@ -10,11 +10,12 @@ services:
     environment:
       NUTS_CRYPTO_STORAGE: fs
       NUTS_HTTP_INTERNAL_ADDRESS: :8081
-      NUTS_URL: http://localhost:8080
+      NUTS_URL: https://q1020h8t-8080.euw.devtunnels.ms
       NUTS_STRICTMODE: false
       NUTS_DISCOVERY_DEFINITIONS_DIRECTORY: /opt/nuts/discovery
       NUTS_POLICY_DIRECTORY: /opt/nuts/policy
       NUTS_AUTH_CONTRACTVALIDATORS: dummy
+      NUTS_AUTH_AUTHORIZATIONENDPOINT_ENABLED: true
 #  nuts-admin:
 #    build:
 #      context: .

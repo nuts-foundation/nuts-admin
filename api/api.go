@@ -1,12 +1,13 @@
 package api
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
 	"github.com/nuts-foundation/nuts-admin/issuer"
 	"github.com/nuts-foundation/nuts-admin/model"
-	"net/http"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -14,9 +15,17 @@ import (
 var _ ServerInterface = (*Wrapper)(nil)
 
 type Wrapper struct {
-	Identity      identity.Service
-	IssuerService issuer.Service
-	Discovery     discovery.Service
+	Identity           identity.Service
+	IssuerService      issuer.Service
+	Discovery          discovery.Service
+	CredentialProfiles []CredentialProfile
+}
+
+func (w Wrapper) GetConfig(ctx echo.Context) error {
+	config := Config{
+		CredentialProfiles: w.CredentialProfiles,
+	}
+	return ctx.JSON(http.StatusOK, config)
 }
 
 func (w Wrapper) GetIdentities(ctx echo.Context) error {

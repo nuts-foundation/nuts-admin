@@ -106,8 +106,24 @@
         >
           Upload
         </button>
+        <button
+            v-if="credentialProfiles.length > 0"
+            id="issue-credential-button"
+            @click="showIssueCredentialDialog = true"
+            class="btn btn-primary"
+            style="margin-left: 1rem;"
+        >
+          Issue Credential
+        </button>
       </section>
     </div>
+    <RequestCredential
+        v-if="showIssueCredentialDialog"
+        :subjectID="this.$route.params.subjectID"
+        :credentialProfiles="credentialProfiles"
+        :walletDIDs="details ? details.did_documents.map(doc => doc.id) : []"
+        @statusUpdate="updateStatus"
+    />
   </div>
 </template>
 
@@ -116,16 +132,19 @@
 import DiscoveryServiceDefinition from "./DiscoveryServiceDefinition";
 import ErrorMessage from "../components/ErrorMessage.vue";
 import UploadCredential from "./credentials/UploadCredential.vue";
+import RequestCredential from "./credentials/RequestCredential.vue";
 import {encodeURIPath} from "../lib/encode";
 
 export default {
-  components: {ErrorMessage, UploadCredential},
+  components: {ErrorMessage, UploadCredential, RequestCredential},
   data() {
     return {
       fetchError: undefined,
       details: undefined,
       shownDIDDocument: undefined,
       discoveryServices: {},
+      credentialProfiles: [],
+      showIssueCredentialDialog: false,
     }
   },
   created() {
@@ -136,6 +155,13 @@ export default {
       this.$emit('statusUpdate', event)
     },
     fetchData() {
+      this.$api.get('api/config')
+          .then(data => {
+            this.credentialProfiles = data.credential_profiles || []
+          })
+          .catch(response => {
+            console.error('Failed to fetch config:', response)
+          })
       this.$api.get('api/id/' + this.$route.params.subjectID)
           .then(data => {
             this.details = data

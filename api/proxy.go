@@ -1,13 +1,14 @@
 package api
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"github.com/rs/zerolog"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog"
 )
 
 type proxyRoute struct {
@@ -64,6 +65,11 @@ var allowedProxyRoutes = []proxyRoute{
 	{
 		method: http.MethodDelete,
 		path:   "/internal/vcr/v2/holder/([a-z-A-Z0-9_\\-\\:\\.%]+)/vc/(.*)",
+	},
+	// Request OpenID4VCI credential issuance
+	{
+		method: http.MethodPost,
+		path:   "/internal/auth/v2/([a-z-A-Z0-9_\\-\\:\\.%]+)/request-credential",
 	},
 }
 
