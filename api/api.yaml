@@ -4,6 +4,16 @@ info:
   version: 1.0.0
 
 paths:
+  /api/config:
+    get:
+      operationId: getConfig
+      responses:
+        '200':
+          description: Application configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Config"
   /api/id:
     get:
       operationId: getIdentities
@@ -75,6 +85,35 @@ paths:
                 type: object
 components:
   schemas:
+    Config:
+      type: object
+      description: Application configuration
+      required:
+        - credential_profiles
+      properties:
+        credential_profiles:
+          type: array
+          items:
+            $ref: "#/components/schemas/CredentialProfile"
+    CredentialProfile:
+      type: object
+      description: A credential profile for OpenID4VCI issuance
+      x-go-type: model.CredentialProfile
+      x-go-type-import:
+        name: model
+        path: github.com/nuts-foundation/nuts-admin/model
+      required:
+        - type
+        - issuer
+      properties:
+        type:
+          type: string
+          description: The credential type
+          example: "NutsOrganizationCredential"
+        issuer:
+          type: string
+          description: The issuer DID
+          example: "did:web:example.com:iam:issuer"
     IdentityDetails:
       type: object
       description: An identity object with additional details
