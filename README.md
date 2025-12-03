@@ -56,6 +56,17 @@ To let Nuts Admin access Azure Entra ID, you can register a user-assigned manage
 
 For more information regarding OIDC on Azure, see https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc.
 
+## Requesting Credentials
+
+This application supports requesting credentials using the Nuts node through OpenID4VCI.
+
+You need to configure the credential issuers using the following properties:
+
+* `NUTS_CREDENTIALPROFILES_<ID>_TYPE`: the type of the credential to be issued, e.g. `DegreeCredential`.
+* `NUTS_CREDENTIALPROFILES_<ID>_ISSUER`: the URL of the issuer, e.g. `https://issuer.example.com`.
+
+When there is at least one profile configured, the option will become avaiable in the subject/wallet view.
+
 ## Development
 
 During front-end development, you probably want to use the real filesystem and webpack in watch mode:
