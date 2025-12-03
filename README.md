@@ -67,6 +67,8 @@ You need to configure the credential issuers using the following properties:
 
 When there is at least one profile configured, the option will become avaiable in the subject/wallet view.
 
+You'll also need to enable the authorization endpoint on the Nuts node for OpenID4VCI to work using `NUTS_AUTH_AUTHORIZATIONENDPOINT_ENABLED`.
+
 ## Development
 
 During front-end development, you probably want to use the real filesystem and webpack in watch mode:

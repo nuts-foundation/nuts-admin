@@ -1,13 +1,12 @@
 package api
 
 import (
-	"net/http"
-	"strings"
-
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/identity"
 	"github.com/nuts-foundation/nuts-admin/issuer"
 	"github.com/nuts-foundation/nuts-admin/model"
+	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
