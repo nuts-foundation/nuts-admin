@@ -109,21 +109,15 @@
         <button
             v-if="credentialProfiles.length > 0"
             id="issue-credential-button"
-            @click="showIssueCredentialDialog = true"
+            @click="$router.push({name: 'admin.requestCredential', params: {subjectID: this.$route.params.subjectID}})"
             class="btn btn-primary"
             style="margin-left: 1rem;"
         >
-          Issue Credential
+          Request Credential
         </button>
       </section>
     </div>
-    <RequestCredential
-        v-if="showIssueCredentialDialog"
-        :subjectID="this.$route.params.subjectID"
-        :credentialProfiles="credentialProfiles"
-        :walletDIDs="details ? details.did_documents.map(doc => doc.id) : []"
-        @statusUpdate="updateStatus"
-    />
+    <router-view @statusUpdate="updateStatus" />
   </div>
 </template>
 
@@ -132,11 +126,10 @@
 import DiscoveryServiceDefinition from "./DiscoveryServiceDefinition";
 import ErrorMessage from "../components/ErrorMessage.vue";
 import UploadCredential from "./credentials/UploadCredential.vue";
-import RequestCredential from "./credentials/RequestCredential.vue";
 import {encodeURIPath} from "../lib/encode";
 
 export default {
-  components: {ErrorMessage, UploadCredential, RequestCredential},
+  components: {ErrorMessage, UploadCredential},
   data() {
     return {
       fetchError: undefined,
@@ -144,7 +137,6 @@ export default {
       shownDIDDocument: undefined,
       discoveryServices: {},
       credentialProfiles: [],
-      showIssueCredentialDialog: false,
     }
   },
   created() {

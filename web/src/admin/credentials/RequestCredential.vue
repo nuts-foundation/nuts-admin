@@ -47,18 +47,9 @@ import {encodeURIPath} from "../../lib/encode";
 
 export default {
   components: {ErrorMessage, ModalWindow},
-  props: {
-    subjectID: {
-      type: String,
-      required: true
-    },
-    credentialProfiles: {
-      type: Array,
-      required: true
-    },
-    walletDIDs: {
-      type: Array,
-      required: true
+  computed: {
+    subjectID() {
+      return this.$route.params.subjectID
     }
   },
   data() {
@@ -67,18 +58,44 @@ export default {
       selectedWalletDID: '',
       issueError: undefined,
       issuanceResult: undefined,
+      credentialProfiles: [],
+      walletDIDs: [],
     }
   },
   created() {
-    // Pre-select did:web DID if available
-    const didWebDID = this.walletDIDs.find(did => did.startsWith('did:web:'))
-    if (didWebDID) {
-      this.selectedWalletDID = didWebDID
-    } else if (this.walletDIDs.length > 0) {
-      this.selectedWalletDID = this.walletDIDs[0]
-    }
+    // Fetch config for credential profiles
+    this.$api.get('api/config')
+        .then(data => {
+          this.credentialProfiles = data.credential_profiles || []
+        })
+        .catch(response => {
+          console.error('Failed to fetch config:', response)
+          this.issueError = 'Failed to fetch credential profiles: ' + response
+        })
+
+    // Fetch identity details for wallet DIDs
+    this.$api.get('api/id/' + this.subjectID)
+        .then(data => {
+          this.walletDIDs = data.did_documents ? data.did_documents.map(doc => doc.id) : []
+          // Pre-select did:web DID after data is loaded
+          this.preselectWalletDID()
+        })
+        .catch(response => {
+          console.error('Failed to fetch identity:', response)
+          this.issueError = 'Failed to fetch wallet DIDs: ' + response
+        })
   },
   methods: {
+    preselectWalletDID() {
+      if (this.walletDIDs && this.walletDIDs.length > 0) {
+        const didWebDID = this.walletDIDs.find(did => did.startsWith('did:web:'))
+        if (didWebDID) {
+          this.selectedWalletDID = didWebDID
+        } else {
+          this.selectedWalletDID = this.walletDIDs[0]
+        }
+      }
+    },
     handleConfirm() {
       if (this.issuanceResult) {
         // If we already have a result, navigate back to identity details
