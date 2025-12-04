@@ -2,18 +2,10 @@
   <modal-window :cancelRoute="{name: 'admin.identityDetails', params: {subjectID: subjectID}}"
                 title="Request Credential Issuance"
                 type="add"
-                :confirmFn="handleConfirm"
-                :confirmText="issuanceResult ? 'Close' : 'Request'">
+                :confirmFn="issueCredential"
+                confirmText="Request">
     <ErrorMessage v-if="issueError" :message="issueError"/>
-    <div v-if="issuanceResult">
-      <p>Credential issuance initiated successfully!</p>
-      <p>
-        <a :href="issuanceResult.redirect_uri" target="_blank" class="text-blue-600 hover:text-blue-800 underline">
-          Click here to start the credential issuance
-        </a>
-      </p>
-    </div>
-    <div v-else>
+    <div>
       <div>
         <label for="credential-type">Credential Type</label>
         <select v-model="selectedCredentialType" id="credential-type">
@@ -57,7 +49,6 @@ export default {
       selectedCredentialType: '',
       selectedWalletDID: '',
       issueError: undefined,
-      issuanceResult: undefined,
       credentialProfiles: [],
       walletDIDs: [],
     }
@@ -96,15 +87,6 @@ export default {
         }
       }
     },
-    handleConfirm() {
-      if (this.issuanceResult) {
-        // If we already have a result, navigate back to identity details
-        this.$router.push({name: 'admin.identityDetails', params: {subjectID: this.subjectID}})
-      } else {
-        // Otherwise, issue the credential
-        this.issueCredential()
-      }
-    },
     getIssuerForType(credentialType) {
       const profile = this.credentialProfiles.find(p => p.type === credentialType)
       return profile ? profile.issuer : ''
@@ -133,8 +115,9 @@ export default {
 
       this.$api.post(`api/proxy/internal/auth/v2/${encodeURIPath(this.subjectID)}/request-credential`, requestBody)
           .then(data => {
-            this.issuanceResult = data
             this.$emit('statusUpdate', 'Credential issuance initiated successfully')
+            // Automatically redirect to the issuance URI
+            window.location.href = data.redirect_uri
           })
           .catch(response => {
             this.issueError = "Failed to initiate credential issuance: " + response
