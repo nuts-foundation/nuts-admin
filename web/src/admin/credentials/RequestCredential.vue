@@ -127,7 +127,7 @@ export default {
                 this.issueError = 'Invalid redirect URL: must use HTTPS or be same-origin'
               }
             } catch (e) {
-              this.issueError = 'Invalid redirect URL format: ' + e.message
+              this.issueError = 'Invalid redirect URL format received from server'
             }
           })
           .catch(response => {
