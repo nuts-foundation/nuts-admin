@@ -14,9 +14,17 @@ import (
 var _ ServerInterface = (*Wrapper)(nil)
 
 type Wrapper struct {
-	Identity      identity.Service
-	IssuerService issuer.Service
-	Discovery     discovery.Service
+	Identity           identity.Service
+	IssuerService      issuer.Service
+	Discovery          discovery.Service
+	CredentialProfiles []CredentialProfile
+}
+
+func (w Wrapper) GetConfig(ctx echo.Context) error {
+	config := Config{
+		CredentialProfiles: w.CredentialProfiles,
+	}
+	return ctx.JSON(http.StatusOK, config)
 }
 
 func (w Wrapper) GetIdentities(ctx echo.Context) error {

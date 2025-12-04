@@ -8,7 +8,8 @@ import NotFound from './NotFound.vue'
 import Identities from './admin/Identities.vue'
 import NewIdentity from './admin/NewIdentity.vue'
 import DiscoveryServices from './admin/DiscoveryServices.vue'
-import IssuedCredentials from './admin/credentials/IssuedCredentials.vue'
+import IssuedCredentials from './admin/credentials/IssuedCredentials.vue';
+import RequestCredential from "./admin/credentials/RequestCredential.vue";
 import WalletCredentialDetails from "./admin/credentials/WalletCredentialDetails.vue";
 import Api from './plugins/api'
 import IdentityDetails from "./admin/IdentityDetails.vue";
@@ -56,6 +57,11 @@ const routes = [
         path: 'id/:subjectID/upload',
         name: 'admin.uploadCredential',
         component: UploadCredential,
+      },
+      {
+        path: 'id/:subjectID/request',
+        name: 'admin.requestCredential',
+        component: RequestCredential,
       },
       {
         path: 'id/:subjectID/discovery/:discoveryServiceID/activate',

@@ -106,8 +106,18 @@
         >
           Upload
         </button>
+        <button
+            v-if="credentialProfiles.length > 0"
+            id="issue-credential-button"
+            @click="$router.push({name: 'admin.requestCredential', params: {subjectID: this.$route.params.subjectID}})"
+            class="btn btn-primary"
+            style="margin-left: 1rem;"
+        >
+          Request Credential
+        </button>
       </section>
     </div>
+    <router-view @statusUpdate="updateStatus" />
   </div>
 </template>
 
@@ -126,6 +136,7 @@ export default {
       details: undefined,
       shownDIDDocument: undefined,
       discoveryServices: {},
+      credentialProfiles: [],
     }
   },
   created() {
@@ -136,6 +147,13 @@ export default {
       this.$emit('statusUpdate', event)
     },
     fetchData() {
+      this.$api.get('api/config')
+          .then(data => {
+            this.credentialProfiles = data.credential_profiles || []
+          })
+          .catch(response => {
+            console.error('Failed to fetch config:', response)
+          })
       this.$api.get('api/id/' + this.$route.params.subjectID)
           .then(data => {
             this.details = data
