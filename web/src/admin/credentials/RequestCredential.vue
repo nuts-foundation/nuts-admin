@@ -111,6 +111,12 @@ export default {
     },
     issueCredential() {
       this.issueError = undefined
+      
+      if (!this.selectedCredentialType) {
+        this.issueError = 'Please select a credential type'
+        return
+      }
+
       const issuerDID = this.getIssuerForType(this.selectedCredentialType)
       if (!issuerDID) {
         this.issueError = 'No issuer found for selected credential type'
