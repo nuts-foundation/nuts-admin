@@ -115,9 +115,18 @@ export default {
 
       this.$api.post(`api/proxy/internal/auth/v2/${encodeURIPath(this.subjectID)}/request-credential`, requestBody)
           .then(data => {
-            this.$emit('statusUpdate', 'Credential issuance initiated successfully')
-            // Automatically redirect to the issuance URI
-            window.location.href = data.redirect_uri
+            // Validate that the redirect_uri is from the same origin or a trusted external issuer
+            try {
+              const redirectUrl = new URL(data.redirect_uri)
+              // Allow same-origin redirects or external HTTPS URLs (for OpenID4VCI flow)
+              if (redirectUrl.origin === window.location.origin || redirectUrl.protocol === 'https:') {
+                window.location.href = data.redirect_uri
+              } else {
+                this.issueError = 'Invalid redirect URL received from server'
+              }
+            } catch (e) {
+              this.issueError = 'Invalid redirect URL format'
+            }
           })
           .catch(response => {
             this.issueError = "Failed to initiate credential issuance: " + response
