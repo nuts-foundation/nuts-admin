@@ -128,6 +128,7 @@ func main() {
 			IdentityService: identityService,
 			VCRClient:       vcrClient,
 		},
+		CredentialProfiles: config.CredentialProfiles,
 	}
 
 	api.RegisterHandlers(e, apiWrapper)

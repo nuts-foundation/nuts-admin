@@ -13,6 +13,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/nuts-foundation/nuts-admin/model"
 	"github.com/nuts-foundation/nuts-admin/oidc"
 	"golang.org/x/crypto/ssh"
 
@@ -41,12 +42,13 @@ func defaultConfig() Config {
 }
 
 type Config struct {
-	HTTPPort   int    `koanf:"port"`
-	BaseURL    string `koanf:"url"`
-	Node       Node   `koanf:"node"`
-	AccessLogs bool   `koanf:"accesslogs"`
-	apiKey     crypto.Signer
-	OIDC       oidc.Config `koanf:"oidc"`
+	HTTPPort           int                       `koanf:"port"`
+	BaseURL            string                    `koanf:"url"`
+	Node               Node                      `koanf:"node"`
+	AccessLogs         bool                      `koanf:"accesslogs"`
+	CredentialProfiles []model.CredentialProfile `koanf:"credentialprofiles"`
+	apiKey             crypto.Signer
+	OIDC               oidc.Config `koanf:"oidc"`
 }
 
 type Node struct {
