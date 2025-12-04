@@ -115,17 +115,19 @@ export default {
 
       this.$api.post(`api/proxy/internal/auth/v2/${encodeURIPath(this.subjectID)}/request-credential`, requestBody)
           .then(data => {
-            // Validate that the redirect_uri is from the same origin or a trusted external issuer
+            // Validate that the redirect_uri is from the same origin or uses HTTPS
+            // External HTTPS URLs are expected for OpenID4VCI flow (redirecting to issuer's authorization endpoint)
+            // The backend is responsible for ensuring the redirect_uri is to a trusted issuer
             try {
               const redirectUrl = new URL(data.redirect_uri)
-              // Allow same-origin redirects or external HTTPS URLs (for OpenID4VCI flow)
+              // Allow same-origin redirects or external HTTPS URLs
               if (redirectUrl.origin === window.location.origin || redirectUrl.protocol === 'https:') {
                 window.location.href = data.redirect_uri
               } else {
-                this.issueError = 'Invalid redirect URL received from server'
+                this.issueError = 'Invalid redirect URL: must use HTTPS or be same-origin'
               }
             } catch (e) {
-              this.issueError = 'Invalid redirect URL format'
+              this.issueError = 'Invalid redirect URL format: ' + e.message
             }
           })
           .catch(response => {
