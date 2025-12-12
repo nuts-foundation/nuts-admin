@@ -104,7 +104,7 @@ export default {
         return
       }
 
-      const redirectUri = `${window.location.origin}${this.$router.resolve({name: 'admin.identityDetails', params: {subjectID: this.subjectID}}).href}`
+      const redirectUri = `${window.location.origin}${window.location.pathname}${this.$router.resolve({name: 'admin.identityDetails', params: {subjectID: this.subjectID}}).href}`
 
       const requestBody = {
         credential_type: this.selectedCredentialType,
