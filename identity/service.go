@@ -3,14 +3,15 @@ package identity
 import (
 	"context"
 	"errors"
+	"slices"
+	"strings"
+
 	"github.com/nuts-foundation/go-did/vc"
 	"github.com/nuts-foundation/go-nuts-client/nuts"
 	"github.com/nuts-foundation/go-nuts-client/nuts/vcr"
 	"github.com/nuts-foundation/go-nuts-client/nuts/vdr"
 	"github.com/nuts-foundation/nuts-admin/discovery"
 	"github.com/nuts-foundation/nuts-admin/model"
-	"slices"
-	"strings"
 )
 
 type Service struct {
@@ -101,7 +102,7 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 	if err != nil {
 		return nil, err
 	}
-	creds := model.ToModel(vcs)
+	creds := model.ListToModel(vcs)
 	result.WalletCredentials = creds
 
 	return &result, nil

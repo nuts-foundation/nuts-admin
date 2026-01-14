@@ -67,15 +67,15 @@ paths:
         '404':
           description: The identity could not be found
   /api/issuer/vc:
-    parameters:
-      - name: credentialTypes
-        description: A comma-separated list of credential types which are returned.
-        in: query
-        required: true
-        schema:
-          type: string
     get:
       operationId: getIssuedCredentials
+      parameters:
+        - name: credentialTypes
+          description: A comma-separated list of credential types which are returned.
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: List of issued VCs
