@@ -2,12 +2,13 @@ package issuer
 
 import (
 	"context"
-	"github.com/nuts-foundation/go-did/vc"
+	"strings"
+	"time"
+
 	"github.com/nuts-foundation/go-nuts-client/nuts"
 	"github.com/nuts-foundation/go-nuts-client/nuts/vcr"
 	"github.com/nuts-foundation/nuts-admin/identity"
 	"github.com/nuts-foundation/nuts-admin/model"
-	"strings"
 )
 
 type Service struct {
@@ -15,8 +16,8 @@ type Service struct {
 	VCRClient       *vcr.Client
 }
 
-func (s Service) GetIssuedCredentials(ctx context.Context, issuer string, credentialTypes []string) ([]model.VerifiableCredential, error) {
-	var result []vc.VerifiableCredential
+func (s Service) GetIssuedCredentials(ctx context.Context, issuer string, credentialTypes []string) ([]model.IssuedCredential, error) {
+	var result []model.IssuedCredential
 	for _, credentialType := range credentialTypes {
 		credentialType = strings.TrimSpace(credentialType)
 		if credentialType == "" {
@@ -31,8 +32,18 @@ func (s Service) GetIssuedCredentials(ctx context.Context, issuer string, creden
 			return nil, err
 		}
 		for _, searchResult := range response.JSON200.VerifiableCredentials {
-			result = append(result, searchResult.VerifiableCredential)
+			currentResult := model.IssuedCredential{
+				VerifiableCredential: model.ToModel(searchResult.VerifiableCredential),
+			}
+			if searchResult.Revocation != nil {
+				currentResult.Status = "revoked"
+			} else if searchResult.VerifiableCredential.ExpirationDate != nil && searchResult.VerifiableCredential.ExpirationDate.Before(time.Now()) {
+				currentResult.Status = "expired"
+			} else {
+				currentResult.Status = "active"
+			}
+			result = append(result, currentResult)
 		}
 	}
-	return model.ToModel(result), nil
+	return result, nil
 }

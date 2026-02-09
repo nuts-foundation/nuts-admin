@@ -64,6 +64,13 @@
             <input id="daysValid" v-model="daysValid" type="number">
             <p>This will be used to set the credentials <code>expirationDate</code> property.</p>
           </div>
+          <div>
+            <label for="enableRevocation" class="flex items-center cursor-pointer">
+              <input id="enableRevocation" v-model="enableRevocation" type="checkbox" class="mr-2">
+              <span>Enable revocation (StatusList2021)</span>
+            </label>
+            <p>Allows the credential to be revoked later using the StatusList2021 feature.</p>
+          </div>
           <div v-for="(field, idx) in template.fields" :key="field.name">
             <label :for="field.name">
               {{ field.name }}
@@ -112,6 +119,7 @@ export default {
       template: undefined,
       credentialFields: [],
       daysValid: 365,
+      enableRevocation: true,
       credentialPreview: undefined,
       issuedCredential: undefined,
     }
@@ -160,8 +168,9 @@ export default {
       credentialToIssue['type'] = credentialToIssue['type'].find(t => t !== "VerifiableCredential")
       credentialToIssue['expirationDate'] = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * this.daysValid).toISOString()
       credentialToIssue['format'] = this.credentialProofFormat
-      // disable statusListRevocation2021 for now, causes issues on MS SQL Server
-      //credentialToIssue.withStatusList2021Revocation = true
+      if (this.enableRevocation) {
+        credentialToIssue.withStatusList2021Revocation = true
+      }
       this.fetchError = undefined
       this.$api.post('api/proxy/internal/vcr/v2/issuer/vc', credentialToIssue)
           .then(issuedCredential => {

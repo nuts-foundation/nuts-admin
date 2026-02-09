@@ -71,6 +71,11 @@ var allowedProxyRoutes = []proxyRoute{
 		method: http.MethodPost,
 		path:   "/internal/auth/v2/([a-z-A-Z0-9_\\-\\:\\.%]+)/request-credential",
 	},
+	// Revoke Verifiable Credential
+	{
+		method: http.MethodDelete,
+		path:   "/internal/vcr/v2/issuer/vc/(.*)",
+	},
 }
 
 // ConfigureProxy configures the proxy middleware for the given Nuts node address.

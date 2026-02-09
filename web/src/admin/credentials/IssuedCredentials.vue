@@ -9,17 +9,21 @@
         <thead>
         <tr>
           <th class="thead">Issuer</th>
-          <th class="thead">Type</th>
           <th class="thead">Subject</th>
+          <th class="thead">Type</th>
+          <th class="thead">Status</th>
           <th class="thead">Issuance date</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="credential in credentials" :key="credential.id"
           @click="chosenCredential = credential" style="cursor: pointer">
-          <td>{{ credential.issuer.split(':').slice(-1)[0] }}</td>
+          <td>{{ credential.issuer }}</td>
+          <td>{{ Array.isArray(credential.credentialSubject) ? credential.credentialSubject[0].id : credential.credentialSubject.id }}</td>
           <td>{{ credential.type.filter(t => t !== 'VerifiableCredential').join(', ') }}</td>
-          <td>{{ credential.credentialSubject.id }}</td>
+          <td>
+            <span :class="statusClass(credential.status)">{{ credential.status }}</span>
+          </td>
           <td>{{ new Date(credential.issuanceDate).toLocaleString() }}</td>
         </tr>
         </tbody>
@@ -29,7 +33,12 @@
       </p>
     </section>
   </div>
-  <CredentialDetails :credential="chosenCredential" v-if="chosenCredential" style="margin-top: 20px;" />
+  <CredentialDetails
+    :credential="chosenCredential"
+    v-if="chosenCredential"
+    :showRevokeButton="true"
+    @revoked="fetchData"
+    style="margin-top: 20px;" />
 </template>
 
 <script>
@@ -59,6 +68,18 @@ export default {
           .catch(response => {
             this.fetchError = response
           })
+    },
+    statusClass(status) {
+      switch(status) {
+        case 'active':
+          return 'text-green-600 font-semibold'
+        case 'expired':
+          return 'text-gray-500 font-semibold'
+        case 'revoked':
+          return 'text-red-600 font-semibold'
+        default:
+          return ''
+      }
     }
   }
 }
