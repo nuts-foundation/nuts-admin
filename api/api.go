@@ -61,7 +61,7 @@ func (w Wrapper) GetIssuedCredentials(ctx echo.Context, params GetIssuedCredenti
 	if err != nil {
 		return err
 	}
-	result := make([]model.IssuedCredential, 0)
+	result := make([]model.CredentialWithStatus, 0)
 	for _, currID := range identities {
 		for _, issuerDID := range currID.DIDs {
 			credentials, err := w.IssuerService.GetIssuedCredentials(ctx.Request().Context(), issuerDID, strings.Split(params.CredentialTypes, ","))

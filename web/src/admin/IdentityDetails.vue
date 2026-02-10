@@ -79,6 +79,7 @@
           <tr>
             <th class="thead">Type</th>
             <th class="thead">Issuer</th>
+            <th class="thead">Status</th>
             <th class="thead">Actions</th>
           </tr>
           </thead>
@@ -87,6 +88,9 @@
               style="cursor: pointer">
             <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">{{ credential.type.filter(t => t !== "VerifiableCredential").join(', ') }}</td>
             <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">{{ credential.issuer }}</td>
+            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">
+              <span :class="statusClass(credential.status)">{{ credential.status }}</span>
+            </td>
             <td>
               <button class="btn btn-danger" @click="deleteCredential(credential.id)">
                 Delete
@@ -209,6 +213,18 @@ export default {
           .finally(() => {
             this.fetchData()
           })
+    },
+    statusClass(status) {
+      switch (status) {
+        case 'active':
+          return 'text-green-600 font-semibold'
+        case 'expired':
+          return 'text-gray-500 font-semibold'
+        case 'revoked':
+          return 'text-red-600 font-semibold'
+        default:
+          return ''
+      }
     }
   }
 }

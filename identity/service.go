@@ -3,6 +3,7 @@ package identity
 import (
 	"context"
 	"errors"
+	"fmt"
 	"slices"
 	"strings"
 
@@ -64,7 +65,7 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 	result := IdentityDetails{
 		Identity:          *identity,
 		DiscoveryServices: make([]discovery.DIDStatus, 0),
-		WalletCredentials: make([]model.VerifiableCredential, 0),
+		WalletCredentials: make([]model.CredentialWithStatus, 0),
 	}
 
 	// Get DIDDocuments
@@ -98,13 +99,10 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 	})
 
 	// Get WalletCredentials
-	vcs, err := i.credentialsInWallet(ctx, subjectID)
+	result.WalletCredentials, err = i.credentialsInWallet(ctx, subjectID)
 	if err != nil {
 		return nil, err
 	}
-	creds := model.ListToModel(vcs)
-	result.WalletCredentials = creds
-
 	return &result, nil
 }
 
@@ -120,14 +118,47 @@ func (i Service) getSubject(ctx context.Context, subject string) (*Identity, err
 	}, nil
 }
 
-func (i Service) credentialsInWallet(ctx context.Context, subjectID string) ([]vc.VerifiableCredential, error) {
-	httpResponse, err := i.VCRClient.GetCredentialsInWallet(ctx, subjectID)
-	response, err := nuts.ParseResponse(err, httpResponse, vcr.ParseGetCredentialsInWalletResponse)
+func (i Service) credentialsInWallet(ctx context.Context, subjectID string) ([]model.CredentialWithStatus, error) {
+	httpResponse, err := i.VCRClient.SearchCredentialsInWallet(ctx, subjectID)
+	response, err := nuts.ParseResponse(err, httpResponse, vcr.ParseSearchCredentialsInWalletResponse)
 	if err != nil {
 		return nil, err
 	}
 	if response.JSON200 == nil {
 		return nil, errors.New("unable to list credentials")
 	}
-	return *response.JSON200, nil
+	result := make([]model.CredentialWithStatus, 0)
+	for _, searchResult := range response.JSON200.VerifiableCredentials {
+		result = append(result, model.SearchResultToModel(searchResult))
+	}
+	return result, nil
+}
+
+func (i Service) getRevocationStatus(ctx context.Context, credential *vc.VerifiableCredential) (string, error) {
+	allowUntrustedIssuer := true
+	httpResponse, err := i.VCRClient.VerifyVC(ctx, vcr.VerifyVCJSONRequestBody{
+		VerifiableCredential: *credential,
+		VerificationOptions: &vcr.VCVerificationOptions{
+			AllowUntrustedIssuer: &allowUntrustedIssuer,
+		},
+	})
+	if err != nil {
+		return "", fmt.Errorf("checking credential validity: %w", err)
+	}
+	response, err := nuts.ParseResponse(err, httpResponse, vcr.ParseVerifyVCResponse)
+	if err != nil {
+		return "", err
+	}
+	if response.JSON200 != nil {
+		if response.JSON200.Validity {
+			return "", nil
+		}
+		if response.JSON200.Message != nil {
+			return *response.JSON200.Message, nil
+		}
+		// Not valid, but no message
+		return "invalid", nil
+	} else {
+		return "", errors.New("check failure")
+	}
 }

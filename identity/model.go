@@ -15,5 +15,5 @@ type IdentityDetails struct {
 	Identity
 	DIDDocuments      []did.Document               `json:"did_documents"`
 	DiscoveryServices []discovery.DIDStatus        `json:"discovery_services"`
-	WalletCredentials []model.VerifiableCredential `json:"wallet_credentials"`
+	WalletCredentials []model.CredentialWithStatus `json:"wallet_credentials"`
 }

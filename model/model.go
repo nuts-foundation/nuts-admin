@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/nuts-foundation/go-did/vc"
+	"github.com/nuts-foundation/go-nuts-client/nuts/vcr"
 )
 
 type VerifiableCredential vc.VerifiableCredential
@@ -13,7 +14,7 @@ type CredentialProfile struct {
 	Issuer string `json:"issuer" koanf:"issuer"`
 }
 
-type IssuedCredential struct {
+type CredentialWithStatus struct {
 	VerifiableCredential
 	Status string `json:"status"`
 }
@@ -37,13 +38,16 @@ func ToModel(credential vc.VerifiableCredential) VerifiableCredential {
 	return currentCredential
 }
 
-// GetCredentialStatus determines if a credential is active, expired, or revoked
-func GetCredentialStatus(credential vc.VerifiableCredential, isRevoked bool) string {
-	if isRevoked {
-		return "revoked"
+func SearchResultToModel(searchResult vcr.SearchVCResult) CredentialWithStatus {
+	currentResult := CredentialWithStatus{
+		VerifiableCredential: ToModel(searchResult.VerifiableCredential),
 	}
-	if credential.ExpirationDate != nil && credential.ExpirationDate.Before(time.Now()) {
-		return "expired"
+	if searchResult.Revocation != nil {
+		currentResult.Status = "revoked"
+	} else if searchResult.VerifiableCredential.ExpirationDate != nil && searchResult.VerifiableCredential.ExpirationDate.Before(time.Now()) {
+		currentResult.Status = "expired"
+	} else {
+		currentResult.Status = "active"
 	}
-	return "active"
+	return currentResult
 }
