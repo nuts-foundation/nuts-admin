@@ -5,26 +5,26 @@
     <section>
       <label for="credentialTypes" class="inline">Credential types (comma-separated): </label>
       <input type="text" id="credentialTypes" v-model="credentialTypes" v-on:change="fetchData" class="inline" style="width: 50%">
-      <table class="table w-full divide-y divide-gray-200 mt-4" v-if="credentials.length > 0">
+      <table class="table w-full divide-y divide-gray-200 mt-4 border-collapse" v-if="credentials.length > 0" style="border-spacing: 0;">
         <thead>
         <tr>
-          <th class="thead">Issuer</th>
-          <th class="thead">Subject</th>
-          <th class="thead">Type</th>
-          <th class="thead">Status</th>
-          <th class="thead">Issuance date</th>
+          <th class="thead" style="padding: 2px;">Issuer</th>
+          <th class="thead" style="padding: 2px;">Subject</th>
+          <th class="thead" style="padding: 2px;">Type</th>
+          <th class="thead" style="padding: 2px;">Status</th>
+          <th class="thead" style="padding: 2px;">Issued at</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="credential in credentials" :key="credential.id"
-          @click="chosenCredential = credential" style="cursor: pointer">
-          <td>{{ credential.issuer }}</td>
-          <td>{{ Array.isArray(credential.credentialSubject) ? credential.credentialSubject[0].id : credential.credentialSubject.id }}</td>
-          <td>{{ credential.type.filter(t => t !== 'VerifiableCredential').join(', ') }}</td>
-          <td>
+          @click="chosenCredential = credential" class="border-b border-gray-300" style="cursor: pointer">
+          <td class="border-r border-gray-300" style="padding: 2px;">{{ credential.issuer }}</td>
+          <td class="border-r border-gray-300" style="padding: 2px;">{{ Array.isArray(credential.credentialSubject) ? credential.credentialSubject[0].id : credential.credentialSubject.id }}</td>
+          <td class="border-r border-gray-300" style="padding: 2px;">{{ credential.type.filter(t => t !== 'VerifiableCredential').join(', ') }}</td>
+          <td class="border-r border-gray-300" style="padding: 2px;">
             <span :class="statusClass(credential.status)">{{ credential.status }}</span>
           </td>
-          <td>{{ new Date(credential.issuanceDate).toLocaleString() }}</td>
+          <td style="padding: 2px;">{{ new Date(credential.issuanceDate).toLocaleString() }}</td>
         </tr>
         </tbody>
       </table>

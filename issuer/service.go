@@ -2,6 +2,7 @@ package issuer
 
 import (
 	"context"
+	"sort"
 	"strings"
 	"time"
 
@@ -45,5 +46,9 @@ func (s Service) GetIssuedCredentials(ctx context.Context, issuer string, creden
 			result = append(result, currentResult)
 		}
 	}
+	// Sort by issuance date, descending (newest first)
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].VerifiableCredential.IssuanceDate.After(result[j].VerifiableCredential.IssuanceDate)
+	})
 	return result, nil
 }
