@@ -3,11 +3,9 @@ package identity
 import (
 	"context"
 	"errors"
-	"fmt"
 	"slices"
 	"strings"
 
-	"github.com/nuts-foundation/go-did/vc"
 	"github.com/nuts-foundation/go-nuts-client/nuts"
 	"github.com/nuts-foundation/go-nuts-client/nuts/vcr"
 	"github.com/nuts-foundation/go-nuts-client/nuts/vdr"
@@ -132,33 +130,4 @@ func (i Service) credentialsInWallet(ctx context.Context, subjectID string) ([]m
 		result = append(result, model.SearchResultToModel(searchResult))
 	}
 	return result, nil
-}
-
-func (i Service) getRevocationStatus(ctx context.Context, credential *vc.VerifiableCredential) (string, error) {
-	allowUntrustedIssuer := true
-	httpResponse, err := i.VCRClient.VerifyVC(ctx, vcr.VerifyVCJSONRequestBody{
-		VerifiableCredential: *credential,
-		VerificationOptions: &vcr.VCVerificationOptions{
-			AllowUntrustedIssuer: &allowUntrustedIssuer,
-		},
-	})
-	if err != nil {
-		return "", fmt.Errorf("checking credential validity: %w", err)
-	}
-	response, err := nuts.ParseResponse(err, httpResponse, vcr.ParseVerifyVCResponse)
-	if err != nil {
-		return "", err
-	}
-	if response.JSON200 != nil {
-		if response.JSON200.Validity {
-			return "", nil
-		}
-		if response.JSON200.Message != nil {
-			return *response.JSON200.Message, nil
-		}
-		// Not valid, but no message
-		return "invalid", nil
-	} else {
-		return "", errors.New("check failure")
-	}
 }
