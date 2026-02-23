@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^7.0.2",
+    "@fullhuman/postcss-purgecss": "^8.0.0",
     "@vue/compiler-sfc": "^3.5.28",
     "autoprefixer": "^10.4.24",
     "css-loader": "^7.1.2",
