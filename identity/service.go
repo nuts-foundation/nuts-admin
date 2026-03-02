@@ -68,15 +68,12 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 
 	// Get DIDDocuments
 	for _, currentDID := range identity.DIDs {
-		resp, err := i.VDRClient.ResolveDID(ctx, currentDID)
+		httpResponse, err := i.VDRClient.ResolveDID(ctx, currentDID)
+		response, err := nuts.ParseResponse(err, httpResponse, vdr.ParseResolveDIDResponse)
 		if err != nil {
 			return nil, err
 		}
-		didResponse, err := vdr.ParseResolveDIDResponse(resp)
-		if err != nil {
-			return nil, err
-		}
-		result.DIDDocuments = append(result.DIDDocuments, didResponse.JSON200.Document)
+		result.DIDDocuments = append(result.DIDDocuments, response.JSON200.Document)
 	}
 
 	// Get DiscoveryService status
