@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"context"
+
 	"github.com/nuts-foundation/go-nuts-client/nuts"
 	"github.com/nuts-foundation/go-nuts-client/nuts/discovery"
 )
@@ -22,9 +23,6 @@ func (i Service) GetDiscoveryServices(ctx context.Context) ([]discovery.ServiceD
 func (i Service) ActivationStatus(ctx context.Context, serviceID string, subjectID string) (*DIDStatus, error) {
 	httpResponse, err := i.Client.GetServiceActivation(ctx, serviceID, subjectID)
 	response, err := nuts.ParseResponse(err, httpResponse, discovery.ParseGetServiceActivationResponse)
-	if err != nil {
-		return nil, err
-	}
 	if err != nil {
 		return nil, err
 	}
