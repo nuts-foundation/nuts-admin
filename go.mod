@@ -9,7 +9,7 @@ require (
 	github.com/labstack/echo/v4 v4.15.1
 	github.com/lestrrat-go/jwx v1.2.31
 	github.com/markbates/goth v1.82.0
-	github.com/nuts-foundation/go-did v0.18.0
+	github.com/nuts-foundation/go-did v0.18.1
 	github.com/nuts-foundation/go-nuts-client v0.3.1
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/quasoft/memstore v0.0.0-20191010062613-2bce066d2b0b
