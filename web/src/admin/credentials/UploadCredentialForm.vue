@@ -9,16 +9,16 @@
 <script>
 export default {
   props: {
-    value: Object | String,
+    value: [Object, String],
     mode: String
   },
+  emits: ['input'],
   data() {
     return {
       error: undefined,
       localValue: JSON.stringify(this.value, null, 2)
     }
   },
-  emits: ['input'],
   watch: {
     localValue(newValue) {
       // if starts with a {, assume JSON. Otherwise, parse as JWT.
@@ -27,7 +27,7 @@ export default {
           try {
             let parsedInput = JSON.parse(newValue)
             this.$emit('input', parsedInput);
-          } catch (e) {
+          } catch {
             this.error = 'Invalid JSON format';
           }
         } else {

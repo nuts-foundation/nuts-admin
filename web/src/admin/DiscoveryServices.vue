@@ -7,7 +7,7 @@
 
     <section>
       <p>Select a Discovery Service</p>
-      <select v-on:change="viewService" id="discoveryServiceSelect">
+      <select @change="viewService" id="discoveryServiceSelect">
         <option :value="service.id" v-for="service in services" :key="service.id">{{ service.id }}</option>
       </select>
     </section>
@@ -37,10 +37,10 @@
         <header>Search</header>
         <div class="search-quick-params">
           Add parameter:
-          <a v-on:click="addSearchParam('id', 'did:web:example.com#abc')">Credential ID</a>
-          <a v-on:click="addSearchParam('issuer', 'did:web:example.com')">Issuer DID</a>
-          <a v-on:click="addSearchParam('credentialSubject.id', 'did:web:example.com#holder')">Holder DID</a>
-          <a v-on:click="addSearchParam('', 'value')">Other</a>
+          <a @click="addSearchParam('id', 'did:web:example.com#abc')">Credential ID</a>
+          <a @click="addSearchParam('issuer', 'did:web:example.com')">Issuer DID</a>
+          <a @click="addSearchParam('credentialSubject.id', 'did:web:example.com#holder')">Holder DID</a>
+          <a @click="addSearchParam('', 'value')">Other</a>
         </div>
         <table class="w-full">
           <thead>
@@ -51,8 +51,8 @@
           </thead>
           <tbody>
           <tr v-for="(param, idx) in searchParams" :key="'search-' + idx">
-            <td><input type="text" v-model="param.key" v-on:keyup="search" v-on:blur="search" :id="'search-key-' + idx"></td>
-            <td><input type="text" v-model="param.value" v-on:keyup="search" :placeholder="param.placeholder" v-on:blur="search" :id="'search-value-' + idx"></td>
+            <td><input type="text" v-model="param.key" @keyup="search" @blur="search" :id="'search-key-' + idx"></td>
+            <td><input type="text" v-model="param.value" @keyup="search" :placeholder="param.placeholder" @blur="search" :id="'search-value-' + idx"></td>
           </tr>
           </tbody>
         </table>
@@ -63,13 +63,13 @@
             <thead>
             <tr>
               <th class="thead">Subject DID</th>
-              <th v-for="field in Object.keys(searchResults[0].fields)" class="thead">{{ field }}</th>
+              <th v-for="field in Object.keys(searchResults[0].fields)" :key="field" class="thead">{{ field }}</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="result in searchResults" :key="'result-' + result.id">
               <td :key="result.id">{{ result.subject_id }}</td>
-              <td v-for="field in Object.keys(result.fields)">{{ result.fields[field] }}</td>
+              <td v-for="field in Object.keys(result.fields)" :key="field">{{ result.fields[field] }}</td>
             </tr>
             </tbody>
           </table>
@@ -78,12 +78,6 @@
     </div>
   </div>
 </template>
-<style>
-.search-quick-params a {
-  margin-left: 5px;
-  cursor: pointer;
-}
-</style>
 <script>
 import ErrorMessage from "../components/ErrorMessage.vue";
 
@@ -142,6 +136,12 @@ export default {
   }
 }
 </script>
+<style>
+.search-quick-params a {
+  margin-left: 5px;
+  cursor: pointer;
+}
+</style>
 
 <style>
 section {

@@ -4,28 +4,28 @@
       <section>
         <div>
           <label>ID</label>
-          <div>{{credentialSubject.id}}</div>
+          <div>{{ credentialSubject.id }}</div>
         </div>
         <div>
           <label>Type</label>
-          <div>{{credentialType}}</div>
+          <div>{{ credentialType }}</div>
         </div>
         <div>
           <label>Issuer</label>
-          <div>{{credential.issuer}}</div>
+          <div>{{ credential.issuer }}</div>
         </div>
         <div>
           <label>Issuance date</label>
-          <div>{{credential.issuanceDate}}</div>
+          <div>{{ credential.issuanceDate }}</div>
         </div>
         <div>
           <label>Expiration date</label>
-          <div>{{credential.expirationDate}}</div>
+          <div>{{ credential.expirationDate }}</div>
         </div>
         <div v-if="credential.status">
           <label>Status</label>
           <div>
-            <span :class="statusClass">{{credential.status}}</span>
+            <span :class="statusClass">{{ credential.status }}</span>
           </div>
         </div>
       </section>
@@ -137,8 +137,6 @@ export default {
         await this.$api.delete('api/proxy/internal/vcr/v2/issuer/vc/' + encodeURIComponent(credentialId))
 
         this.revokeSuccess = true
-        // Update the credential status locally
-        this.credential.status = 'revoked'
 
         // Emit event so parent component can refresh if needed
         this.$emit('revoked')

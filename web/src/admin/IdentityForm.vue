@@ -17,12 +17,12 @@ export default {
     value: Object,
     mode: String
   },
+  emits: ['input'],
   data () {
     return {
       localValue: this.value
     }
   },
-  emits: ['input'],
   watch: {
     localValue () {
       this.$emit('input', this.localValue)

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Identity: {{ this.$route.params.subjectID }}</h1>
+    <h1>Identity: {{ $route.params.subjectID }}</h1>
     <ErrorMessage v-if="fetchError" :message="fetchError"/>
     <div v-if="details">
       <section>
@@ -9,7 +9,7 @@
           <tbody>
           <tr v-for="didDocument in details.did_documents" :key="didDocument.id">
             <td>
-              <pre v-on:click="showDIDDocument(didDocument.id)" style="cursor: pointer;">{{ didDocument.id }}</pre>
+              <pre @click="showDIDDocument(didDocument.id)" style="cursor: pointer;">{{ didDocument.id }}</pre>
               <pre v-if="shownDIDDocument === didDocument.id">{{ JSON.stringify(didDocument, null, 2) }}</pre>
             </td>
           </tr>
@@ -61,7 +61,7 @@
               <button v-if="service.active" class="btn btn-primary" @click="deactivateService(service.id)">
                 Deactivate
               </button>
-              <button v-else class="btn btn-primary" @click="$router.push({name: 'admin.activateDiscoveryService', params: {subjectID: this.$route.params.subjectID, discoveryServiceID: service.id}})">
+              <button v-else class="btn btn-primary" @click="$router.push({name: 'admin.activateDiscoveryService', params: {subjectID: $route.params.subjectID, discoveryServiceID: service.id}})">
                 Activate
               </button>
             </td>
@@ -86,9 +86,9 @@
           <tbody>
           <tr v-for="credential in details.wallet_credentials" :key="credential.id"
               style="cursor: pointer">
-            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">{{ credential.type.filter(t => t !== "VerifiableCredential").join(', ') }}</td>
-            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">{{ credential.issuer }}</td>
-            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: this.$route.params.subjectID, credentialID: credential.id}})">
+            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: $route.params.subjectID, credentialID: credential.id}})">{{ credential.type.filter(t => t !== "VerifiableCredential").join(', ') }}</td>
+            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: $route.params.subjectID, credentialID: credential.id}})">{{ credential.issuer }}</td>
+            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: $route.params.subjectID, credentialID: credential.id}})">
               <span :class="statusClass(credential.status)">{{ credential.status }}</span>
             </td>
             <td>
@@ -105,7 +105,7 @@
         <br>
         <button
             id="upload-credential-button"
-            @click="$router.push({name: 'admin.uploadCredential', params: {subjectID: this.$route.params.subjectID}})"
+            @click="$router.push({name: 'admin.uploadCredential', params: {subjectID: $route.params.subjectID}})"
             class="btn btn-primary"
         >
           Upload
@@ -113,7 +113,7 @@
         <button
             v-if="credentialProfiles.length > 0"
             id="issue-credential-button"
-            @click="$router.push({name: 'admin.requestCredential', params: {subjectID: this.$route.params.subjectID}})"
+            @click="$router.push({name: 'admin.requestCredential', params: {subjectID: $route.params.subjectID}})"
             class="btn btn-primary"
             style="margin-left: 1rem;"
         >
@@ -121,7 +121,7 @@
         </button>
       </section>
     </div>
-    <router-view @statusUpdate="updateStatus" />
+    <router-view @status-update="updateStatus" />
   </div>
 </template>
 
@@ -129,11 +129,10 @@
 
 import DiscoveryServiceDefinition from "./DiscoveryServiceDefinition";
 import ErrorMessage from "../components/ErrorMessage.vue";
-import UploadCredential from "./credentials/UploadCredential.vue";
 import {encodeURIPath} from "../lib/encode";
 
 export default {
-  components: {ErrorMessage, UploadCredential},
+  components: {ErrorMessage},
   data() {
     return {
       fetchError: undefined,

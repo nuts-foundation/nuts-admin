@@ -39,7 +39,7 @@
         </tr>
         </tbody>
       </table>
-      <router-view name="modal" @statusUpdate="updateStatus"></router-view>
+      <router-view name="modal" @status-update="updateStatus"></router-view>
     </div>
   </div>
 </template>
@@ -50,6 +50,7 @@ import ErrorMessage from "../components/ErrorMessage.vue";
 
 export default {
   components: {ErrorMessage},
+  emits: ['statusUpdate'],
   data() {
     return {
       fetchError: '',
@@ -59,7 +60,6 @@ export default {
   mounted() {
     this.fetchData()
   },
-  emits: ['statusUpdate'],
   methods: {
     updateStatus(event) {
       this.fetchData()
