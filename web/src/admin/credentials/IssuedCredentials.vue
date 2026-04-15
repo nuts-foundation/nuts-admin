@@ -4,27 +4,27 @@
     <ErrorMessage v-if="fetchError" :message="fetchError" :title="'Could not fetch data'"/>
     <section>
       <label for="credentialTypes" class="inline">Credential types (comma-separated): </label>
-      <input type="text" id="credentialTypes" v-model="credentialTypes" v-on:change="fetchData" class="inline" style="width: 50%">
-      <table class="table w-full divide-y divide-gray-200 mt-4 border-collapse" v-if="credentials.length > 0" style="border-spacing: 0;">
+      <input type="text" id="credentialTypes" v-model="credentialTypes" v-on:change="fetchData" class="inline w-1/2">
+      <table class="table w-full divide-y divide-gray-200 mt-4 border-collapse" v-if="credentials.length > 0">
         <thead>
         <tr>
-          <th class="thead" style="padding: 2px;">Issuer</th>
-          <th class="thead" style="padding: 2px;">Subject</th>
-          <th class="thead" style="padding: 2px;">Type</th>
-          <th class="thead" style="padding: 2px;">Status</th>
-          <th class="thead" style="padding: 2px;">Issued at</th>
+          <th class="thead p-0.5">Issuer</th>
+          <th class="thead p-0.5">Subject</th>
+          <th class="thead p-0.5">Type</th>
+          <th class="thead p-0.5">Status</th>
+          <th class="thead p-0.5">Issued at</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="credential in credentials" :key="credential.id"
-          @click="chosenCredential = credential" class="border-b border-gray-300" style="cursor: pointer">
-          <td class="border-r border-gray-300" style="padding: 2px;">{{ credential.issuer }}</td>
-          <td class="border-r border-gray-300" style="padding: 2px;">{{ Array.isArray(credential.credentialSubject) ? credential.credentialSubject[0].id : credential.credentialSubject.id }}</td>
-          <td class="border-r border-gray-300" style="padding: 2px;">{{ credential.type.filter(t => t !== 'VerifiableCredential').join(', ') }}</td>
-          <td class="border-r border-gray-300" style="padding: 2px;">
+          @click="chosenCredential = credential" class="border-b border-gray-300 cursor-pointer">
+          <td class="border-r border-gray-300 p-0.5">{{ credential.issuer }}</td>
+          <td class="border-r border-gray-300 p-0.5">{{ Array.isArray(credential.credentialSubject) ? credential.credentialSubject[0].id : credential.credentialSubject.id }}</td>
+          <td class="border-r border-gray-300 p-0.5">{{ credential.type.filter(t => t !== 'VerifiableCredential').join(', ') }}</td>
+          <td class="border-r border-gray-300 p-0.5">
             <span :class="statusClass(credential.status)">{{ credential.status }}</span>
           </td>
-          <td style="padding: 2px;">{{ new Date(credential.issuanceDate).toLocaleString() }}</td>
+          <td class="p-0.5">{{ new Date(credential.issuanceDate).toLocaleString() }}</td>
         </tr>
         </tbody>
       </table>
