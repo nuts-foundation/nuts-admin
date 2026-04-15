@@ -92,7 +92,7 @@
     <main class="ml-72 mb-14 mt-8 px-12 w-full">
       <!-- Main content -->
       <div class="w-full m-auto max-w-(--breakpoint-2xl)">
-        <router-view @statusUpdate="updateStatus"></router-view>
+        <router-view @status-update="updateStatus"></router-view>
       </div>
 
       <status-bar :statusMessage="eventMessage"></status-bar>

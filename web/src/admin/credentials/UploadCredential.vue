@@ -1,5 +1,5 @@
 <template>
-  <modal-window :cancelRoute="{name: 'admin.identityDetails', params: {subjectID: this.$route.params.subjectID}}" :confirmFn="confirm" confirmText="Upload Credential"
+  <modal-window :cancelRoute="{name: 'admin.identityDetails', params: {subjectID: $route.params.subjectID}}" :confirmFn="confirm" confirmText="Upload Credential"
                 title="Upload a Credential JSON" type="add">
 
     <p class="mb-3 text-sm">
@@ -25,15 +25,15 @@ export default {
     ModalWindow,
     UploadCredentialForm
   },
-  created() {
-    this.subjectID = this.$route.params.subjectID;
-  },
   data () {
     return {
       apiError: '',
       subjectID: '',
       credential: undefined,
     }
+  },
+  created() {
+    this.subjectID = this.$route.params.subjectID;
   },
   methods: {
     confirm () {
