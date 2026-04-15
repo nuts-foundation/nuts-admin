@@ -32,6 +32,7 @@ export default {
     ModalWindow,
     IdentityForm
   },
+  emits: ['statusUpdate'],
   data () {
     return {
       apiError: '',
@@ -41,9 +42,8 @@ export default {
       }
     }
   },
-  emits: ['statusUpdate'],
   methods: {
-    checkForm (e) {
+    checkForm () {
       // reset the errors
       this.formErrors.length = 0
       this.apiError = ''
@@ -51,7 +51,7 @@ export default {
     },
     confirm () {
       this.$api.post('api/id', this.identity)
-        .then(response => {
+        .then(() => {
           this.$emit('statusUpdate', 'Identity created')
           this.$router.push({ name: 'admin.identities' })
         })

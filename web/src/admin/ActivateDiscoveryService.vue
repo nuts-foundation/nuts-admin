@@ -8,21 +8,21 @@
     <section v-if="selectedDiscoveryService">
       <div>
         <label>Discovery Service</label>
-        <div>{{selectedDiscoveryService.id}}</div>
+        <div>{{ selectedDiscoveryService.id }}</div>
       </div>
       <div>
         <label>Subject ID</label>
-        <div>{{$route.params.subjectID}}</div>
+        <div>{{ $route.params.subjectID }}</div>
       </div>
       <div>
         <label>Endpoint</label>
-        <div>{{selectedDiscoveryService.endpoint}}</div>
+        <div>{{ selectedDiscoveryService.endpoint }}</div>
       </div>
     </section>
 
     <section>
       <header>Parameters</header>
-      <a v-on:click="registrationParameters.push({})" style="cursor: pointer">Add a parameter</a>
+      <a @click="registrationParameters.push({})" style="cursor: pointer">Add a parameter</a>
       <table class="w-full">
         <thead>
         <tr>

@@ -2,7 +2,7 @@
   <div
       class="appearance-none mb-2 mt-2 px-6 py-3.5 w-full text-sm text-red-500 bg-red-100 placeholder-red-500 outline-hidden border border-red-500 focus:ring-4 focus:ring-blue-200 rounded-md"
       role="alert">
-    <div class="font-semibold mb-2">{{ title}}</div>
+    <div class="font-semibold mb-2">{{ title }}</div>
     <div>{{ message }}</div>
     <div v-if="showReauthenticateButton" class="mt-3">
       <button type="button"

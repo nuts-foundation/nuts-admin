@@ -14,7 +14,7 @@
         <header>Credential properties</header>
         <div>
           <label for="type">Type</label>
-          <select v-on:change="e => selectCredentialType(e.target.value)" id="type">
+          <select @change="e => selectCredentialType(e.target.value)" id="type">
             <option :value="currentType" v-for="currentType in Object.keys(templates)" :key="currentType"
                     :selected="currentType === credentialType">
               {{ currentType }}
@@ -33,7 +33,7 @@
 
         <div>
           <label for="issuerDID">Issuer DID</label>
-          <select v-on:change="selectIssuerDID" id="issuerDID">
+          <select @change="selectIssuerDID" id="issuerDID">
             <option disabled selected value>choose issuer DID</option>
             <optgroup v-for="entry in subjects" :key="'subject-' + entry.subject" :label="entry.subject">
               <option :value="currentDID" v-for="currentDID in entry.dids" :key="'did-' + currentDID">
@@ -45,7 +45,7 @@
 
         <div>
           <label for="subjectDID">Wallet DID</label>
-          <select v-on:change="selectSubjectDID" class="inline" style="width: 20%">
+          <select @change="selectSubjectDID" class="inline" style="width: 20%">
             <option disabled value="" selected>choose wallet DID</option>
             <optgroup v-for="entry in subjects" :key="'subject-' + entry.subject" :label="entry.subject">
               <option :value="entry.subject + '/' + currentDID" v-for="currentDID in entry.dids"
@@ -94,12 +94,6 @@
     </div>
   </div>
 </template>
-<style scoped>
-button.btn.btn-primary {
-  display: block;
-  margin-bottom: 1rem;
-}
-</style>
 <script>
 import templates from "./templates";
 import ErrorMessage from "../../components/ErrorMessage.vue";
@@ -215,3 +209,9 @@ export default {
   }
 }
 </script>
+<style scoped>
+button.btn.btn-primary {
+  display: block;
+  margin-bottom: 1rem;
+}
+</style>

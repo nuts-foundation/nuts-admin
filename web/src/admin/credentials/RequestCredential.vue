@@ -39,11 +39,6 @@ import {encodeURIPath} from "../../lib/encode";
 
 export default {
   components: {ErrorMessage, ModalWindow},
-  computed: {
-    subjectID() {
-      return this.$route.params.subjectID
-    }
-  },
   data() {
     return {
       selectedCredentialType: '',
@@ -51,6 +46,11 @@ export default {
       issueError: undefined,
       credentialProfiles: [],
       walletDIDs: [],
+    }
+  },
+  computed: {
+    subjectID() {
+      return this.$route.params.subjectID
     }
   },
   created() {

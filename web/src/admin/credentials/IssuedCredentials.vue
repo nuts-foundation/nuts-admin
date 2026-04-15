@@ -4,7 +4,7 @@
     <ErrorMessage v-if="fetchError" :message="fetchError" :title="'Could not fetch data'"/>
     <section>
       <label for="credentialTypes" class="inline">Credential types (comma-separated): </label>
-      <input type="text" id="credentialTypes" v-model="credentialTypes" v-on:change="fetchData" class="inline w-1/2">
+      <input type="text" id="credentialTypes" v-model="credentialTypes" @change="fetchData" class="inline w-1/2">
       <table class="table w-full divide-y divide-gray-200 mt-4 border-collapse" v-if="credentials.length > 0">
         <thead>
         <tr>
