@@ -69,6 +69,9 @@ func (i Service) Get(ctx context.Context, subjectID string) (*IdentityDetails, e
 	// Get DIDDocuments
 	for _, currentDID := range identity.DIDs {
 		httpResponse, err := i.VDRClient.ResolveDID(ctx, currentDID)
+		if err != nil {
+			return nil, err
+		}
 		response, err := nuts.ParseResponse(err, httpResponse, vdr.ParseResolveDIDResponse)
 		if err != nil {
 			return nil, err
