@@ -271,8 +271,8 @@ github.com/multiformats/go-multibase v0.2.0/go.mod h1:bFBZX4lKCA/2lyOFSAoKH5SS6o
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/npillmayer/nestext v0.1.3/go.mod h1:h2lrijH8jpicr25dFY+oAJLyzlya6jhnuG+zWp9L0Uk=
-github.com/nuts-foundation/go-did v0.18.1 h1:oMEF42ckWcOG3bD0KGu1RAKByQx4vryPJxl6L9zJyQA=
-github.com/nuts-foundation/go-did v0.18.1/go.mod h1:4od1gAmCi9HjHTQGEvHC8pLeuXdXACxidAcdA52YScc=
+github.com/nuts-foundation/go-did v0.19.0 h1:8QILQoHuzuwMoi35Etnz8Zho0R5kdXnOmPqtt0g2LlI=
+github.com/nuts-foundation/go-did v0.19.0/go.mod h1:4od1gAmCi9HjHTQGEvHC8pLeuXdXACxidAcdA52YScc=
 github.com/nuts-foundation/go-nuts-client v0.3.1 h1:S4ZgKCq9E4Q7cb3eFowCJZMUrFkyIYteWQyVC3rVpq4=
 github.com/nuts-foundation/go-nuts-client v0.3.1/go.mod h1:uoSIf0L9JhQeCkPU4XNIqpMPRG0mAN6vOr1RNG8arUc=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
