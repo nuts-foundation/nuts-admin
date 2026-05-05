@@ -53,6 +53,7 @@ export default {
       selectedWalletDID: '',
       authorizationDetails: '',
       authorizationDetailsError: undefined,
+      authorizationDetailsPlaceholder: '[{"type": "openid_credential", ...}]',
       issueError: undefined,
       credentialProfiles: [],
       walletDIDs: [],
@@ -61,9 +62,11 @@ export default {
   computed: {
     subjectID() {
       return this.$route.params.subjectID
-    },
-    authorizationDetailsPlaceholder() {
-      return '[{"type": "openid_credential", ...}]'
+    }
+  },
+  watch: {
+    authorizationDetails() {
+      this.authorizationDetailsError = undefined
     }
   },
   created() {
@@ -125,6 +128,17 @@ export default {
           parsedAuthorizationDetails = JSON.parse(trimmedAuthorizationDetails)
         } catch (e) {
           this.authorizationDetailsError = 'Invalid JSON: ' + e.message
+          return
+        }
+        if (!Array.isArray(parsedAuthorizationDetails)) {
+          this.authorizationDetailsError = 'Authorization Details must be a JSON array'
+          return
+        }
+        const nonObject = parsedAuthorizationDetails.find(
+            entry => entry === null || typeof entry !== 'object' || Array.isArray(entry)
+        )
+        if (nonObject !== undefined) {
+          this.authorizationDetailsError = 'Each Authorization Details entry must be a JSON object'
           return
         }
       }
