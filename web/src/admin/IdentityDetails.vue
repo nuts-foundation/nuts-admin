@@ -1,7 +1,10 @@
 <template>
   <div>
     <h1>Identity: {{ $route.params.subjectID }}</h1>
-    <ErrorMessage v-if="requestCredentialError" :title="'Credential request failed'" :message="requestCredentialError"/>
+    <ErrorMessage v-if="requestCredentialError" title="Credential request failed">
+      <div class="font-mono text-xs uppercase tracking-wide">{{ requestCredentialError }}</div>
+      <div v-if="formattedRequestCredentialErrorDescription" class="whitespace-pre-line mt-2">{{ formattedRequestCredentialErrorDescription }}</div>
+    </ErrorMessage>
     <ErrorMessage v-if="fetchError" :message="fetchError"/>
     <div v-if="details">
       <section>
@@ -138,10 +141,19 @@ export default {
     return {
       fetchError: undefined,
       requestCredentialError: undefined,
+      requestCredentialErrorDescription: undefined,
       details: undefined,
       shownDIDDocument: undefined,
       discoveryServices: {},
       credentialProfiles: [],
+    }
+  },
+  computed: {
+    formattedRequestCredentialErrorDescription() {
+      if (!this.requestCredentialErrorDescription) {
+        return ''
+      }
+      return this.requestCredentialErrorDescription.replace(/, ([a-zA-Z]+):/g, '\n$1:')
     }
   },
   created() {
@@ -161,7 +173,8 @@ export default {
       if (!error) {
         return
       }
-      this.requestCredentialError = errorDescription ? `${error}: ${errorDescription}` : error
+      this.requestCredentialError = error
+      this.requestCredentialErrorDescription = errorDescription
 
       if (searchParams.has('error') || searchParams.has('error_description')) {
         searchParams.delete('error')
