@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>Identity: {{ $route.params.subjectID }}</h1>
+    <ErrorMessage v-if="requestCredentialError" :title="'Credential request failed'" :message="requestCredentialError"/>
     <ErrorMessage v-if="fetchError" :message="fetchError"/>
     <div v-if="details">
       <section>
@@ -136,6 +137,7 @@ export default {
   data() {
     return {
       fetchError: undefined,
+      requestCredentialError: undefined,
       details: undefined,
       shownDIDDocument: undefined,
       discoveryServices: {},
@@ -143,11 +145,20 @@ export default {
     }
   },
   created() {
+    this.captureRedirectError()
     this.fetchData()
   },
   methods: {
     updateStatus(event) {
       this.$emit('statusUpdate', event)
+    },
+    captureRedirectError() {
+      const {error, error_description, ...rest} = this.$route.query
+      if (!error) {
+        return
+      }
+      this.requestCredentialError = error_description ? `${error}: ${error_description}` : error
+      this.$router.replace({name: this.$route.name, params: this.$route.params, query: rest})
     },
     fetchData() {
       this.$api.get('api/config')
