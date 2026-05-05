@@ -153,12 +153,29 @@ export default {
       this.$emit('statusUpdate', event)
     },
     captureRedirectError() {
-      const {error, error_description, ...rest} = this.$route.query
+      // OAuth-compliant issuers put error params in the URL's query component (window.location.search),
+      // which is outside the hash-router's view. Check both locations.
+      const searchParams = new URLSearchParams(window.location.search)
+      const error = searchParams.get('error') || this.$route.query.error
+      const errorDescription = searchParams.get('error_description') || this.$route.query.error_description
       if (!error) {
         return
       }
-      this.requestCredentialError = error_description ? `${error}: ${error_description}` : error
-      this.$router.replace({name: this.$route.name, params: this.$route.params, query: rest})
+      this.requestCredentialError = errorDescription ? `${error}: ${errorDescription}` : error
+
+      if (searchParams.has('error') || searchParams.has('error_description')) {
+        searchParams.delete('error')
+        searchParams.delete('error_description')
+        const newSearch = searchParams.toString()
+        const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash
+        window.history.replaceState(window.history.state, '', newUrl)
+      }
+      if (this.$route.query.error || this.$route.query.error_description) {
+        const rest = Object.fromEntries(
+            Object.entries(this.$route.query).filter(([k]) => k !== 'error' && k !== 'error_description')
+        )
+        this.$router.replace({name: this.$route.name, params: this.$route.params, query: rest})
+      }
     },
     fetchData() {
       this.$api.get('api/config')
