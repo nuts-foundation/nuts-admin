@@ -87,7 +87,7 @@
           <tr v-for="credential in details.wallet_credentials" :key="credential.id"
               style="cursor: pointer">
             <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: $route.params.subjectID, credentialID: credential.id}})">{{ credential.type.filter(t => t !== "VerifiableCredential").join(', ') }}</td>
-            <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: $route.params.subjectID, credentialID: credential.id}})">{{ credential.issuer }}</td>
+            <td class="break-all" @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: $route.params.subjectID, credentialID: credential.id}})">{{ credential.issuer }}</td>
             <td @click="$router.push({name: 'admin.credentialDetails', params: {subjectID: $route.params.subjectID, credentialID: credential.id}})">
               <span :class="statusClass(credential.status)">{{ credential.status }}</span>
             </td>
