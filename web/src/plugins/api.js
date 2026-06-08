@@ -31,7 +31,7 @@ export default {
           .then((response) => {
             // Parse JSON or just grab plain text
             const contentType = response.headers.get("content-type");
-            var parsedResponse = undefined
+            var parsedResponse
             var isJson = false
             if (contentType && contentType.indexOf("application/json") !== -1) {
               parsedResponse = response.json()
