@@ -1,6 +1,10 @@
 <template>
   <div>
     <h1>Identity: {{ $route.params.subjectID }}</h1>
+    <ErrorMessage v-if="requestCredentialError" title="Credential request failed">
+      <div class="font-mono text-xs uppercase tracking-wide">{{ requestCredentialError }}</div>
+      <div v-if="formattedRequestCredentialErrorDescription" class="whitespace-pre-line mt-2">{{ formattedRequestCredentialErrorDescription }}</div>
+    </ErrorMessage>
     <ErrorMessage v-if="fetchError" :message="fetchError"/>
     <div v-if="details">
       <section>
@@ -136,18 +140,55 @@ export default {
   data() {
     return {
       fetchError: undefined,
+      requestCredentialError: undefined,
+      requestCredentialErrorDescription: undefined,
       details: undefined,
       shownDIDDocument: undefined,
       discoveryServices: {},
       credentialProfiles: [],
     }
   },
+  computed: {
+    formattedRequestCredentialErrorDescription() {
+      if (!this.requestCredentialErrorDescription) {
+        return ''
+      }
+      return this.requestCredentialErrorDescription.replace(/, ([a-zA-Z]+):/g, '\n$1:')
+    }
+  },
   created() {
+    this.captureRedirectError()
     this.fetchData()
   },
   methods: {
     updateStatus(event) {
       this.$emit('statusUpdate', event)
+    },
+    captureRedirectError() {
+      // OAuth-compliant issuers put error params in the URL's query component (window.location.search),
+      // which is outside the hash-router's view. Check both locations.
+      const searchParams = new URLSearchParams(window.location.search)
+      const error = searchParams.get('error') || this.$route.query.error
+      const errorDescription = searchParams.get('error_description') || this.$route.query.error_description
+      if (!error) {
+        return
+      }
+      this.requestCredentialError = error
+      this.requestCredentialErrorDescription = errorDescription
+
+      if (searchParams.has('error') || searchParams.has('error_description')) {
+        searchParams.delete('error')
+        searchParams.delete('error_description')
+        const newSearch = searchParams.toString()
+        const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash
+        window.history.replaceState(window.history.state, '', newUrl)
+      }
+      if (this.$route.query.error || this.$route.query.error_description) {
+        const rest = Object.fromEntries(
+            Object.entries(this.$route.query).filter(([k]) => k !== 'error' && k !== 'error_description')
+        )
+        this.$router.replace({name: this.$route.name, params: this.$route.params, query: rest})
+      }
     },
     fetchData() {
       this.$api.get('api/config')

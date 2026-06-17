@@ -28,6 +28,14 @@
         <label>Issuer</label>
         <p>{{ getIssuerForType(selectedCredentialType) }}</p>
       </div>
+      <details>
+        <summary>Authorization Details (JSON)</summary>
+        <textarea v-model="authorizationDetails"
+                  rows="8"
+                  :placeholder="authorizationDetailsPlaceholder"
+                  spellcheck="false"></textarea>
+        <p v-if="authorizationDetailsError" class="text-red-500 text-sm">{{ authorizationDetailsError }}</p>
+      </details>
     </div>
   </modal-window>
 </template>
@@ -43,6 +51,9 @@ export default {
     return {
       selectedCredentialType: '',
       selectedWalletDID: '',
+      authorizationDetails: '',
+      authorizationDetailsError: undefined,
+      authorizationDetailsPlaceholder: '[{"type": "openid_credential", ...}]',
       issueError: undefined,
       credentialProfiles: [],
       walletDIDs: [],
@@ -51,6 +62,11 @@ export default {
   computed: {
     subjectID() {
       return this.$route.params.subjectID
+    }
+  },
+  watch: {
+    authorizationDetails() {
+      this.authorizationDetailsError = undefined
     }
   },
   created() {
@@ -93,6 +109,7 @@ export default {
     },
     issueCredential() {
       this.issueError = undefined
+      this.authorizationDetailsError = undefined
       const issuerDID = this.getIssuerForType(this.selectedCredentialType)
       if (!issuerDID) {
         this.issueError = 'No issuer found for selected credential type'
@@ -104,6 +121,28 @@ export default {
         return
       }
 
+      let parsedAuthorizationDetails
+      const trimmedAuthorizationDetails = this.authorizationDetails.trim()
+      if (trimmedAuthorizationDetails) {
+        try {
+          parsedAuthorizationDetails = JSON.parse(trimmedAuthorizationDetails)
+        } catch (e) {
+          this.authorizationDetailsError = 'Invalid JSON: ' + e.message
+          return
+        }
+        if (!Array.isArray(parsedAuthorizationDetails)) {
+          this.authorizationDetailsError = 'Authorization Details must be a JSON array'
+          return
+        }
+        const nonObject = parsedAuthorizationDetails.find(
+            entry => entry === null || typeof entry !== 'object' || Array.isArray(entry)
+        )
+        if (nonObject !== undefined) {
+          this.authorizationDetailsError = 'Each Authorization Details entry must be a JSON object'
+          return
+        }
+      }
+
       const redirectUri = `${window.location.origin}${window.location.pathname}${this.$router.resolve({name: 'admin.identityDetails', params: {subjectID: this.subjectID}}).href}`
 
       const requestBody = {
@@ -111,6 +150,9 @@ export default {
         issuer: issuerDID,
         wallet_did: this.selectedWalletDID,
         redirect_uri: redirectUri,
+      }
+      if (parsedAuthorizationDetails !== undefined) {
+        requestBody.authorization_details = parsedAuthorizationDetails
       }
 
       this.$api.post(`api/proxy/internal/auth/v2/${encodeURIPath(this.subjectID)}/request-credential`, requestBody)
@@ -146,6 +188,23 @@ export default {
 
 :deep(select) {
   width: 100%;
+}
+
+details {
+  margin-top: 0.5rem;
+}
+
+details > summary {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+}
+
+details > textarea {
+  width: 100%;
+  margin-top: 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
 }
 </style>
 
