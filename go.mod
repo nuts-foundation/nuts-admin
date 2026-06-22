@@ -11,7 +11,7 @@ require (
 	github.com/markbates/goth v1.82.0
 	github.com/nuts-foundation/go-did v0.21.0
 	github.com/nuts-foundation/go-nuts-client v0.3.1
-	github.com/oapi-codegen/runtime v1.4.1
+	github.com/oapi-codegen/runtime v1.4.2
 	github.com/quasoft/memstore v0.0.0-20191010062613-2bce066d2b0b
 	github.com/rs/zerolog v1.35.1
 	github.com/spf13/pflag v1.0.10
