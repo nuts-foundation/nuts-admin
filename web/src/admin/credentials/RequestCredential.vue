@@ -28,6 +28,10 @@
         <label>Issuer</label>
         <p>{{ getIssuerForType(selectedCredentialType) }}</p>
       </div>
+      <div>
+        <label for="authorization-details">Authorization Details</label>
+        <textarea v-model="authorizationDetails" id="authorization-details" rows="8"></textarea>
+      </div>
     </div>
   </modal-window>
 </template>
@@ -46,11 +50,26 @@ export default {
       issueError: undefined,
       credentialProfiles: [],
       walletDIDs: [],
+      authorizationDetails: '',
     }
   },
   computed: {
     subjectID() {
       return this.$route.params.subjectID
+    }
+  },
+  watch: {
+    selectedCredentialType(credentialType) {
+      if (!credentialType) {
+        this.authorizationDetails = ''
+        return
+      }
+      this.authorizationDetails = JSON.stringify([
+        {
+          type: 'openid_credential',
+          credential_configuration_id: credentialType,
+        },
+      ], null, 2)
     }
   },
   created() {
@@ -104,10 +123,18 @@ export default {
         return
       }
 
+      let authorizationDetails
+      try {
+        authorizationDetails = JSON.parse(this.authorizationDetails)
+      } catch (e) {
+        this.issueError = 'Invalid authorization details: ' + e.message
+        return
+      }
+
       const redirectUri = `${window.location.origin}${window.location.pathname}${this.$router.resolve({name: 'admin.identityDetails', params: {subjectID: this.subjectID}}).href}`
 
       const requestBody = {
-        credential_type: this.selectedCredentialType,
+        authorization_details: authorizationDetails,
         issuer: issuerDID,
         wallet_did: this.selectedWalletDID,
         redirect_uri: redirectUri,
@@ -146,6 +173,11 @@ export default {
 
 :deep(select) {
   width: 100%;
+}
+
+textarea {
+  width: 100%;
+  font-family: monospace;
 }
 </style>
 
