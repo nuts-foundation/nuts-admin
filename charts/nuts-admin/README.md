@@ -16,7 +16,7 @@ All configurable properties can be found in [./values.yaml](./values.yaml). The 
 | `oidc.existingSecretKey` | Key within `oidc.existingSecret` holding the client secret.                                                         | `client-secret`             |
 | `ingress.enabled`     | Expose nuts-admin through an Ingress.                                                                                  | `false`                    |
 
-Note: nuts-admin keeps OIDC sessions in memory, so `autoscaling.enabled: true` together with `config.oidc.enabled: true` isn't supported — the chart refuses to render (`fail`) in that combination. Use a single replica if you need OIDC.
+Note: nuts-admin keeps OIDC sessions in memory, so `replicaCount` above `1` together with `config.oidc.enabled: true` isn't supported — the chart refuses to render (`fail`) in that combination. There's no autoscaling support in this chart for the same reason.
 
 ## Installing nuts-admin
 
