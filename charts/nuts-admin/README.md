@@ -12,6 +12,8 @@ All configurable properties can be found in [./values.yaml](./values.yaml). The 
 |----------------------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------|
 | `env.nutsNodeAddress` | Internal API address of the Nuts node this instance manages, injected as `NUTS_NODE_ADDRESS`.                          | `http://localhost:8081`    |
 | `config`              | Rendered into `config.yaml`, mounted into the pod and referenced via `NUTS_CONFIGFILE`. See the [nuts-admin README](../../README.md) and [deploy/config.yaml.example](../../deploy/config.yaml.example) for the options it accepts, e.g. `oidc` and `credentialprofiles`. | `{}`                        |
+| `oidc.existingSecret` | Name of an existing Secret holding the OIDC client secret, injected as `NUTS_OIDC_CLIENT_SECRET`. Use this instead of setting `config.oidc.client.secret` directly, which would put it in the ConfigMap in plaintext. The rest of the OIDC config (`enabled`, `metadata`, `client.id`, `scope`) still goes through `config.oidc`. | `""` |
+| `oidc.existingSecretKey` | Key within `oidc.existingSecret` holding the client secret.                                                         | `client-secret`             |
 | `ingress.enabled`     | Expose nuts-admin through an Ingress.                                                                                  | `false`                    |
 
 ## Installing nuts-admin

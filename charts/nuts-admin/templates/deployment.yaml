@@ -45,6 +45,13 @@ spec:
               value: {{ .Values.env.nutsNodeAddress | quote }}
             - name: NUTS_CONFIGFILE
               value: /app/config.yaml
+            {{- with .Values.oidc.existingSecret }}
+            - name: NUTS_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: {{ $.Values.oidc.existingSecretKey }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

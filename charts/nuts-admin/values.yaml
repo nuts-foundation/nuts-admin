@@ -72,3 +72,13 @@ env:
 # NUTS_CONFIGFILE). See deploy/config.yaml.example in the nuts-admin repo
 # for the full set of options this accepts (e.g. oidc, credentialprofiles).
 config: {}
+
+oidc:
+  # Name of an existing Secret holding the OIDC client secret. When set, it's
+  # injected as the NUTS_OIDC_CLIENT_SECRET env var, so the secret doesn't
+  # have to go into `config.oidc.client.secret` (which would land in the
+  # ConfigMap in plaintext). The rest of the oidc config still goes through
+  # `config.oidc` (enabled, metadata, client.id, scope).
+  existingSecret: ""
+  # Key within existingSecret holding the client secret.
+  existingSecretKey: client-secret
