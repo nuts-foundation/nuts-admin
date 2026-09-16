@@ -1,0 +1,78 @@
+# Default values for nuts-admin.
+
+replicaCount: 1
+
+image:
+  repository: nutsfoundation/nuts-admin
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 1305
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources: {}
+
+livenessProbe:
+  httpGet:
+    path: /status
+    port: http
+readinessProbe:
+  httpGet:
+    path: /status
+    port: http
+
+# Additional volumes/volumeMounts on the output Deployment definition.
+volumes: []
+volumeMounts: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# The Nuts node internal API this nuts-admin instance manages.
+env:
+  nutsNodeAddress: "http://localhost:8081"
+
+# Rendered into config.yaml (mounted at /app/config.yaml, referenced by
+# NUTS_CONFIGFILE). See deploy/config.yaml.example in the nuts-admin repo
+# for the full set of options this accepts (e.g. oidc, credentialprofiles).
+config: {}
+
+oidc:
+  # Name of an existing Secret holding the OIDC client secret. When set, it's
+  # injected as the NUTS_OIDC_CLIENT_SECRET env var, so the secret doesn't
+  # have to go into `config.oidc.client.secret` (which would land in the
+  # ConfigMap in plaintext). The rest of the oidc config still goes through
+  # `config.oidc` (enabled, metadata, client.id, scope).
+  existingSecret: ""
+  # Key within existingSecret holding the client secret.
+  existingSecretKey: client-secret

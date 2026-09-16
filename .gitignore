@@ -4,7 +4,8 @@ web/dist
 data
 
 # Binaries
-nuts-admin
+/nuts-admin
 
 # mac
 .DS_Store
+.scratch/

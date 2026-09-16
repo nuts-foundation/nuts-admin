@@ -1,0 +1,50 @@
+name: Release Chart
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'charts/**'
+
+# deny-all default; the job below grants only the scopes it needs
+permissions: {}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.8.0
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package chart
+        run: helm package charts/nuts-admin -d .helm-packages
+
+      - name: Check if this chart version is already published
+        id: check
+        run: |
+          VERSION=$(grep '^version:' charts/nuts-admin/Chart.yaml | awk '{print $2}')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if helm pull oci://ghcr.io/${{ github.repository_owner }}/nuts-admin-chart --version "$VERSION" -d /tmp >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push chart
+        if: steps.check.outputs.exists == 'false'
+        run: helm push .helm-packages/nuts-admin-chart-${{ steps.check.outputs.version }}.tgz oci://ghcr.io/${{ github.repository_owner }}
