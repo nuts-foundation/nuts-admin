@@ -16,6 +16,8 @@ All configurable properties can be found in [./values.yaml](./values.yaml). The 
 | `oidc.existingSecretKey` | Key within `oidc.existingSecret` holding the client secret.                                                         | `client-secret`             |
 | `ingress.enabled`     | Expose nuts-admin through an Ingress.                                                                                  | `false`                    |
 
+Note: nuts-admin keeps OIDC sessions in memory, so `autoscaling.enabled: true` together with `config.oidc.enabled: true` isn't supported — the chart refuses to render (`fail`) in that combination. Use a single replica if you need OIDC.
+
 ## Installing nuts-admin
 
 ### From source
@@ -26,17 +28,10 @@ Execute the following command from the root of the chart folder. Replace `<NAME>
 helm install <NAME> .
 ```
 
-### From the Nuts Helm repo
+### From GitHub Container Registry
 
-Add the repo:
-
-```shell
-helm repo add nuts-admin https://nuts-foundation.github.io/nuts-admin/
-helm repo update
-```
-
-Then install it, optionally overriding values with your own `values.yaml`:
+Chart releases are published as an OCI artifact to `ghcr.io` on every change to `charts/` on `main`. Install directly by version, optionally overriding values with your own `values.yaml`:
 
 ```shell
-helm install -f values.yaml <NAME> nuts-admin/nuts-admin-chart
+helm install -f values.yaml <NAME> oci://ghcr.io/nuts-foundation/nuts-admin-chart --version <VERSION>
 ```

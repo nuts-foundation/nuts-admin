@@ -1,3 +1,6 @@
+{{- if and .Values.autoscaling.enabled (dig "oidc" "enabled" false .Values.config) }}
+{{ fail "autoscaling.enabled and config.oidc.enabled=true are incompatible: nuts-admin keeps OIDC sessions in memory, which breaks when requests land on different replicas. Set replicaCount: 1 (and autoscaling.enabled: false), or disable OIDC." }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,10 +16,11 @@ spec:
       {{- include "nuts-admin.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "nuts-admin.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -54,7 +58,7 @@ spec:
             {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.config.port | default 1305 }}
               protocol: TCP
           {{- with .Values.livenessProbe }}
           livenessProbe:
