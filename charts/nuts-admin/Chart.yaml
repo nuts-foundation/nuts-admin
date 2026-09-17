@@ -1,5 +1,5 @@
 apiVersion: v2
-name: nuts-admin-chart
+name: helm-nuts-admin
 description: A Helm chart for nuts-admin, the management UI for a Nuts node
 
 type: application

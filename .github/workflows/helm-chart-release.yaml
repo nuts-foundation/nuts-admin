@@ -39,7 +39,7 @@ jobs:
         run: |
           VERSION=$(grep '^version:' charts/nuts-admin/Chart.yaml | awk '{print $2}')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          if helm pull oci://ghcr.io/${{ github.repository_owner }}/nuts-admin-chart --version "$VERSION" -d /tmp >/dev/null 2>&1; then
+          if helm pull oci://ghcr.io/${{ github.repository_owner }}/helm-nuts-admin --version "$VERSION" -d /tmp >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -47,4 +47,4 @@ jobs:
 
       - name: Push chart
         if: steps.check.outputs.exists == 'false'
-        run: helm push .helm-packages/nuts-admin-chart-${{ steps.check.outputs.version }}.tgz oci://ghcr.io/${{ github.repository_owner }}
+        run: helm push .helm-packages/helm-nuts-admin-${{ steps.check.outputs.version }}.tgz oci://ghcr.io/${{ github.repository_owner }}

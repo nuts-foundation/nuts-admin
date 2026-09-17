@@ -33,5 +33,5 @@ helm install <NAME> .
 Chart releases are published as an OCI artifact to `ghcr.io` on every change to `charts/` on `main`. Install directly by version, optionally overriding values with your own `values.yaml`:
 
 ```shell
-helm install -f values.yaml <NAME> oci://ghcr.io/nuts-foundation/nuts-admin-chart --version <VERSION>
+helm install -f values.yaml <NAME> oci://ghcr.io/nuts-foundation/helm-nuts-admin --version <VERSION>
 ```
