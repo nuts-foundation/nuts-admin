@@ -6,7 +6,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/securecookie v1.1.2
 	github.com/knadh/koanf v1.5.0
-	github.com/labstack/echo/v4 v4.15.4
+	github.com/labstack/echo/v4 v4.16.0
 	github.com/lestrrat-go/jwx v1.2.31
 	github.com/markbates/goth v1.82.0
 	github.com/nuts-foundation/go-did v0.22.2
