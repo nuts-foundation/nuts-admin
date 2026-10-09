@@ -274,8 +274,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRW
 github.com/npillmayer/nestext v0.1.3/go.mod h1:h2lrijH8jpicr25dFY+oAJLyzlya6jhnuG+zWp9L0Uk=
 github.com/nuts-foundation/go-did v0.22.2 h1:3e5yUU6cU7c2pjQqvHZNGh0HxizqLQdm+C9EYfnO3Fk=
 github.com/nuts-foundation/go-did v0.22.2/go.mod h1:M0Jc/CykiKQPh2mERA8zb0AGVcFHHMVQ0NiAzHkPciI=
-github.com/nuts-foundation/go-nuts-client v0.3.2 h1:0Fa+DzYd4mgQ6SIiS+4Xihq3g137EqXV5UT4pGgsJ2o=
-github.com/nuts-foundation/go-nuts-client v0.3.2/go.mod h1:DLA//VczJTpHME+ooDhdDIXSalLsDr4QW+7SvuT8kqg=
+github.com/nuts-foundation/go-nuts-client v0.3.3 h1:4taLXvp1KYUwlkUmCdfPKPDhEGpmCr7ru+QCoSZv7Lw=
+github.com/nuts-foundation/go-nuts-client v0.3.3/go.mod h1:tQbbTRBgzRS0kSVR4MHH2RT3Eka4vMUTcu0uO5J6FjQ=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
