@@ -10,7 +10,7 @@ require (
 	github.com/lestrrat-go/jwx v1.2.31
 	github.com/markbates/goth v1.82.0
 	github.com/nuts-foundation/go-did v0.22.2
-	github.com/nuts-foundation/go-nuts-client v0.3.2
+	github.com/nuts-foundation/go-nuts-client v0.3.3
 	github.com/oapi-codegen/runtime v1.7.0
 	github.com/quasoft/memstore v0.0.0-20191010062613-2bce066d2b0b
 	github.com/rs/zerolog v1.35.1
