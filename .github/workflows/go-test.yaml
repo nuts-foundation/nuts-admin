@@ -3,12 +3,12 @@ name: Go
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - 'v*'
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -26,6 +26,9 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Display Go version
         run: go version
+      # main.go embeds web/dist/*; the frontend itself is built by the npm and Docker workflows
+      - name: Create placeholder for embedded frontend
+        run: mkdir -p web/dist && touch web/dist/.placeholder
       - name: Build
         run: go build -v ./...
       - name: Test
