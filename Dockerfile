@@ -31,6 +31,7 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-w -s" -o
 # Runtime
 #
 FROM alpine:3.24
+RUN apk -U upgrade --no-cache
 RUN mkdir /app && cd /app
 WORKDIR /app
 COPY --from=backend-builder /app/nuts-admin .
