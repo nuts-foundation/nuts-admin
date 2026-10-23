@@ -26,14 +26,9 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Display Go version
         run: go version
-      - name: Use Node.js 22
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22
-      - name: Build frontend
-        run: |
-          npm ci
-          npm run build
+      # main.go embeds web/dist/*; the frontend itself is built by the npm and Docker workflows
+      - name: Create placeholder for embedded frontend
+        run: mkdir -p web/dist && touch web/dist/.placeholder
       - name: Build
         run: go build -v ./...
       - name: Test
