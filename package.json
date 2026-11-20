@@ -21,12 +21,12 @@
     "@vue/compiler-sfc": "^3.5.38",
     "autoprefixer": "^10.6.2",
     "css-loader": "^7.1.5",
-    "eslint": "^10.14.0",
+    "eslint": "^10.15.0",
     "eslint-plugin-vue": "^10.12.1",
-    "glob": "^14.0.4",
+    "glob": "^14.0.6",
     "globals": "^17.14.0",
     "html-webpack-plugin": "^5.6.8",
-    "postcss": "^8.5.32",
+    "postcss": "^8.5.33",
     "postcss-loader": "^8.2.1",
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.1.10",
@@ -38,6 +38,6 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.5",
     "vue": "^3.5.45",
-    "vue-router": "^5.4.0"
+    "vue-router": "^5.5.1"
   }
 }
